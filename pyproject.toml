@@ -8,17 +8,28 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "typer (>=0.9.0,<0.13.0)",
-    "click (>=8.0.0,<9.0.0)",
-    "pyyaml (>=6.0.2,<7.0.0)",
-    "python-dotenv (>=1.0.1,<2.0.0)",
-    "paho-mqtt (>=2.1.0,<3.0.0)",
-    "fastapi (>=0.115.5,<0.116.0)",
-    "uvicorn (>=0.32.1,<0.33.0)"
+    "typer[all]>=0.13.0",
+    "click>=8.0.0,<9.0.0",
+    "pyyaml>=6.0.2,<7.0.0",
+    "python-dotenv>=1.0.1,<2.0.0",
+    "paho-mqtt>=2.1.0,<3.0.0",
+    "fastapi>=0.115.5,<0.116.0",
+    "uvicorn>=0.32.1,<0.33.0",
+    "httpx>=0.25.0,<1.0.0"
 ]
+
+[tool.poetry]
+name = "domotix"
+version = "0.1.0"
+description = "Système domotique"
+authors = ["Quentin Sautiere <contact@quentinsautiere.com>"]
+packages = [{include = "domotix"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
+pytest-httpx = "^0.30.0"
+pytest-cov = "^4.0.0"
+coverage = "^7.4.0"
 black = "^25.1.0"
 flake8 = "^7.3.0"
 sphinx = "^8.1.3"
@@ -28,9 +39,11 @@ isort = "^5.13.2"
 mypy = "^1.13.0"
 bandit = "^1.8.0"
 types-PyYAML = "^6.0.12"
+sphinx-rtd-theme = "^3.0.2"
+myst-parser = "^4.0.1"
 
 [tool.poetry.scripts]
-domotix = "domotix.app:app"
+domotix = "domotix.cli.main:main"
 
 [build-system]
 requires = ["poetry-core"]
@@ -72,3 +85,39 @@ strict_optional = true
 [tool.bandit]
 exclude_dirs = ["tests"]
 skips = ["B101"]
+
+[tool.coverage.run]
+source = ["domotix"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "venv/*",
+    ".venv/*"
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--cov=domotix",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov"
+]
