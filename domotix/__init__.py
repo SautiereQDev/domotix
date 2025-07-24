@@ -35,7 +35,6 @@ from .globals import (
     DeviceState,
     DeviceType,
     DomotixError,
-    HttpMethod,
     InvalidDeviceTypeError,
 )
 from .models import Device, Light, Sensor, Shutter
@@ -59,7 +58,6 @@ __all__ = [
     "SingletonMeta",
     # Globals
     "DeviceType",
-    "HttpMethod",
     "DeviceState",
     "CommandType",
     "DomotixError",

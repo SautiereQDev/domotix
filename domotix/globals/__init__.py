@@ -13,7 +13,7 @@ Exposed Exceptions:
 """
 
 # Module globals - Éléments globaux du système
-from .enums import CommandType, DeviceState, DeviceType, HttpMethod
+from .enums import CommandType, DeviceState, DeviceType
 from .exceptions import (
     CommandExecutionError,
     DeviceNotFoundError,

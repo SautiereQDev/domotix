@@ -22,7 +22,7 @@ Example:
 
 from typing import Dict, Optional
 
-from .. import Device
+from ..models import Device
 from .state_manager import StateManager
 
 
