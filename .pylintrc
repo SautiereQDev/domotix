@@ -1,0 +1,69 @@
+[MASTER]
+# Utiliser plusieurs processus pour accélérer pylint
+jobs=1
+
+# Liste des plugins (extensions) à charger
+load-plugins=
+
+# Fichiers ou répertoires à ignorer
+ignore=CVS,.git,__pycache__,.pytest_cache,build,dist,docs/_build
+
+# Patterns de fichiers à ignorer
+ignore-patterns=
+
+[MESSAGES CONTROL]
+# Désactiver tous les warnings, conventions et refactoring
+# Ne garder que les erreurs (E) et fatales (F)
+disable=all
+enable=E,F
+
+# Alternativement, vous pouvez désactiver spécifiquement les catégories :
+# disable=W,C,R,I
+# W: warning
+# C: convention
+# R: refactor
+# I: information
+
+[REPORTS]
+# Format de sortie disponible : text, parseable, colorized, json
+output-format=text
+
+# Rapporter seulement les messages d'erreur
+reports=no
+
+# Template pour les messages d'erreur
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+
+[BASIC]
+# Longueur minimum acceptable pour les noms de variables
+min-name-length=1
+
+[FORMAT]
+# Longueur maximum d'une ligne
+max-line-length=88
+
+[DESIGN]
+# Nombre maximum d'arguments pour une fonction
+max-args=10
+
+# Nombre maximum d'attributs pour une classe
+max-attributes=15
+
+[SIMILARITIES]
+# Ignorer les imports lors de la vérification des similarités
+ignore-imports=yes
+
+# Longueur minimum pour détecter les duplications
+min-similarity-lines=4
+
+[TYPECHECK]
+# Liste des membres qui sont définis dynamiquement et ignorés par pylint
+generated-members=
+
+[VARIABLES]
+# Liste des noms de variables autorisés
+good-names=i,j,k,ex,Run,_,id,db
+
+[CLASSES]
+# Liste des méthodes qui n'ont pas besoin d'une référence explicite à self
+valid-no-return-types=__repr__,__str__
