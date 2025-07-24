@@ -50,19 +50,12 @@ repos:
           "--enable=E,F",   # Activer seulement les erreurs (E) et fatales (F)
           "--fail-under=8.0"  # Échouer seulement si le score est très bas
         ]
-        additional_dependencies: [
-          httpx,
-          typer,
-          pyyaml,
-          pytest,
-          pytest-mock
-        ]
 
   - repo: https://github.com/PyCQA/bandit
     rev: 1.8.0
     hooks:
       - id: bandit
-        args: ["-r", "domotix/"]  # Changer de src/ vers domotix/
+        args: ["-r", ".", "-f", "json"]
         exclude: tests/
 
   # Commenté temporairement jusqu'à ce que vous ayez des tests
