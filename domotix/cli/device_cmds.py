@@ -11,7 +11,7 @@ Commands:
     device_status: Affiche le statut d'un dispositif
 """
 
-from typing import Union
+from typing import Optional, Union
 
 from ..core import StateManager
 from ..models import Light, Sensor, Shutter
@@ -49,13 +49,14 @@ def device_list():
 
 
 @app.command()
-def device_add(device_type: str, name: str):
+def device_add(device_type: str, name: str, location: Optional[str] = None):
     """
     Ajoute un nouveau dispositif.
 
     Args:
         device_type (str): Type de dispositif (light, shutter, sensor)
         name (str): Nom du dispositif
+        location (str, optional): Emplacement du dispositif
     """
     state_manager = StateManager()
 
@@ -63,11 +64,11 @@ def device_add(device_type: str, name: str):
 
     device: Union[Light, Shutter, Sensor]
     if device_type == "light":
-        device = Light(name=name)
+        device = Light(name=name, location=location)
     elif device_type == "shutter":
-        device = Shutter(name=name)
+        device = Shutter(name=name, location=location)
     elif device_type == "sensor":
-        device = Sensor(name=name)
+        device = Sensor(name=name, location=location)
     else:
         print(f"❌ Type de dispositif non supporté: {device_type}")
         print("Types supportés: light, shutter, sensor")

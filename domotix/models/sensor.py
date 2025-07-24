@@ -10,7 +10,7 @@ Classes:
 
 Example:
     >>> from domotix.models import Sensor
-    >>> capteur = Sensor("Capteur température salon")
+    >>> capteur = Sensor("Capteur température salon", "Salon")
     >>> capteur.update_value(22.5)
     >>> print(capteur.value)
     22.5
@@ -20,6 +20,7 @@ Example:
 
 from typing import Optional, Union
 
+from ..globals.enums import DeviceType
 from .device import Device
 
 
@@ -37,22 +38,23 @@ class Sensor(Device):
         id (str): Identifiant unique hérité de Device
 
     Example:
-        >>> capteur = Sensor("Thermomètre extérieur")
+        >>> capteur = Sensor("Thermomètre extérieur", "Jardin")
         >>> capteur.update_value(-5.2)
         >>> assert capteur.value == -5.2
         >>> print(capteur.get_status())
         VALUE_-5.2
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, location: Optional[str] = None) -> None:
         """
         Initialise un nouveau capteur.
 
         Args:
             name: Nom descriptif du capteur (ex: "Capteur température salon",
                  "Détecteur mouvement entrée", "Luxmètre jardin")
+            location: Emplacement du capteur (ex: "Salon", "Entrée", "Jardin")
         """
-        super().__init__(name)
+        super().__init__(name, DeviceType.SENSOR, location)
         self.value: Optional[Union[int, float]] = None  # Aucune valeur initialement
 
     def update_value(self, value: Union[int, float]) -> None:

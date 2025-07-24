@@ -15,7 +15,7 @@ Example:
     >>> import domotix
     >>>
     >>> controller = domotix.HomeAutomationController()
-    >>> light = domotix.Light("Ma lampe")
+    >>> light = domotix.Light("Ma lampe", "Salon")
     >>> device_id = controller.register_device(light)
     >>> controller.turn_on(device_id)
 """

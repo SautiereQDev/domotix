@@ -21,6 +21,8 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
+from domotix.globals.enums import DeviceType
+
 
 class Device(ABC):
     """Classe abstraite de base pour tous les dispositifs domotiques.
@@ -35,18 +37,21 @@ class Device(ABC):
         location (Optional[str]): Emplacement du dispositif.
     """
 
-    def __init__(self, name: str, location: Optional[str] = None):
+    def __init__(self, name: str, type: DeviceType, location: Optional[str] = None):
         """Initialise un nouveau dispositif.
 
         Args:
             name (str): Nom convivial du dispositif.
+            type (DeviceType): Type du dispositif.
+            state (dict): État initial du dispositif.
             location (Optional[str], optional): Emplacement du dispositif.
             Par défaut None.
         """
         self.id = str(uuid.uuid4())
         self.name = name
+        self.device_type = type
         self.state: dict[str, Any] = {}
-        self.location = location
+        self.location: Optional[str] = location
 
     def __str__(self) -> str:
         """Représentation sous forme de chaîne du dispositif.

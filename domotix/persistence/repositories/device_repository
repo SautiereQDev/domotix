@@ -1,0 +1,30 @@
+# domotix/persistence/repositories/device_repository.py
+from typing import List, Optional
+from sqlalchemy.orm import Session
+from domotix.persistence.models.device_model import DeviceModel
+from domotix.models import Device
+
+
+class DeviceRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def save(self, device: Device) -> DeviceModel:
+        device_model = DeviceModel(
+            id=device.id,
+            name=device.name,
+            device_type=device.device_type,
+            current_state=device.state,
+            location=device.location
+        )
+        self.session.add(device_model)
+        self.session.commit()
+        return device_model
+
+    def find_by_id(self, device_id: str) -> Optional[DeviceModel]:
+        return self.session.query(DeviceModel).filter(
+            DeviceModel.id == device_id
+        ).first()
+
+    def find_all(self) -> List[DeviceModel]:
+        return self.session.query(DeviceModel).all()
