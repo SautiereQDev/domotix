@@ -34,10 +34,6 @@ reports=no
 # Template pour les messages d'erreur
 msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
-[BASIC]
-# Longueur minimum acceptable pour les noms de variables
-min-name-length=1
-
 [FORMAT]
 # Longueur maximum d'une ligne
 max-line-length=88
@@ -63,7 +59,3 @@ generated-members=
 [VARIABLES]
 # Liste des noms de variables autorisés
 good-names=i,j,k,ex,Run,_,id,db
-
-[CLASSES]
-# Liste des méthodes qui n'ont pas besoin d'une référence explicite à self
-valid-no-return-types=__repr__,__str__
