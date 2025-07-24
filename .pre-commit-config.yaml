@@ -55,7 +55,8 @@ repos:
     rev: 1.8.0
     hooks:
       - id: bandit
-        args: ["-r", ".", "-f", "json"]
+        args: ["-ll"]
+        files: \.py$
         exclude: tests/
 
   # Commenté temporairement jusqu'à ce que vous ayez des tests

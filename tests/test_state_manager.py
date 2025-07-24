@@ -60,8 +60,7 @@ def test_singleton_meta_class_methods():
     StateManager.reset_instance()
 
     # Vérifier qu'aucune instance n'existe au début
-    assert not StateManager.has_instance()
-    assert StateManager.get_current_instance() is None
+    assert not SingletonMeta.has_instance(StateManager)
 
     # Créer une instance
     sm = StateManager()

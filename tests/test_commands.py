@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from domotix.commands import (
@@ -27,8 +25,8 @@ def test_command_base_execute_not_implemented():
         cmd.execute()
 
 
-def turn_on_command_executes_successfully_with_real_adapter():
-    """Test qu'un TurnOnCommand s'exécute avec succès avec un vrai adapter."""
+def test_turn_on_command_executes_successfully():
+    """Test qu'un TurnOnCommand s'exécute avec succès."""
     StateManager.reset_instance()
     lampe = Light(name="Lampe test")
     lampe.is_on = False
@@ -37,8 +35,8 @@ def turn_on_command_executes_successfully_with_real_adapter():
     assert lampe.is_on is True
 
 
-def turn_off_command_executes_successfully_with_real_adapter():
-    """Test qu'un TurnOffCommand s'exécute avec succès avec un vrai adapter."""
+def test_turn_off_command_executes_successfully():
+    """Test qu'un TurnOffCommand s'exécute avec succès."""
     StateManager.reset_instance()
     lampe = Light(name="Lampe test2")
     lampe.is_on = True
@@ -47,26 +45,7 @@ def turn_off_command_executes_successfully_with_real_adapter():
     assert lampe.is_on is False
 
 
-def turn_on_command_calls_adapter_execute_command():
-    """Test que TurnOnCommand appelle execute_command sur l'adapter."""
-    StateManager.reset_instance()
-    lampe = Light(name="Lampe mock")
-    fake_adapter = MagicMock()
-    command = TurnOnCommand(device=lampe)
-    command.execute()
-    fake_adapter.execute_command.assert_called_once_with("turn_on", lampe.id)
-
-
-def turn_off_command_calls_adapter_execute_command():
-    StateManager.reset_instance()
-    lampe = Light(name="Lampe mock")
-    fake_adapter = MagicMock()
-    command = TurnOffCommand(device=lampe)
-    command.execute()
-    fake_adapter.execute_command.assert_called_once_with("turn_off", lampe.id)
-
-
-def shutter_commands_execute_successfully():
+def test_shutter_commands_execute_successfully():
     """Test que les commandes de volet s'exécutent avec succès."""
     StateManager.reset_instance()
     volet = Shutter(name="Volet test")
@@ -81,7 +60,7 @@ def shutter_commands_execute_successfully():
     assert volet.position == 0
 
 
-def commands_raise_error_with_wrong_device_type():
+def test_commands_raise_error_with_wrong_device_type():
     """Test que les commandes lèvent une erreur avec un mauvais type de dispositif."""
     StateManager.reset_instance()
     lampe = Light(name="Lampe erreur")
@@ -96,18 +75,7 @@ def commands_raise_error_with_wrong_device_type():
         cmd_wrong2.execute()
 
 
-def commands_handle_network_errors_gracefully():
-    """Test que les commandes gèrent gracieusement les erreurs réseau."""
-    StateManager.reset_instance()
-    lampe = Light(name="Lampe réseau")
-
-    # Les commandes ne doivent pas planter même si l'adapter échoue
-    command = TurnOnCommand(device=lampe)
-    command.execute()  # Ne doit pas lever d'exception même avec erreur réseau
-    assert lampe.is_on is True  # L'état local doit quand même être modifié
-
-
-def turn_on_command_validates_device_has_required_attributes():
+def test_turn_on_command_validates_device_has_required_attributes():
     """Test que TurnOnCommand valide que le dispositif a les attributs requis."""
     StateManager.reset_instance()
 
@@ -122,7 +90,7 @@ def turn_on_command_validates_device_has_required_attributes():
         command.execute()
 
 
-def open_shutter_command_validates_device_has_required_attributes():
+def test_open_shutter_command_validates_device_has_required_attributes():
     """Test que OpenShutterCommand valide que le dispositif a les attributs requis."""
     StateManager.reset_instance()
 
@@ -138,7 +106,7 @@ def open_shutter_command_validates_device_has_required_attributes():
         command.execute()
 
 
-def commands_work_with_singleton_state_manager():
+def test_commands_work_with_singleton_state_manager():
     """Test que les commandes fonctionnent avec le StateManager singleton."""
     StateManager.reset_instance()
     state_manager = StateManager()

@@ -1,4 +1,4 @@
-from click.testing import CliRunner
+from typer.testing import CliRunner
 
 from domotix.cli import app, main
 
@@ -8,7 +8,7 @@ def test_cli_main_help():
     runner = CliRunner()
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "Point d'entrée principal" in result.stdout or "Usage" in result.stdout
+    assert "Usage:" in result.stdout or "Point d'entrée principal" in result.stdout
 
 
 def test_cli_main_function():

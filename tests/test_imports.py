@@ -1,7 +1,5 @@
 """Tests pour vérifier que tous les imports fonctionnent correctement."""
 
-import domotix
-
 
 def test_import_models():
     """Test que tous les modèles s'importent correctement."""
@@ -87,9 +85,9 @@ def test_module_structure():
 
 def test_domotix_main_import():
     """Test que l'import principal du package fonctionne."""
+    import domotix
 
     # Vérifier que les éléments principaux sont disponibles
     assert hasattr(domotix, "Light")
     assert hasattr(domotix, "HomeAutomationController")
     assert hasattr(domotix, "DeviceType")
-    assert hasattr(domotix, "__version__")

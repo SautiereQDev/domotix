@@ -1,3 +1,5 @@
+import pytest
+
 from domotix.models import Light, Sensor, Shutter
 
 
@@ -106,11 +108,11 @@ def test_sensor_update_value():
 
 
 def test_sensor_update_value_with_string():
-    """Tester que mettre à jour un capteur avec une chaîne fonctionne."""
+    """Tester que mettre à jour un capteur avec une chaîne lève une erreur."""
     capteur = Sensor(name="Capteur de test")
-    # Les capteurs peuvent accepter différents types de valeurs
-    capteur.update_value("normal")
-    assert capteur.value == "normal"
+    # Les capteurs n'acceptent que des valeurs numériques
+    with pytest.raises(TypeError):
+        capteur.update_value("normal")
 
 
 def test_device_has_basic_attributes():
