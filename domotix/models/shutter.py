@@ -10,12 +10,15 @@ Classes:
 
 Example:
     >>> from domotix.models import Shutter
-    >>> volet = Shutter("Volet salon")
+    >>> volet = Shutter("Volet salon", "Salon")
     >>> volet.open()
     >>> print(volet.get_status())
     OPEN
 """
 
+from typing import Optional
+
+from ..globals.enums import DeviceType
 from .device import Device
 
 
@@ -33,21 +36,22 @@ class Shutter(Device):
         id (str): Identifiant unique hérité de Device
 
     Example:
-        >>> volet = Shutter("Volet chambre")
+        >>> volet = Shutter("Volet chambre", "Chambre")
         >>> volet.open()
         >>> assert volet.is_open == True
         >>> volet.close()
         >>> assert volet.is_open == False
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, location: Optional[str] = None) -> None:
         """
         Initialise un nouveau volet.
 
         Args:
             name: Nom descriptif du volet (ex: "Volet salon", "Store cuisine")
+            location: Emplacement du volet (ex: "Salon", "Cuisine")
         """
-        super().__init__(name)
+        super().__init__(name, DeviceType.SHUTTER, location)
         self.position: int = 0  # Position en pourcentage (0=fermé, 100=ouvert)
 
     @property

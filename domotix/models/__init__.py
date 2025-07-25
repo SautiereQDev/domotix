@@ -20,9 +20,10 @@ Example:
 # Imports pour les modèles
 from .device import Device
 from .light import Light
+from .persistence import DeviceModel
 from .sensor import Sensor
 from .shutter import Shutter
 
 # __all__ définit les symboles publics du module
 # Seuls ces noms seront importés avec 'from domotix.models import *'
-__all__ = ["Device", "Light", "Shutter", "Sensor"]
+__all__ = ["Device", "Light", "Shutter", "Sensor", "DeviceModel"]

@@ -1,4 +1,4 @@
-from domotix.globals import CommandType, DeviceState, DeviceType, HttpMethod
+from domotix.globals import CommandType, DeviceState, DeviceType
 
 
 def test_device_type_enum():
@@ -11,19 +11,6 @@ def test_device_type_enum():
     device_types = list(DeviceType)
     assert len(device_types) == 3
     assert DeviceType.LIGHT in device_types
-
-
-def test_http_method_enum():
-    """Test que l'enum HttpMethod fonctionne correctement."""
-    assert HttpMethod.GET.value == "GET"
-    assert HttpMethod.POST.value == "POST"
-    assert HttpMethod.PUT.value == "PUT"
-    assert HttpMethod.DELETE.value == "DELETE"
-    assert HttpMethod.PATCH.value == "PATCH"
-
-    # Test de l'itération
-    http_methods = list(HttpMethod)
-    assert len(http_methods) == 5
 
 
 def test_device_state_enum():
@@ -56,8 +43,6 @@ def test_enum_equality():
     """Test l'égalité des enums."""
     assert DeviceType.LIGHT == DeviceType.LIGHT
     assert DeviceType.LIGHT != DeviceType.SHUTTER
-    assert HttpMethod.GET == HttpMethod.GET
-    assert HttpMethod.GET != HttpMethod.POST
 
 
 def test_enum_string_representation():

@@ -13,7 +13,7 @@ Example:
     >>> from domotix.models import Light
     >>>
     >>> controller = HomeAutomationController()
-    >>> light = Light("Lampe salon")
+    >>> light = Light("Lampe salon", "Salon")
     >>> device_id = controller.register_device(light)
     >>> controller.turn_on(device_id)
     >>> print(controller.get_status(device_id))
@@ -38,7 +38,7 @@ class HomeAutomationController:
 
     Example:
         >>> controller = HomeAutomationController()
-        >>> light = Light("Lampe test")
+        >>> light = Light("Lampe test", "Test")
         >>> device_id = controller.register_device(light)
         >>> controller.turn_on(device_id)
         >>> assert controller.get_status(device_id) == "ON"

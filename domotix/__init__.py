@@ -8,14 +8,14 @@ Exposed Classes:
     Device, Light, Shutter, Sensor: Modèles de dispositifs
     Command, TurnOnCommand, ...: Pattern Command
     HomeAutomationController, StateManager: Composants core
-    DeviceType, HttpMethod, ...: Énumérations
+    DeviceType, ...: Énumérations
     DomotixError, DeviceNotFoundError, ...: Exceptions
 
 Example:
     >>> import domotix
     >>>
     >>> controller = domotix.HomeAutomationController()
-    >>> light = domotix.Light("Ma lampe")
+    >>> light = domotix.Light("Ma lampe", "Salon")
     >>> device_id = controller.register_device(light)
     >>> controller.turn_on(device_id)
 """
@@ -26,6 +26,12 @@ from .commands import (
     OpenShutterCommand,
     TurnOffCommand,
     TurnOnCommand,
+)
+from .controllers import (
+    DeviceController,
+    LightController,
+    SensorController,
+    ShutterController,
 )
 from .core import HomeAutomationController, SingletonMeta, StateManager
 from .globals import (
@@ -52,6 +58,11 @@ __all__ = [
     "TurnOffCommand",
     "OpenShutterCommand",
     "CloseShutterCommand",
+    # Controllers
+    "DeviceController",
+    "LightController",
+    "ShutterController",
+    "SensorController",
     # Core
     "HomeAutomationController",
     "StateManager",

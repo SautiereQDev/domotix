@@ -17,7 +17,16 @@ Example:
 
 # Module core - Composants principaux du système domotique
 from .controller import HomeAutomationController
+from .database import Base, create_session, create_tables, engine
 from .singleton import SingletonMeta
 from .state_manager import StateManager
 
-__all__ = ["HomeAutomationController", "StateManager", "SingletonMeta"]
+__all__ = [
+    "HomeAutomationController",
+    "StateManager",
+    "SingletonMeta",
+    "create_session",
+    "create_tables",
+    "Base",
+    "engine",
+]

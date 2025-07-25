@@ -10,7 +10,7 @@ Classes:
 
 Example:
     >>> from domotix.models import Light
-    >>> lampe = Light("Lampe salon")
+    >>> lampe = Light("Lampe salon", "Salon")
     >>> print(lampe.is_on)
     False
     >>> lampe.turn_on()
@@ -18,8 +18,9 @@ Example:
     ON
 """
 
-from typing import Literal
+from typing import Literal, Optional
 
+from ..globals.enums import DeviceType
 from .device import Device
 
 
@@ -37,21 +38,22 @@ class Light(Device):
         id (str): Identifiant unique hérité de Device
 
     Example:
-        >>> lampe = Light("Lampe chambre")
+        >>> lampe = Light("Lampe chambre", "Chambre")
         >>> lampe.turn_on()
         >>> assert lampe.is_on == True
         >>> lampe.turn_off()
         >>> assert lampe.is_on == False
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, location: Optional[str] = None) -> None:
         """
         Initialise une nouvelle lampe.
 
         Args:
             name: Nom descriptif de la lampe (ex: "Lampe salon", "Spot cuisine")
+            location: Emplacement de la lampe (ex: "Salon", "Cuisine")
         """
-        super().__init__(name)
+        super().__init__(name, DeviceType.LIGHT, location)
         self.is_on: bool = False  # État initial: éteinte
 
     def get_state(self) -> dict:

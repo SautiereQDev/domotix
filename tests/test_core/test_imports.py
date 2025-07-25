@@ -37,12 +37,10 @@ def test_import_globals():
         DeviceState,
         DeviceType,
         DomotixError,
-        HttpMethod,
         InvalidDeviceTypeError,
     )
 
     assert DeviceType is not None
-    assert HttpMethod is not None
     assert DeviceState is not None
     assert CommandType is not None
     assert DomotixError is not None

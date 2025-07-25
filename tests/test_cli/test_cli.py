@@ -1,3 +1,4 @@
+# pylint: disable=import-error
 from typer.testing import CliRunner
 
 from domotix.cli import app, main
