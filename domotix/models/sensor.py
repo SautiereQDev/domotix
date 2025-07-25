@@ -181,3 +181,18 @@ class Sensor(Device):
             >>> assert capteur.value is None
         """
         self.value = None
+
+    def reset_value(self) -> None:
+        """
+        Alias pour reset() - remet le capteur à zéro.
+
+        Cette méthode est un alias de reset() pour la compatibilité
+        avec l'interface attendue par les contrôleurs.
+
+        Example:
+            >>> capteur = Sensor("Test")
+            >>> capteur.update_value(50)
+            >>> capteur.reset_value()
+            >>> assert capteur.value is None
+        """
+        self.reset()
