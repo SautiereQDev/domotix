@@ -8,16 +8,22 @@ Commands:
     cli: Commande principale de l'application
 """
 
+# Core imports
 import sys
 
-# !/usr/bin/env python3
-import typer
+import typer  # pylint: disable=import-error
 
+# Typer application instance (needs to be declared before importing commands)
 app = typer.Typer()
+
+# Import commands to register them on the app
 
 
 def main():
     """Point d'entrée pour Poetry."""
+    # Register CLI commands by importing the module where they are defined
+    import domotix.cli.device_cmds  # noqa: F401
+
     try:
         app()
     except SystemExit:
