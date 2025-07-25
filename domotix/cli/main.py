@@ -15,20 +15,6 @@ import typer
 
 app = typer.Typer()
 
-# Import des commandes pour les enregistrer avec l'app principal
-
-
-@app.command()
-def cli(username: str = typer.Argument(..., help="Nom d'utilisateur")):
-    """
-    Point d'entrée principal de l'application Domotix.
-
-    Args:
-        username (str): Nom de l'utilisateur
-    """
-    print(f"Bonjour {username}! Bienvenue dans Domotix.")
-    typer.echo(f"Bonjour {username}! Bienvenue dans Domotix.")
-
 
 def main():
     """Point d'entrée pour Poetry."""
