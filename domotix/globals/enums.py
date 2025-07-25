@@ -22,6 +22,16 @@ class DeviceType(Enum):
     LIGHT = "LIGHT"
 
 
+class HttpMethod(Enum):
+    """Méthodes HTTP supportées."""
+
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"
+    PATCH = "PATCH"
+
+
 class DeviceState(Enum):
     """États possibles des dispositifs."""
 
