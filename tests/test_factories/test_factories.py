@@ -15,7 +15,7 @@ from domotix.controllers import (
     SensorController,
     ShutterController,
 )
-from domotix.factories import (
+from domotix.core.factories import (
     ControllerFactory,
     RepositoryFactory,
     get_device_controller,
