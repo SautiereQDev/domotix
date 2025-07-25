@@ -5,7 +5,7 @@ Ce module expose toutes les énumérations et exceptions personnalisées
 utilisées dans le système.
 
 Exposed Enums:
-    DeviceType, HttpMethod, DeviceState, CommandType
+    DeviceType, DeviceState, CommandType
 
 Exposed Exceptions:
     DomotixError, DeviceNotFoundError, InvalidDeviceTypeError,
