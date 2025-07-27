@@ -14,8 +14,8 @@ Commands:
 from typing import Optional
 
 from ..core.database import create_session
+from ..core.factories import get_controller_factory
 from ..core.service_provider import scoped_service_provider
-from ..factories import get_controller_factory
 from ..models import Light, Sensor, Shutter
 from .main import app
 
