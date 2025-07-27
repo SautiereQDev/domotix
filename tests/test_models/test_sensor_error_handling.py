@@ -1,5 +1,5 @@
 """
-Tests pour les nouvelles fonctionnalités de gestion d'erreurs du modèle Sensor.
+Tests for the new error-handling features of the Sensor model.
 """
 
 import pytest
