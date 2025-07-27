@@ -141,7 +141,11 @@ class DomotixError(Exception):
 
     def _enrich_context_from_stack(self) -> None:
         """Enrichit le contexte avec les informations de la stack."""
-        stack = traceback.extract_tb(sys.exc_info()[2])
+        tb = sys.exc_info()[2]
+        if tb is None:
+            # Aucun contexte d'exception actif, ne rien faire
+            return
+        stack = traceback.extract_tb(tb)
         if stack:
             # Prend le dernier frame qui n'est pas dans ce module
             for frame in reversed(stack):
