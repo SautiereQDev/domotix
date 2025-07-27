@@ -208,10 +208,10 @@ class DIContainer:
         """
         if service_type in self._building_stack:
             dependency_chain = " -> ".join(
-                [str(s) for s in list(self._building_stack)] + [str(service_type)]
+                [s.__name__ for s in self._building_stack] + [service_type.__name__]
             )
             msg = (
-                f"Dépendance circulaire détectée pour {service_type}. "
+                f"Dépendance circulaire détectée pour {service_type.__name__}. "
                 f"Chaîne de dépendances: {dependency_chain}"
             )
             raise RuntimeError(msg)
