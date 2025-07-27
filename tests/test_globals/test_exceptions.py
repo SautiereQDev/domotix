@@ -9,7 +9,7 @@ from domotix.globals import (
 def test_domotix_error():
     """Test l'exception de base DomotixError."""
     error = DomotixError("Message de test")
-    assert str(error) == "Message de test"
+    assert str(error) == "[DMX-1000] Message de test"
     assert isinstance(error, Exception)
 
 
@@ -19,7 +19,7 @@ def test_device_not_found_error():
     error = DeviceNotFoundError(device_id)
 
     assert error.device_id == device_id
-    assert str(error) == f"Dispositif non trouvé : {device_id}"
+    assert str(error) == f"[DMX-2000] Dispositif non trouvé : {device_id}"
     assert isinstance(error, DomotixError)
 
 
@@ -29,7 +29,7 @@ def test_invalid_device_type_error():
     error = InvalidDeviceTypeError(device_type)
 
     assert error.device_type == device_type
-    assert str(error) == f"Type de dispositif invalide : {device_type}"
+    assert str(error) == f"[DMX-2005] Type de dispositif invalide : {device_type}"
     assert isinstance(error, DomotixError)
 
 
@@ -40,7 +40,7 @@ def test_command_execution_error_without_reason():
 
     assert error.command == command
     assert error.reason == ""
-    assert str(error) == f"Échec de l'exécution de la commande : {command}"
+    assert str(error) == f"[DMX-6000] Échec de l'exécution de la commande : {command}"
     assert isinstance(error, DomotixError)
 
 
@@ -52,7 +52,8 @@ def test_command_execution_error_with_reason():
 
     assert error.command == command
     assert error.reason == reason
-    assert str(error) == f"Échec de l'exécution de la commande : {command} - {reason}"
+    expected = f"[DMX-6000] Échec de l'exécution de la commande : {command} - {reason}"
+    assert str(error) == expected
     assert isinstance(error, DomotixError)
 
 
