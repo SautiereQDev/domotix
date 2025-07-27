@@ -97,7 +97,7 @@ class Sensor(Device):
             )
 
         # Validation des valeurs spéciales
-        if value != value:  # NaN check
+        if math.isnan(value):  # NaN check
             context = ErrorContext(
                 module=__name__,
                 function="update_value",
