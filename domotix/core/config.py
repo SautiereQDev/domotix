@@ -20,12 +20,21 @@ from enum import Enum
 from pathlib import Path
 from typing import Final
 
+from .singleton import SingletonMeta
+
 try:
-    from pydantic import BaseModel, Field, validator
+    from pydantic import BaseModel, Field, field_validator
 
     PYDANTIC_AVAILABLE = True
 except ImportError:
     PYDANTIC_AVAILABLE = False
+
+
+# Constantes pour la configuration
+DEFAULT_DATABASE_PATH: Final[Path] = Path("domotix.db")
+DEFAULT_LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+MAX_DEVICE_LIMIT: Final[int] = 1000
+DEFAULT_TIMEOUT: Final[float] = 30.0
 
 
 class LogLevel(str, Enum):
@@ -55,7 +64,7 @@ class DatabaseConfig:
     """
 
     database_type: DatabaseType = DatabaseType.SQLITE
-    database_path: Path = field(default_factory=lambda: Path("domotix.db"))
+    database_path: Path = field(default_factory=lambda: DEFAULT_DATABASE_PATH)
     echo_sql: bool = False
     pool_size: int = 5
     max_overflow: int = 10
@@ -84,7 +93,7 @@ class LoggingConfig:
     """Configuration du système de logs."""
 
     level: LogLevel = LogLevel.INFO
-    format_string: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format_string: str = DEFAULT_LOG_FORMAT
     log_file: Path | None = None
     console_output: bool = True
 
@@ -131,7 +140,7 @@ class ApplicationConfig:
         debug = os.getenv("DOMOTIX_DEBUG", "false").lower() == "true"
 
         # Configuration de la base de données
-        db_path = os.getenv("DOMOTIX_DB_PATH", "domotix.db")
+        db_path = os.getenv("DOMOTIX_DB_PATH", str(DEFAULT_DATABASE_PATH))
         db_echo = os.getenv("DOMOTIX_DB_ECHO", "false").lower() == "true"
 
         database_config = DatabaseConfig(database_path=Path(db_path), echo_sql=db_echo)
@@ -152,23 +161,57 @@ class ApplicationConfig:
         return cls(debug=debug, database=database_config, logging=logging_config)
 
 
-# Configuration globale singleton
-_config_instance: ApplicationConfig | None = None
+class ConfigManager(metaclass=SingletonMeta):
+    """
+    Gestionnaire singleton pour la configuration de l'application.
+
+    Évite l'utilisation de variables globales et fournit un point
+    d'accès centralisé pour la configuration.
+    """
+
+    def __init__(self) -> None:
+        """Initialise le gestionnaire de configuration."""
+        self._config_instance: ApplicationConfig | None = None
+
+    def get_config(self) -> ApplicationConfig:
+        """
+        Récupère la configuration globale de l'application.
+
+        Utilise un singleton paresseux pour éviter les recharges multiples.
+
+        Returns:
+            Configuration globale de l'application
+        """
+        if self._config_instance is None:
+            self._config_instance = ApplicationConfig.from_environment()
+        return self._config_instance
+
+    def reset_config(self) -> None:
+        """
+        Remet à zéro la configuration globale.
+
+        Utile pour les tests et le rechargement de configuration.
+        """
+        self._config_instance = None
+
+    @classmethod
+    def reset_instance(cls) -> None:
+        """
+        Remet à zéro l'instance singleton.
+
+        Utile pour les tests pour créer une nouvelle instance propre.
+        """
+        SingletonMeta.reset_instance(cls)
 
 
 def get_config() -> ApplicationConfig:
     """
     Récupère la configuration globale de l'application.
 
-    Utilise un singleton paresseux pour éviter les recharges multiples.
-
     Returns:
         Configuration globale de l'application
     """
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = ApplicationConfig.from_environment()
-    return _config_instance
+    return ConfigManager().get_config()
 
 
 def reset_config() -> None:
@@ -177,8 +220,7 @@ def reset_config() -> None:
 
     Utile pour les tests et le rechargement de configuration.
     """
-    global _config_instance
-    _config_instance = None
+    ConfigManager().reset_config()
 
 
 # Configuration Pydantic alternative (si disponible)
@@ -188,12 +230,13 @@ if PYDANTIC_AVAILABLE:
         """Configuration de base de données avec validation Pydantic."""
 
         database_type: DatabaseType = DatabaseType.SQLITE
-        database_path: Path = Path("domotix.db")
+        database_path: Path = DEFAULT_DATABASE_PATH
         echo_sql: bool = False
         pool_size: int = Field(default=5, ge=1, le=50)
         max_overflow: int = Field(default=10, ge=0, le=100)
 
-        @validator("database_path")
+        @field_validator("database_path")
+        @classmethod
         def validate_database_path(cls, v: Path) -> Path:
             """Valide et crée le répertoire parent si nécessaire."""
             if v.suffix != ".db":
@@ -215,10 +258,3 @@ if PYDANTIC_AVAILABLE:
 
             use_enum_values = True
             arbitrary_types_allowed = True
-
-
-# Constantes pour la configuration
-DEFAULT_DATABASE_PATH: Final[Path] = Path("domotix.db")
-DEFAULT_LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-MAX_DEVICE_LIMIT: Final[int] = 1000
-DEFAULT_TIMEOUT: Final[float] = 30.0
