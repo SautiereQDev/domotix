@@ -321,11 +321,12 @@ class TestModelsFullCoverage:
         # Test update_value avec valeurs valides
         sensor.update_value(25.5)
         assert sensor.value == 25.5
-        # Si la méthode is_active existe, on la teste
-        if hasattr(sensor, "is_active") and callable(
-            getattr(sensor, "is_active", None)
-        ):
+        # Test de la méthode is_active si elle est définie (optionnelle)
+        if hasattr(sensor, "is_active"):
             assert sensor.is_active() in [True, False]
+        else:
+            # La méthode is_active est optionnelle et peut ne pas être implémentée
+            pass
 
         sensor.update_value(0)
         assert sensor.value == 0
