@@ -40,14 +40,15 @@ repos:
         additional_dependencies: [types-PyYAML, types-requests]
         args: [--ignore-missing-imports]
 
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.3.2
+  - repo: local
     hooks:
       - id: pylint
+        name: pylint
+        entry: poetry run pylint
+        language: system
+        types: [python]
         args: [
             "--errors-only", # Ne rapporter que les erreurs (E) et fatales (F)
-            "--disable=all", # Désactiver tous les messages
-            "--enable=E,F", # Activer seulement les erreurs (E) et fatales (F)
             "--fail-under=8.0", # Échouer seulement si le score est très bas
           ]
 
