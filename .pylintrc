@@ -11,6 +11,9 @@ ignore=CVS,.git,__pycache__,.pytest_cache,build,dist,docs/_build
 # Patterns de fichiers à ignorer
 ignore-patterns=
 
+# Ajouter le répertoire du projet au Python path
+init-hook='import sys; sys.path.append(".")'
+
 [MESSAGES CONTROL]
 # Désactiver les erreurs d'import spécifiquement
 disable=E0401,import-error,no-name-in-module,no-member,import-outside-toplevel,wrong-import-order,broad-exception-caught
