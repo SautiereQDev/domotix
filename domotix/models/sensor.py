@@ -21,6 +21,7 @@ Example:
 from typing import Optional, Union
 
 from ..globals.enums import DeviceType
+from ..globals.exceptions import ErrorCode, ErrorContext, ValidationError
 from .device import Device
 
 
@@ -66,19 +67,153 @@ class Sensor(Device):
                   (température en °C, humidité en %, luminosité en lux, etc.)
 
         Raises:
-            TypeError: Si la valeur n'est pas numérique (int ou float)
+            ValidationError: Si la valeur n'est pas numérique ou n'est pas valide
 
         Example:
             >>> capteur = Sensor("Test")
             >>> capteur.update_value(42.7)
             >>> assert capteur.value == 42.7
-            >>> capteur.update_value("invalid")  # Lève TypeError
+            >>> capteur.update_value("invalid")  # Lève ValidationError
         """
         if not isinstance(value, (int, float)):
-            raise TypeError(
-                f"La valeur doit être numérique, " f"reçu: {type(value).__name__}"
+            context = ErrorContext(
+                module=__name__,
+                function="update_value",
+                user_data={
+                    "device_id": self.id,
+                    "device_name": self.name,
+                    "value_type": type(value).__name__,
+                    "value": str(value),
+                    "expected_types": ["int", "float"],
+                },
             )
+            raise ValidationError(
+                message=(
+                    f"La valeur du capteur '{self.name}' doit être numérique, "
+                    f"reçu: {type(value).__name__}"
+                ),
+                error_code=ErrorCode.VALIDATION_INVALID_TYPE,
+                context=context,
+            )
+
+        # Validation des valeurs spéciales
+        if math.isnan(value):  # NaN check
+            context = ErrorContext(
+                module=__name__,
+                function="update_value",
+                user_data={
+                    "device_id": self.id,
+                    "device_name": self.name,
+                    "value": str(value),
+                    "issue": "NaN_value",
+                },
+            )
+            raise ValidationError(
+                message=f"Valeur invalide (NaN) pour le capteur '{self.name}'",
+                error_code=ErrorCode.VALIDATION_INVALID_FORMAT,
+                context=context,
+            )
+
+        # Validation des infinis
+        if not (-float("inf") < value < float("inf")):
+            context = ErrorContext(
+                module=__name__,
+                function="update_value",
+                user_data={
+                    "device_id": self.id,
+                    "device_name": self.name,
+                    "value": str(value),
+                    "issue": "infinite_value",
+                },
+            )
+            raise ValidationError(
+                message=f"Valeur infinie non autorisée pour le capteur '{self.name}'",
+                error_code=ErrorCode.VALIDATION_OUT_OF_RANGE,
+                context=context,
+            )
+
+        # Assignation de la valeur après validation
         self.value = value
+
+    def validate_range(self, min_value: float, max_value: float) -> None:
+        """
+        Valide que la valeur actuelle est dans la plage spécifiée.
+
+        Args:
+            min_value: Valeur minimale autorisée
+            max_value: Valeur maximale autorisée
+
+        Raises:
+            ValidationError: Si la valeur est hors de la plage spécifiée
+
+        Example:
+            >>> capteur = Sensor("Thermomètre")
+            >>> capteur.update_value(25.0)
+            >>> capteur.validate_range(-50, 100)  # OK
+            >>> capteur.validate_range(30, 40)    # Lève ValidationError
+        """
+        if self.value is None:
+            context = ErrorContext(
+                module=__name__,
+                function="validate_range",
+                user_data={
+                    "device_id": self.id,
+                    "device_name": self.name,
+                    "min_value": min_value,
+                    "max_value": max_value,
+                },
+            )
+            raise ValidationError(
+                message=(
+                    f"Impossible de valider la plage pour '{self.name}': "
+                    "aucune valeur définie"
+                ),
+                error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
+                context=context,
+            )
+
+        if not (min_value <= self.value <= max_value):
+            context = ErrorContext(
+                module=__name__,
+                function="validate_range",
+                user_data={
+                    "device_id": self.id,
+                    "device_name": self.name,
+                    "current_value": self.value,
+                    "min_value": min_value,
+                    "max_value": max_value,
+                },
+            )
+            raise ValidationError(
+                message=(
+                    f"Valeur {self.value} du capteur '{self.name}' "
+                    f"hors de la plage [{min_value}, {max_value}]"
+                ),
+                error_code=ErrorCode.VALIDATION_OUT_OF_RANGE,
+                context=context,
+            )
+
+    def is_value_valid(self) -> bool:
+        """
+        Vérifie si la valeur actuelle est valide.
+
+        Returns:
+            bool: True si la valeur est définie et valide, False sinon
+
+        Example:
+            >>> capteur = Sensor("Test")
+            >>> capteur.is_value_valid()
+            False
+            >>> capteur.update_value(42.0)
+            >>> capteur.is_value_valid()
+            True
+        """
+        return (
+            self.value is not None
+            and isinstance(self.value, (int, float))
+            and self.value == self.value  # NaN check
+            and -float("inf") < self.value < float("inf")  # Infinity check
+        )
 
     def get_status(self) -> str:
         """

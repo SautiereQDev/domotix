@@ -250,11 +250,10 @@ class TestDependencyInjectionIntegration:
 
     def test_service_provider_integration(self):
         """Test de l'intégration avec le service provider."""
-        from domotix.core.dependency_injection import container
-        from domotix.core.service_provider import ServiceProvider
+        from domotix.core.service_provider import get_service_provider
 
         # Act
-        service_provider = ServiceProvider(container)
+        service_provider = get_service_provider()
         controller_factory = get_controller_factory()
 
         # Assert
@@ -285,7 +284,8 @@ class TestDependencyInjectionIntegration:
 
         # Assert - Test que les exceptions modernes sont utilisées
         try:
-            # Créer avec session None devrait utiliser les nouvelles exceptions
+            # Tenter de créer avec session None devrait utiliser les
+            # nouvelles exceptions
             controller_factory.create_device_controller(None)
         except ControllerError:
             # C'est attendu avec le nouveau système

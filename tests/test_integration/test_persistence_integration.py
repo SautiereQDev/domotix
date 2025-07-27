@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from domotix.core.database import Base
-from domotix.core.factories import ControllerFactory, RepositoryFactory
+from domotix.factories import get_controller_factory, get_repository_factory
 from domotix.models import Light, Sensor, Shutter
 
 
@@ -28,25 +28,25 @@ def test_session():
 @pytest.fixture
 def light_controller(test_session):
     """Crée un contrôleur de lampes avec une session de test."""
-    return ControllerFactory.create_light_controller(test_session)
+    return get_controller_factory().create_light_controller(test_session)
 
 
 @pytest.fixture
 def shutter_controller(test_session):
     """Crée un contrôleur de volets avec une session de test."""
-    return ControllerFactory.create_shutter_controller(test_session)
+    return get_controller_factory().create_shutter_controller(test_session)
 
 
 @pytest.fixture
 def sensor_controller(test_session):
     """Crée un contrôleur de capteurs avec une session de test."""
-    return ControllerFactory.create_sensor_controller(test_session)
+    return get_controller_factory().create_sensor_controller(test_session)
 
 
 @pytest.fixture
 def device_controller(test_session):
     """Crée un contrôleur général avec une session de test."""
-    return ControllerFactory.create_device_controller(test_session)
+    return get_controller_factory().create_device_controller(test_session)
 
 
 class TestLightControllerIntegration:
@@ -221,9 +221,9 @@ class TestDeviceControllerIntegration:
     def test_mixed_devices_management(self, device_controller, test_session):
         """Test de gestion d'un mélange de dispositifs."""
         # Créer différents types de dispositifs
-        light_repo = RepositoryFactory.create_light_repository(test_session)
-        shutter_repo = RepositoryFactory.create_shutter_repository(test_session)
-        sensor_repo = RepositoryFactory.create_sensor_repository(test_session)
+        light_repo = get_repository_factory().create_light_repository(test_session)
+        shutter_repo = get_repository_factory().create_shutter_repository(test_session)
+        sensor_repo = get_repository_factory().create_sensor_repository(test_session)
 
         # Créer des dispositifs directement via les repositories
         light = Light("Lampe salon", "Salon")
@@ -270,7 +270,7 @@ class TestDeviceControllerIntegration:
     def test_device_state_management(self, device_controller, test_session):
         """Test de gestion d'état des dispositifs."""
         # Créer un dispositif
-        light_repo = RepositoryFactory.create_light_repository(test_session)
+        light_repo = get_repository_factory().create_light_repository(test_session)
         light = Light("Lampe test", "Test")
         light_repo.save(light)
 
@@ -295,8 +295,12 @@ class TestCrossControllerIntegration:
     def test_persistence_across_controllers(self, test_session):
         """Test de persistence entre différents contrôleurs."""
         # Créer des contrôleurs avec la même session
-        light_controller = ControllerFactory.create_light_controller(test_session)
-        device_controller = ControllerFactory.create_device_controller(test_session)
+        light_controller = get_controller_factory().create_light_controller(
+            test_session
+        )
+        device_controller = get_controller_factory().create_device_controller(
+            test_session
+        )
 
         # Créer une lampe via le contrôleur spécialisé
         light_id = light_controller.create_light("Lampe partagée", "Salon")
@@ -318,8 +322,8 @@ class TestCrossControllerIntegration:
     def test_repository_consistency(self, test_session):
         """Test de cohérence entre repositories."""
         # Créer des repositories avec la même session
-        device_repo = RepositoryFactory.create_device_repository(test_session)
-        light_repo = RepositoryFactory.create_light_repository(test_session)
+        device_repo = get_repository_factory().create_device_repository(test_session)
+        light_repo = get_repository_factory().create_light_repository(test_session)
 
         # Créer une lampe via le repository spécialisé
         light = Light("Lampe cohérence", "Test")

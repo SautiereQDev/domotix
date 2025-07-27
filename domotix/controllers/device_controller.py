@@ -11,6 +11,7 @@ Classes:
 
 from typing import Dict, List, Optional
 
+from domotix.globals.exceptions import ControllerError, ErrorCode, ErrorContext
 from domotix.models.device import Device
 from domotix.models.light import Light
 from domotix.models.sensor import Sensor
@@ -47,8 +48,35 @@ class DeviceController:
 
         Returns:
             Optional[Device]: Le dispositif ou None si non trouvé
+
+        Raises:
+            ControllerError: En cas d'erreur lors de la récupération
         """
-        return self._repository.find_by_id(device_id)
+        if not device_id or not device_id.strip():
+            context = ErrorContext(
+                module=__name__,
+                function="get_device",
+                user_data={"device_id": device_id},
+            )
+            raise ControllerError(
+                message="ID de dispositif requis",
+                error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
+                context=context,
+            )
+
+        try:
+            return self._repository.find_by_id(device_id.strip())
+        except Exception as e:
+            context = ErrorContext(
+                module=__name__,
+                function="get_device",
+                user_data={"device_id": device_id},
+            )
+            raise ControllerError(
+                message=f"Erreur lors de la récupération du dispositif {device_id}",
+                error_code=ErrorCode.CONTROLLER_OPERATION_FAILED,
+                context=context,
+            ) from e
 
     def get_all_devices(self) -> List[Device]:
         """
