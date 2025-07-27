@@ -212,7 +212,7 @@ class Sensor(Device):
         return (
             self.value is not None
             and isinstance(self.value, (int, float))
-            and self.value == self.value  # NaN check
+            and not math.isnan(self.value)  # NaN check
             and -float("inf") < self.value < float("inf")  # Infinity check
         )
 

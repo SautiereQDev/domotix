@@ -10,17 +10,24 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from domotix.core.database import Base
-from domotix.core.factories import get_controller_factory, get_repository_factory
+from domotix.core.factories import (
+    FactoryManager,
+    get_controller_factory,
+    get_repository_factory,
+)
 from domotix.models import Light, Sensor, Shutter
 
 
 @pytest.fixture
 def test_session():
     """Crée une session de test en mémoire."""
+    # Réinitialise les factories pour éviter les interférences entre tests
+    FactoryManager.reset_instance()
+
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
-    TestSession = sessionmaker(bind=engine)
-    session = TestSession()
+    test_session_cls = sessionmaker(bind=engine)
+    session = test_session_cls()
     yield session
     session.close()
 

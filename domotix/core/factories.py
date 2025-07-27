@@ -54,6 +54,7 @@ class ControllerFactory:
             container: Container d'injection de dépendances
         """
         self._container = container
+        self._repo_factory = RepositoryFactory(container)
 
     def create_device_controller(self, session: Session) -> DeviceController:
         """
@@ -69,8 +70,7 @@ class ControllerFactory:
             ControllerError: Si la création échoue
         """
         try:
-            repo_factory = RepositoryFactory(self._container)
-            repository = repo_factory.create_device_repository(session)
+            repository = self._repo_factory.create_device_repository(session)
 
             # Injection manuelle car les contrôleurs existants
             # ne sont pas encore modernisés
@@ -99,8 +99,7 @@ class ControllerFactory:
             ControllerError: Si la création échoue
         """
         try:
-            repo_factory = RepositoryFactory(self._container)
-            repository = repo_factory.create_light_repository(session)
+            repository = self._repo_factory.create_light_repository(session)
             return LightController(repository)
 
         except Exception as e:
@@ -126,8 +125,7 @@ class ControllerFactory:
             ControllerError: Si la création échoue
         """
         try:
-            repo_factory = RepositoryFactory(self._container)
-            repository = repo_factory.create_sensor_repository(session)
+            repository = self._repo_factory.create_sensor_repository(session)
             return SensorController(repository)
 
         except Exception as e:
@@ -153,8 +151,7 @@ class ControllerFactory:
             ControllerError: Si la création échoue
         """
         try:
-            repo_factory = RepositoryFactory(self._container)
-            repository = repo_factory.create_shutter_repository(session)
+            repository = self._repo_factory.create_shutter_repository(session)
             return ShutterController(repository)
 
         except Exception as e:
@@ -270,12 +267,80 @@ class ServiceFactory:
         return RepositoryFactory(self._container)
 
 
-# Factory globale utilisée par l'application
-_global_container: DIContainer | None = None
-_controller_factory: ControllerFactory | None = None
-_repository_factory: RepositoryFactory | None = None
+class FactoryManager:
+    """
+    Gestionnaire singleton pour les factories de l'application.
+
+    Évite l'utilisation de variables globales et fournit un point
+    d'accès centralisé pour toutes les factories.
+    """
+
+    _instance: FactoryManager | None = None
+    _container: DIContainer | None = None
+    _controller_factory: ControllerFactory | None = None
+    _repository_factory: RepositoryFactory | None = None
+
+    def __new__(cls) -> FactoryManager:
+        """Implémentation du pattern Singleton."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def get_container(self) -> DIContainer:
+        """
+        Récupère le container DI.
+
+        Returns:
+            Container d'injection de dépendances
+        """
+        if self._container is None:
+            self._container = DIContainer()
+            # Configuration des services sera ajoutée ici
+        return self._container
+
+    def get_controller_factory(self) -> ControllerFactory:
+        """
+        Récupère la factory de contrôleurs.
+
+        Returns:
+            Factory de contrôleurs
+        """
+        if self._controller_factory is None:
+            self._controller_factory = ControllerFactory(self.get_container())
+        return self._controller_factory
+
+    def get_repository_factory(self) -> RepositoryFactory:
+        """
+        Récupère la factory de repositories.
+
+        Returns:
+            Factory de repositories
+        """
+        if self._repository_factory is None:
+            self._repository_factory = RepositoryFactory(self.get_container())
+        return self._repository_factory
+
+    def reset_factories(self) -> None:
+        """
+        Remet à zéro toutes les factories.
+
+        Utile pour les tests et le rechargement de configuration.
+        """
+        self._container = None
+        self._controller_factory = None
+        self._repository_factory = None
+
+    @classmethod
+    def reset_instance(cls) -> None:
+        """
+        Remet à zéro l'instance singleton.
+
+        Utile pour les tests pour créer une nouvelle instance propre.
+        """
+        cls._instance = None
 
 
+# Fonctions de convenance pour l'API publique
 def get_container() -> DIContainer:
     """
     Récupère le container DI global.
@@ -283,11 +348,7 @@ def get_container() -> DIContainer:
     Returns:
         Container d'injection de dépendances
     """
-    global _global_container
-    if _global_container is None:
-        _global_container = DIContainer()
-        # Configuration des services sera ajoutée ici
-    return _global_container
+    return FactoryManager().get_container()
 
 
 def get_controller_factory() -> ControllerFactory:
@@ -297,10 +358,7 @@ def get_controller_factory() -> ControllerFactory:
     Returns:
         Factory de contrôleurs
     """
-    global _controller_factory
-    if _controller_factory is None:
-        _controller_factory = ControllerFactory(get_container())
-    return _controller_factory
+    return FactoryManager().get_controller_factory()
 
 
 def get_repository_factory() -> RepositoryFactory:
@@ -310,10 +368,7 @@ def get_repository_factory() -> RepositoryFactory:
     Returns:
         Factory de repositories
     """
-    global _repository_factory
-    if _repository_factory is None:
-        _repository_factory = RepositoryFactory(get_container())
-    return _repository_factory
+    return FactoryManager().get_repository_factory()
 
 
 def reset_factories() -> None:
@@ -322,10 +377,7 @@ def reset_factories() -> None:
 
     Utile pour les tests et le rechargement de configuration.
     """
-    global _global_container, _controller_factory, _repository_factory
-    _global_container = None
-    _controller_factory = None
-    _repository_factory = None
+    FactoryManager().reset_factories()
 
 
 # Compatibilité avec l'ancien système (à supprimer progressivement)
