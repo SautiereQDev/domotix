@@ -109,9 +109,11 @@ def test_sensor_update_value():
 
 def test_sensor_update_value_with_string():
     """Tester que mettre à jour un capteur avec une chaîne lève une erreur."""
+    from domotix.globals.exceptions import ValidationError
+
     capteur = Sensor(name="Capteur de test")
     # Les capteurs n'acceptent que des valeurs numériques
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         capteur.update_value("normal")
 
 

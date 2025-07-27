@@ -9,16 +9,23 @@ Exposed Enums:
 
 Exposed Exceptions:
     DomotixError, DeviceNotFoundError, InvalidDeviceTypeError,
-    CommandExecutionError
+    CommandExecutionError, ErrorCode, ErrorContext, ValidationError,
+    DeviceError, RepositoryError, ControllerError
 """
 
 # Module globals - Éléments globaux du système
 from .enums import CommandType, DeviceState, DeviceType
 from .exceptions import (
     CommandExecutionError,
+    ControllerError,
+    DeviceError,
     DeviceNotFoundError,
     DomotixError,
+    ErrorCode,
+    ErrorContext,
     InvalidDeviceTypeError,
+    RepositoryError,
+    ValidationError,
 )
 
 __all__ = [
@@ -31,4 +38,11 @@ __all__ = [
     "DeviceNotFoundError",
     "InvalidDeviceTypeError",
     "CommandExecutionError",
+    # Nouvelles exceptions du système d'error handling
+    "ErrorCode",
+    "ErrorContext",
+    "ValidationError",
+    "DeviceError",
+    "RepositoryError",
+    "ControllerError",
 ]
