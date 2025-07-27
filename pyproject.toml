@@ -43,6 +43,12 @@ bandit = "^1.8.0"
 types-PyYAML = "^6.0.12"
 sphinx-rtd-theme = "^3.0.2"
 myst-parser = "^4.0.1"
+pytest-xdist = "^3.8.0"
+pytest-mock = "^3.14.1"
+faker = "^37.4.2"
+factory-boy = "^3.3.3"
+hypothesis = "^6.136.4"
+pytest-benchmark = "^5.1.0"
 
 [tool.poetry.scripts]
 domotix = "domotix.cli.main:main"
