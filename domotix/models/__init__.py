@@ -17,10 +17,11 @@ Example:
     >>> volet = Shutter("Volet chambre")
 """
 
+from .base_model import DeviceModel
+
 # Imports pour les modèles
 from .device import Device
 from .light import Light
-from .persistence import DeviceModel
 from .sensor import Sensor
 from .shutter import Shutter
 

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from domotix.globals.enums import DeviceType
 from domotix.models import Device, Light, Sensor, Shutter
-from domotix.models.persistence import DeviceModel
+from domotix.models.base_model import DeviceModel
 
 
 class DeviceRepository:

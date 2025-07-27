@@ -12,7 +12,7 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-from domotix.models.persistence import DeviceModel
+from domotix.models.base_model import DeviceModel
 from domotix.models.shutter import Shutter
 
 from .device_repository import DeviceRepository
