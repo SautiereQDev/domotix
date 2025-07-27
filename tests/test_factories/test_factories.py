@@ -15,7 +15,7 @@ from domotix.controllers import (
     SensorController,
     ShutterController,
 )
-from domotix.factories import get_controller_factory, get_repository_factory
+from domotix.core.factories import get_controller_factory, get_repository_factory
 from domotix.repositories import (
     DeviceRepository,
     LightRepository,
@@ -92,7 +92,7 @@ class TestModernRepositoryFactory:
 class TestModernControllerFactory:
     """Tests pour le nouveau système de controller factory avec DI."""
 
-    @patch("domotix.factories.RepositoryFactory")
+    @patch("domotix.core.factories.RepositoryFactory")
     def test_create_device_controller_with_session(self, mock_repo_factory_class):
         """Test de création d'un DeviceController avec session."""
         # Arrange
@@ -113,7 +113,7 @@ class TestModernControllerFactory:
         # Vérifier que le repository a été injecté
         assert hasattr(controller, "_repository")
 
-    @patch("domotix.factories.RepositoryFactory")
+    @patch("domotix.core.factories.RepositoryFactory")
     def test_create_light_controller_with_session(self, mock_repo_factory_class):
         """Test de création d'un LightController avec session."""
         # Arrange
@@ -133,7 +133,7 @@ class TestModernControllerFactory:
         assert isinstance(controller, LightController)
         assert hasattr(controller, "_repository")
 
-    @patch("domotix.factories.RepositoryFactory")
+    @patch("domotix.core.factories.RepositoryFactory")
     def test_create_shutter_controller_with_session(self, mock_repo_factory_class):
         """Test de création d'un ShutterController avec session."""
         # Arrange
@@ -153,7 +153,7 @@ class TestModernControllerFactory:
         assert isinstance(controller, ShutterController)
         assert hasattr(controller, "_repository")
 
-    @patch("domotix.factories.RepositoryFactory")
+    @patch("domotix.core.factories.RepositoryFactory")
     def test_create_sensor_controller_with_session(self, mock_repo_factory_class):
         """Test de création d'un SensorController avec session."""
         # Arrange
@@ -302,7 +302,7 @@ class TestBackwardCompatibility:
         """Test que les anciens imports fonctionnent encore."""
         # Act & Assert - Les imports devraient fonctionner
         try:
-            from domotix.factories import LegacyControllerFactory
+            from domotix.core.factories import LegacyControllerFactory
 
             # Les méthodes de compatibilité devraient exister
             assert hasattr(LegacyControllerFactory, "create_device_controller")
