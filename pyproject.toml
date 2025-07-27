@@ -48,7 +48,7 @@ pytest-mock = "^3.14.1"
 faker = "^37.4.2"
 factory-boy = "^3.3.3"
 hypothesis = "^6.136.4"
-pytest-benchmark = "^5.1.0"
+# Line removed as pytest-benchmark is unused.
 
 [tool.poetry.scripts]
 domotix = "domotix.cli.main:main"
