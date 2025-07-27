@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from domotix.core.database import Base
-from domotix.factories import get_controller_factory, get_repository_factory
+from domotix.core.factories import get_controller_factory, get_repository_factory
 from domotix.models import Light, Sensor, Shutter
 
 

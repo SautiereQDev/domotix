@@ -12,10 +12,8 @@ ignore=CVS,.git,__pycache__,.pytest_cache,build,dist,docs/_build
 ignore-patterns=
 
 [MESSAGES CONTROL]
-# Désactiver tous les warnings, conventions et refactoring
-# Ne garder que les erreurs (E) et fatales (F)
-disable=all
-enable=E,F
+# Désactiver les erreurs d'import spécifiquement
+disable=E0401,import-error,no-name-in-module,no-member,import-outside-toplevel,wrong-import-order,broad-exception-caught
 
 # Alternativement, vous pouvez désactiver spécifiquement les catégories :
 # disable=W,C,R,I
