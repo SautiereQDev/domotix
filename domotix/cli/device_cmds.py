@@ -2,7 +2,7 @@
 Module des commandes CLI pour la gestion des dispositifs.
 
 Ce module contient toutes les commandes CLI pour ajouter, lister,
-supprimer et voir le statut des dispositifs avec persistance.
+supprimer et voir le statut des dispositifs avec injection de dépendance moderne.
 
 Commands:
     device_list: Affiche la liste des dispositifs
@@ -14,7 +14,8 @@ Commands:
 from typing import Optional
 
 from ..core.database import create_session
-from ..core.factories import ControllerFactory
+from ..core.service_provider import scoped_service_provider
+from ..factories import get_controller_factory
 from ..models import Light, Sensor, Shutter
 from .main import app
 
@@ -43,14 +44,13 @@ Classes:
 
 
 class DeviceCreateCommands:
-    """Commandes pour créer des dispositifs."""
+    """Commandes pour créer des dispositifs avec injection de dépendance."""
 
     @staticmethod
     def create_light(name: str, location: Optional[str] = None):
         """Crée une nouvelle lampe."""
-        session = create_session()
-        try:
-            controller = ControllerFactory.create_light_controller(session)
+        with scoped_service_provider.create_scope() as provider:
+            controller = provider.get_light_controller()
             light_id = controller.create_light(name, location)
 
             if light_id:
@@ -63,15 +63,13 @@ class DeviceCreateCommands:
                     print(f"✅ Lampe créée avec l'ID: {light_id}")
             else:
                 print(f"❌ Erreur lors de la création de la lampe '{name}'")
-        finally:
-            session.close()
 
     @staticmethod
     def create_shutter(name: str, location: Optional[str] = None):
         """Crée un nouveau volet."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_shutter_controller(session)
+            controller = get_controller_factory().create_shutter_controller(session)
             shutter_id = controller.create_shutter(name, location)
 
             if shutter_id:
@@ -92,7 +90,7 @@ class DeviceCreateCommands:
         """Crée un nouveau capteur."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_sensor_controller(session)
+            controller = get_controller_factory().create_sensor_controller(session)
             sensor_id = controller.create_sensor(name, location)
 
             if sensor_id:
@@ -117,7 +115,7 @@ class DeviceListCommands:
         """Affiche la liste de tous les dispositifs."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_device_controller(session)
+            controller = get_controller_factory().create_device_controller(session)
             devices = controller.get_all_devices()
 
             if not devices:
@@ -153,7 +151,7 @@ class DeviceListCommands:
         """Affiche la liste des lampes."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_light_controller(session)
+            controller = get_controller_factory().create_light_controller(session)
             lights = controller.get_all_lights()
 
             if not lights:
@@ -178,7 +176,7 @@ class DeviceListCommands:
         """Affiche la liste des volets."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_shutter_controller(session)
+            controller = get_controller_factory().create_shutter_controller(session)
             shutters = controller.get_all_shutters()
 
             if not shutters:
@@ -203,7 +201,7 @@ class DeviceListCommands:
         """Affiche la liste des capteurs."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_sensor_controller(session)
+            controller = get_controller_factory().create_sensor_controller(session)
             sensors = controller.get_all_sensors()
 
             if not sensors:
@@ -228,7 +226,7 @@ class DeviceListCommands:
         """Affiche les détails d'un dispositif."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_device_controller(session)
+            controller = get_controller_factory().create_device_controller(session)
             device = controller.get_device(device_id)
 
             if not device:
@@ -264,7 +262,7 @@ class DeviceStateCommands:
         """Allume une lampe."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_light_controller(session)
+            controller = get_controller_factory().create_light_controller(session)
             success = controller.turn_on(light_id)
 
             if success:
@@ -279,7 +277,7 @@ class DeviceStateCommands:
         """Éteint une lampe."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_light_controller(session)
+            controller = get_controller_factory().create_light_controller(session)
             success = controller.turn_off(light_id)
 
             if success:
@@ -294,7 +292,7 @@ class DeviceStateCommands:
         """Bascule l'état d'une lampe."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_light_controller(session)
+            controller = get_controller_factory().create_light_controller(session)
             success = controller.toggle(light_id)
 
             if success:
@@ -315,7 +313,7 @@ class DeviceStateCommands:
         """Ouvre un volet."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_shutter_controller(session)
+            controller = get_controller_factory().create_shutter_controller(session)
             success = controller.open(shutter_id)
 
             if success:
@@ -330,7 +328,7 @@ class DeviceStateCommands:
         """Ferme un volet."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_shutter_controller(session)
+            controller = get_controller_factory().create_shutter_controller(session)
             success = controller.close(shutter_id)
 
             if success:
@@ -345,7 +343,7 @@ class DeviceStateCommands:
         """Met à jour la valeur d'un capteur."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_sensor_controller(session)
+            controller = get_controller_factory().create_sensor_controller(session)
             success = controller.update_value(sensor_id, value)
 
             if success:
@@ -360,7 +358,7 @@ class DeviceStateCommands:
         """Remet à zéro un capteur."""
         session = create_session()
         try:
-            controller = ControllerFactory.create_sensor_controller(session)
+            controller = get_controller_factory().create_sensor_controller(session)
             success = controller.reset_value(sensor_id)
 
             if success:
@@ -411,7 +409,7 @@ def device_remove(device_id: str):
     """
     session = create_session()
     try:
-        controller = ControllerFactory.create_device_controller(session)
+        controller = get_controller_factory().create_device_controller(session)
 
         # Tenter de supprimer selon le type
         device = controller.get_device(device_id)
@@ -421,13 +419,17 @@ def device_remove(device_id: str):
 
         success = False
         if isinstance(device, Light):
-            light_controller = ControllerFactory.create_light_controller(session)
+            light_controller = get_controller_factory().create_light_controller(session)
             success = light_controller.delete_light(device_id)
         elif isinstance(device, Shutter):
-            shutter_controller = ControllerFactory.create_shutter_controller(session)
+            shutter_controller = get_controller_factory().create_shutter_controller(
+                session
+            )
             success = shutter_controller.delete_shutter(device_id)
         elif isinstance(device, Sensor):
-            sensor_controller = ControllerFactory.create_sensor_controller(session)
+            sensor_controller = get_controller_factory().create_sensor_controller(
+                session
+            )
             success = sensor_controller.delete_sensor(device_id)
 
         if success:

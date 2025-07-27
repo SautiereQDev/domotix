@@ -21,11 +21,11 @@ app = typer.Typer()
 
 def main():
     """Point d'entrée pour Poetry."""
-    # Register CLI commands by importing the module where they are defined
-    import domotix.cli.device_cmds  # noqa: F401
+    # Register CLI commands by importing the module and using its app
+    from domotix.cli.device_cmds_di import app as device_app
 
     try:
-        app()
+        device_app()
     except SystemExit:
         # Intercepter SystemExit pour éviter de quitter le programme
         typer.echo("L'application a été arrêtée.")
