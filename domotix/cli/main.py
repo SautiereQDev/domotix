@@ -9,8 +9,6 @@ Commands:
 """
 
 # Core imports
-import sys
-
 import typer  # pylint: disable=import-error
 
 # Typer application instance (needs to be declared before importing commands)
@@ -21,15 +19,15 @@ app = typer.Typer()
 
 def main():
     """Point d'entrée pour Poetry."""
+    # Initialiser la base de données
+    from domotix.core.database import create_tables
+
+    create_tables()
+
     # Register CLI commands by importing the module and using its app
     from domotix.cli.device_cmds_di import app as device_app
 
-    try:
-        device_app()
-    except SystemExit:
-        # Intercepter SystemExit pour éviter de quitter le programme
-        typer.echo("L'application a été arrêtée.")
-        sys.exit(0)
+    device_app()
 
 
 if __name__ == "__main__":

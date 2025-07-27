@@ -187,7 +187,7 @@ class DeviceController:
         for device in all_devices:
             if device.location:
                 locations.add(device.location)
-        return sorted(list(locations))
+        return sorted(locations)
 
     def search_devices(self, query: str) -> List[Device]:
         """

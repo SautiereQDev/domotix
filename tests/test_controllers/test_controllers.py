@@ -316,7 +316,7 @@ class TestSensorController:
 
         # Assert
         assert result is True
-        assert sample_sensor.value == 22.5
+        assert abs(sample_sensor.value - 22.5) < 1e-9
         mock_repository.update.assert_called_once_with(sample_sensor)
 
     def test_get_value_success(self, mock_repository, sample_sensor):
@@ -330,7 +330,7 @@ class TestSensorController:
         result = controller.get_value("test-id")
 
         # Assert
-        assert result == 18.7
+        assert abs(result - 18.7) < 1e-9
 
     def test_is_active_with_value(self, mock_repository, sample_sensor):
         """Test de vérification d'activité avec valeur."""
