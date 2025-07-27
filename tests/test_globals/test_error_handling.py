@@ -91,7 +91,7 @@ def test_error_handling_utilities():
 
     # Test 2: Validation de nom de dispositif (utilise validate_device_id)
     try:
-        validate_device_id("")  # Nom vide
+        validate_device_id("")  # ID vide
         print("❌ La validation de nom vide a échoué")
         return False
     except ValidationError as e:
