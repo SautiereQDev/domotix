@@ -18,6 +18,7 @@ Example:
     VALUE_22.5
 """
 
+import math
 from typing import Optional, Union
 
 from ..globals.enums import DeviceType
