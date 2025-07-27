@@ -207,7 +207,13 @@ class DIContainer:
             RuntimeError: Si une dépendance circulaire est détectée
         """
         if service_type in self._building_stack:
-            msg = f"Dépendance circulaire détectée pour {service_type}"
+            dependency_chain = " -> ".join(
+                [str(s) for s in list(self._building_stack)] + [str(service_type)]
+            )
+            msg = (
+                f"Dépendance circulaire détectée pour {service_type}. "
+                f"Chaîne de dépendances: {dependency_chain}"
+            )
             raise RuntimeError(msg)
 
         if service_type not in self._services:
