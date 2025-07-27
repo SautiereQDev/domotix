@@ -164,7 +164,7 @@ class TestDIContainer:
         Returns:
             Mock: Instance mock
         """
-        return self.mocks.get(service_type)  # type: ignore[return-value]
+        return self.mocks.get(service_type, Mock())
 
     def resolve(self, service_type: Type[T]) -> T:
         """
