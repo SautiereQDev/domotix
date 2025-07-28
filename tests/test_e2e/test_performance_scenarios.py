@@ -1,15 +1,15 @@
 """
-Tests End-to-End (E2E) pour les scenarios de performance du système Domotix.
+End-to-End (E2E) Tests for Domotix system performance scenarios.
 
-Ces tests valident que le système maintient des performances acceptables
-sous différentes charges et conditions d'utilisation réelles.
+These tests validate that the system maintains acceptable performance
+under various loads and real-world usage conditions.
 
 Test Coverage:
-    - Performance de création de dispositifs en masse
-    - Performance des requêtes avec grande quantité de données
-    - Performance des opérations d'état fréquentes
-    - Benchmarks de temps de réponse
-    - Tests de scalabilité
+    - Bulk device creation performance
+    - Query performance with large data volumes
+    - Frequent state operation performance
+    - Response time benchmarks
+    - Scalability tests
 """
 
 # pylint: disable=redefined-outer-name
@@ -31,7 +31,7 @@ from domotix.repositories.device_repository import DeviceRepository
 
 @pytest.fixture
 def perf_test_db():
-    """Fixture pour une base de données temporaire dédiée aux tests de performance."""
+    """Fixture for a temporary database dedicated to performance tests."""
     temp_dir = tempfile.mkdtemp(prefix="domotix_e2e_perf_")
     db_path = os.path.join(temp_dir, "test_performance.db")
 
@@ -56,13 +56,13 @@ def perf_test_db():
 
 
 class PerformanceTimer:
-    """Helper pour mesurer les performances."""
+    """Helper to measure performance."""
 
     def __init__(self):
         self.measurements: Dict[str, List[float]] = {}
 
     def time_operation(self, operation_name: str, operation_func, *args, **kwargs):
-        """Mesure le temps d'exécution d'une opération."""
+        """Measures the execution time of an operation."""
         start_time = time.time()
         result = operation_func(*args, **kwargs)
         end_time = time.time()
@@ -76,7 +76,7 @@ class PerformanceTimer:
         return result, duration
 
     def get_stats(self, operation_name: str) -> Dict[str, float]:
-        """Obtient les statistiques pour une opération."""
+        """Gets the statistics for an operation."""
         if operation_name not in self.measurements:
             return {}
 
@@ -92,39 +92,39 @@ class PerformanceTimer:
         }
 
     def print_summary(self):
-        """Affiche un résumé des performances."""
+        """Displays a summary of performances."""
         print("\n" + "=" * 60)
-        print("RÉSUMÉ DES PERFORMANCES")
+        print("PERFORMANCE SUMMARY")
         print("=" * 60)
 
         for operation, stats in [(op, self.get_stats(op)) for op in self.measurements]:
             if stats:
                 print(f"\n{operation}:")
-                print(f"  Opérations: {stats['count']}")
-                print(f"  Temps total: {stats['total']:.3f}s")
-                print(f"  Moyenne: {stats['average'] * 1000:.2f}ms")
-                print(f"  Médiane: {stats['median'] * 1000:.2f}ms")
+                print(f"  Operations: {stats['count']}")
+                print(f"  Total time: {stats['total']:.3f}s")
+                print(f"  Average: {stats['average'] * 1000:.2f}ms")
+                print(f"  Median: {stats['median'] * 1000:.2f}ms")
                 print(
                     f"  Min/Max: {stats['min'] * 1000:.2f}ms / "
                     f"{stats['max'] * 1000:.2f}ms"
                 )
                 if stats["stdev"] > 0:
-                    print(f"  Écart-type: {stats['stdev'] * 1000:.2f}ms")
+                    print(f"  Standard deviation: {stats['stdev'] * 1000:.2f}ms")
 
 
 @pytest.fixture
 def perf_timer():
-    """Fixture pour le timer de performance."""
+    """Fixture for the performance timer."""
     timer = PerformanceTimer()
     yield timer
     timer.print_summary()
 
 
 class TestDeviceCreationPerformance:
-    """Tests de performance pour la création de dispositifs."""
+    """Performance tests for device creation."""
 
     def test_bulk_device_creation_performance(self, perf_test_db, perf_timer):
-        """Test E2E: Performance de création de dispositifs en masse."""
+        """E2E Test: Bulk device creation performance."""
         session = create_session()
 
         try:
@@ -136,10 +136,10 @@ class TestDeviceCreationPerformance:
                 session
             )
 
-            # Test de création en masse pour chaque type
+            # Bulk creation test for each type
             num_devices_per_type = 50
 
-            # Création de lampes
+            # Creating lights
             light_ids = []
             for i in range(num_devices_per_type):
                 light_id, duration = perf_timer.time_operation(
@@ -151,7 +151,7 @@ class TestDeviceCreationPerformance:
                 if light_id:
                     light_ids.append(light_id)
 
-            # Création de volets
+            # Creating shutters
             shutter_ids = []
             for i in range(num_devices_per_type):
                 shutter_id, duration = perf_timer.time_operation(
@@ -163,7 +163,7 @@ class TestDeviceCreationPerformance:
                 if shutter_id:
                     shutter_ids.append(shutter_id)
 
-            # Création de capteurs
+            # Creating sensors
             sensor_ids = []
             for i in range(num_devices_per_type):
                 sensor_id, duration = perf_timer.time_operation(
@@ -175,28 +175,28 @@ class TestDeviceCreationPerformance:
                 if sensor_id:
                     sensor_ids.append(sensor_id)
 
-            # Vérifications de performance
+            # Performance checks
             light_stats = perf_timer.get_stats("create_light")
             shutter_stats = perf_timer.get_stats("create_shutter")
             sensor_stats = perf_timer.get_stats("create_sensor")
 
-            # Assertions de performance (seuils raisonnables)
+            # Performance assertions (reasonable thresholds)
             assert (
                 light_stats["average"] < 1.0
-            ), f"Création lampe trop lente: {light_stats['average']:.3f}s"
+            ), f"Light creation too slow: {light_stats['average']:.3f}s"
             assert (
                 shutter_stats["average"] < 1.0
-            ), f"Création volet trop lente: {shutter_stats['average']:.3f}s"
+            ), f"Shutter creation too slow: {shutter_stats['average']:.3f}s"
             assert (
                 sensor_stats["average"] < 1.0
-            ), f"Création capteur trop lente: {sensor_stats['average']:.3f}s"
+            ), f"Sensor creation too slow: {sensor_stats['average']:.3f}s"
 
-            # Vérification d'intégrité
+            # Integrity check
             assert len(light_ids) == num_devices_per_type
             assert len(shutter_ids) == num_devices_per_type
             assert len(sensor_ids) == num_devices_per_type
 
-            # Test de lecture après création
+            # Read test after creation
             repo = DeviceRepository(session)
             total_devices, _ = perf_timer.time_operation(
                 "count_all_devices", repo.count_all
@@ -209,13 +209,13 @@ class TestDeviceCreationPerformance:
             session.close()
 
     def test_sequential_vs_batch_creation(self, perf_test_db, perf_timer):
-        """Test E2E: Comparaison création séquentielle vs batch."""
+        """E2E Test: Sequential vs batch creation comparison."""
         session = create_session()
 
         try:
             controller = get_controller_factory().create_light_controller(session)
 
-            # Test séquentiel
+            # Sequential test
             sequential_ids = []
             num_devices = 20
 
@@ -231,7 +231,7 @@ class TestDeviceCreationPerformance:
                     sequential_ids.append(light_id)
             sequential_total_time = time.time() - start_time
 
-            # Simulation de création "batch" (création rapide successive)
+            # Simulate "batch" creation (rapid successive creation)
             batch_ids = []
             start_time = time.time()
             for i in range(num_devices):
@@ -245,13 +245,13 @@ class TestDeviceCreationPerformance:
                     batch_ids.append(light_id)
             batch_total_time = time.time() - start_time
 
-            # Comparaison des performances
+            # Performance comparison
             sequential_stats = perf_timer.get_stats("sequential_creation")
             batch_stats = perf_timer.get_stats("batch_creation")
 
-            print("\nComparaison Séquentiel vs Batch:")
+            print("\nSequential vs Batch Comparison:")
             print(
-                f"Séquentiel: {sequential_total_time:.3f}s total, "
+                f"Sequential: {sequential_total_time:.3f}s total, "
                 f"{sequential_stats['average'] * 1000:.2f}ms/op"
             )
             print(
@@ -259,41 +259,39 @@ class TestDeviceCreationPerformance:
                 f"{batch_stats['average'] * 1000:.2f}ms/op"
             )
 
-            # Vérification d'intégrité
+            # Integrity check
             assert len(sequential_ids) == num_devices
             assert len(batch_ids) == num_devices
 
-            # Les deux méthodes doivent avoir des performances similaires
-            # (dans ce système, il n'y a pas vraiment de batch, donc similaire)
+            # Both methods should have similar performance
+            # (in this system, there is not really a batch, so similar)
             ratio = (
                 batch_stats["average"] / sequential_stats["average"]
                 if sequential_stats["average"] > 0
                 else 1
             )
-            assert (
-                0.5 <= ratio <= 2.0
-            ), f"Différence de performance trop importante: {ratio}"
+            assert 0.5 <= ratio <= 2.0, f"Performance difference too high: {ratio}"
 
         finally:
             session.close()
 
 
 class TestQueryPerformance:
-    """Tests de performance pour les requêtes."""
+    """Performance tests for queries."""
 
     def test_large_dataset_query_performance(self, perf_test_db, perf_timer):
-        """Test E2E: Performance des requêtes sur un grand dataset."""
+        """E2E Test: Query performance on a large dataset."""
         session = create_session()
 
         try:
-            # Créer un grand dataset
+            # Create a large dataset
             controller = get_controller_factory().create_light_controller(session)
             repo = DeviceRepository(session)
 
             num_devices = 100
             num_locations = 10
 
-            # Création rapide du dataset
+            # Rapid dataset creation
             device_ids = []
             for i in range(num_devices):
                 light_id = controller.create_light(
@@ -304,13 +302,13 @@ class TestQueryPerformance:
 
             assert len(device_ids) == num_devices
 
-            # Test des différents types de requêtes
+            # Test different types of queries
 
-            # 1. Requête complète
+            # 1. Full query
             all_devices, _ = perf_timer.time_operation("query_find_all", repo.find_all)
             assert len(all_devices) == num_devices
 
-            # 2. Requêtes par localisation
+            # 2. Location-based queries
             for room_id in range(num_locations):
                 location_devices, _ = perf_timer.time_operation(
                     "query_by_location", repo.find_by_location, f"Room {room_id}"
@@ -318,28 +316,28 @@ class TestQueryPerformance:
                 expected_count = num_devices // num_locations
                 assert len(location_devices) == expected_count
 
-            # 3. Requêtes par ID (accès direct)
-            for i in range(0, min(20, len(device_ids)), 2):  # Tester 10 dispositifs
+            # 3. ID-based queries (direct access)
+            for i in range(0, min(20, len(device_ids)), 2):  # Test 10 devices
                 device, _ = perf_timer.time_operation(
                     "query_by_id", repo.find_by_id, device_ids[i]
                 )
                 assert device is not None
                 assert device.id == device_ids[i]
 
-            # 4. Requêtes par pattern de nom
+            # 4. Name pattern queries
             search_results, _ = perf_timer.time_operation(
                 "query_search_by_name",
                 repo.search_by_name,
-                "01",  # Chercher les dispositifs avec "01" dans le nom
+                "01",  # Search for devices with "01" in the name
             )
-            # Doit trouver Lampe 001, 010, 011, etc.
+            # Should find Lampe 001, 010, 011, etc.
             assert len(search_results) >= 10
 
-            # 5. Comptage
+            # 5. Counting
             count, _ = perf_timer.time_operation("query_count_all", repo.count_all)
             assert count == num_devices
 
-            # Vérifications de performance
+            # Performance checks
             perf_stats = {
                 "find_all": perf_timer.get_stats("query_find_all"),
                 "by_location": perf_timer.get_stats("query_by_location"),
@@ -348,28 +346,26 @@ class TestQueryPerformance:
                 "count": perf_timer.get_stats("query_count_all"),
             }
 
-            # Seuils de performance (ajustables selon les besoins)
-            assert (
-                perf_stats["find_all"]["average"] < 2.0
-            ), "Requête find_all trop lente"
+            # Performance thresholds (adjustable as needed)
+            assert perf_stats["find_all"]["average"] < 2.0, "find_all query too slow"
             assert (
                 perf_stats["by_location"]["average"] < 1.0
-            ), "Requête by_location trop lente"
-            assert perf_stats["by_id"]["average"] < 0.5, "Requête by_id trop lente"
-            assert perf_stats["count"]["average"] < 1.0, "Requête count trop lente"
+            ), "by_location query too slow"
+            assert perf_stats["by_id"]["average"] < 0.5, "by_id query too slow"
+            assert perf_stats["count"]["average"] < 1.0, "count query too slow"
 
         finally:
             session.close()
 
     def test_concurrent_query_performance(self, perf_test_db, perf_timer):
-        """Test E2E: Performance des requêtes concurrentes."""
-        # Préparer les données
+        """E2E Test: Performance of concurrent queries."""
+        # Prepare data
         session = create_session()
 
         try:
             controller = get_controller_factory().create_light_controller(session)
 
-            # Créer des dispositifs pour les tests
+            # Create devices for testing
             device_ids = []
             for i in range(30):
                 light_id = controller.create_light(
@@ -381,9 +377,9 @@ class TestQueryPerformance:
         finally:
             session.close()
 
-        # Test concurrent avec plusieurs threads
+        # Concurrent test with multiple threads
         def worker_thread(thread_id: int, operations_per_thread: int) -> List[float]:
-            """Worker thread pour les tests concurrents."""
+            """Worker thread for concurrent tests."""
             thread_session = create_session()
             thread_times = []
 
@@ -391,21 +387,21 @@ class TestQueryPerformance:
                 thread_repo = DeviceRepository(thread_session)
 
                 for i in range(operations_per_thread):
-                    # Alterner entre différents types de requêtes
+                    # Alternate between different types of queries
                     start_time = time.time()
 
                     if i % 4 == 0:
-                        # Requête complète
+                        # Full query
                         thread_repo.find_all()
                     elif i % 4 == 1:
-                        # Requête par location
+                        # Location-based query
                         thread_repo.find_by_location(f"Room {i % 5}")
                     elif i % 4 == 2:
-                        # Requête par ID
+                        # ID-based query
                         if device_ids:
                             thread_repo.find_by_id(device_ids[i % len(device_ids)])
                     else:
-                        # Comptage
+                        # Counting
                         thread_repo.count_all()
 
                     end_time = time.time()
@@ -416,7 +412,7 @@ class TestQueryPerformance:
 
             return thread_times
 
-        # Lancer les threads concurrents
+        # Launch concurrent threads
         num_threads = 4
         operations_per_thread = 10
 
@@ -436,7 +432,7 @@ class TestQueryPerformance:
         concurrent_end = time.time()
         concurrent_total_time = concurrent_end - concurrent_start
 
-        # Analyser les résultats
+        # Analyze results
         if all_times:
             avg_time = statistics.mean(all_times)
             max_time = max(all_times)
@@ -445,88 +441,88 @@ class TestQueryPerformance:
             total_operations = num_threads * operations_per_thread
             operations_per_second = total_operations / concurrent_total_time
 
-            print("\nPerformance Concurrente:")
+            print("\nConcurrent Performance:")
             print(f"  Threads: {num_threads}")
-            print(f"  Opérations totales: {total_operations}")
-            print(f"  Temps total: {concurrent_total_time:.3f}s")
-            print(f"  Opérations/seconde: {operations_per_second:.1f}")
-            print(f"  Temps moyen par opération: {avg_time * 1000:.2f}ms")
+            print(f"  Total operations: {total_operations}")
+            print(f"  Total time: {concurrent_total_time:.3f}s")
+            print(f"  Operations/second: {operations_per_second:.1f}")
+            print(f"  Average time per operation: {avg_time * 1000:.2f}ms")
             print(f"  Min/Max: {min_time * 1000:.2f}ms / {max_time * 1000:.2f}ms")
 
-            # Assertions de performance
-            assert avg_time < 1.0, f"Requêtes concurrentes trop lentes: {avg_time:.3f}s"
+            # Performance assertions
+            assert avg_time < 1.0, f"Concurrent queries too slow: {avg_time:.3f}s"
             assert (
                 operations_per_second > 5
-            ), f"Débit trop faible: {operations_per_second:.1f} ops/s"
+            ), f"Throughput too low: {operations_per_second:.1f} ops/s"
 
 
 class TestStateOperationPerformance:
-    """Tests de performance pour les opérations d'état."""
+    """Performance tests for state operations."""
 
     def test_frequent_state_changes_performance(self, perf_test_db, perf_timer):
-        """Test E2E: Performance des changements d'état fréquents."""
+        """E2E Test: Performance of frequent state changes."""
         session = create_session()
 
         try:
             controller = get_controller_factory().create_light_controller(session)
 
-            # Créer des lampes pour les tests
+            # Create lights for testing
             light_ids = []
             for i in range(10):
                 light_id = controller.create_light(f"Lampe State {i}", "State Room")
                 if light_id:
                     light_ids.append(light_id)
 
-            assert len(light_ids) >= 5  # Au moins 5 lampes pour le test
+            assert len(light_ids) >= 5  # At least 5 lights for the test
 
-            # Test de changements d'état rapides
-            num_cycles = 20  # 20 cycles on/off par lampe
+            # Rapid state change test
+            num_cycles = 20  # 20 on/off cycles per lamp
 
-            for light_id in light_ids[:5]:  # Tester 5 lampes
+            for light_id in light_ids[:5]:  # Test 5 lamps
                 for _ in range(num_cycles):
-                    # Allumer
+                    # Turn on
                     success, _ = perf_timer.time_operation(
                         "turn_on_operation", controller.turn_on, light_id
                     )
                     assert success is True
 
-                    # Vérifier l'état
+                    # Check state
                     light, _ = perf_timer.time_operation(
                         "get_light_state", controller.get_light, light_id
                     )
                     assert light is not None
                     assert light.is_on is True
 
-                    # Éteindre
+                    # Turn off
                     success, _ = perf_timer.time_operation(
                         "turn_off_operation", controller.turn_off, light_id
                     )
                     assert success is True
 
-                    # Vérifier l'état
+                    # Check state
                     light, _ = perf_timer.time_operation(
                         "get_light_state", controller.get_light, light_id
                     )
                     assert light is not None
                     assert light.is_on is False
 
-            # Analyser les performances
+            # Analyze performances
             turn_on_stats = perf_timer.get_stats("turn_on_operation")
             turn_off_stats = perf_timer.get_stats("turn_off_operation")
             get_state_stats = perf_timer.get_stats("get_light_state")
 
-            # Seuils de performance pour les opérations d'état
+            # Performance thresholds for state operations
             assert (
                 turn_on_stats["average"] < 0.5
-            ), f"Turn ON trop lent: {turn_on_stats['average']:.3f}s"
+            ), f"Turn ON too slow: {turn_on_stats['average']:.3f}s"
             assert (
                 turn_off_stats["average"] < 0.5
-            ), f"Turn OFF trop lent: {turn_off_stats['average']:.3f}s"
+            ), f"Turn OFF too slow: {turn_off_stats['average']:.3f}s"
             assert (
                 get_state_stats["average"] < 0.2
-            ), f"Get state trop lent: {get_state_stats['average']:.3f}s"
+            ), f"Get state too slow: {get_state_stats['average']:.3f}s"
 
-            # Vérifier la consistance des temps
+            # Consistency check
             on_off_ratio = (
                 turn_off_stats["average"] / turn_on_stats["average"]
                 if turn_on_stats["average"] > 0
@@ -534,13 +530,13 @@ class TestStateOperationPerformance:
             )
             assert (
                 0.5 <= on_off_ratio <= 2.0
-            ), f"Incohérence performances ON/OFF: {on_off_ratio}"
+            ), f"ON/OFF performance inconsistency: {on_off_ratio}"
 
         finally:
             session.close()
 
     def test_mixed_operation_performance(self, perf_test_db, perf_timer):
-        """Test E2E: Performance d'opérations mixtes réalistes."""
+        """E2E Test: Performance of realistic mixed operations."""
         session = create_session()
 
         try:
@@ -553,9 +549,9 @@ class TestStateOperationPerformance:
             )
             repo = DeviceRepository(session)
 
-            # Scenario réaliste: simulation d'utilisation journalière
+            # Realistic scenario: simulating daily usage
             scenario_operations = [
-                # Matin: allumer les lumières
+                # Morning: turn on lights
                 ("create_light", light_controller.create_light, "Lampe Salon", "Salon"),
                 (
                     "create_light",
@@ -563,9 +559,9 @@ class TestStateOperationPerformance:
                     "Lampe Cuisine",
                     "Cuisine",
                 ),
-                ("turn_on", light_controller.turn_on, None),  # ID sera résolu
+                ("turn_on", light_controller.turn_on, None),  # ID will be resolved
                 ("turn_on", light_controller.turn_on, None),
-                # Ouvrir les volets
+                # Open shutters
                 (
                     "create_shutter",
                     shutter_controller.create_shutter,
@@ -573,7 +569,7 @@ class TestStateOperationPerformance:
                     "Salon",
                 ),
                 ("open", shutter_controller.open, None),
-                # Capteurs de température
+                # Temperature sensors
                 (
                     "create_sensor",
                     sensor_controller.create_sensor,
@@ -581,26 +577,26 @@ class TestStateOperationPerformance:
                     "Salon",
                 ),
                 ("update_sensor", sensor_controller.update_value, None, 22.5),
-                # Requêtes d'état
+                # State queries
                 ("query_by_location", repo.find_by_location, "Salon"),
                 (
                     "query_count",
                     repo.count_all,
                 ),
-                # Soirée: éteindre progressivement
+                # Evening: gradually turn off
                 ("turn_off", light_controller.turn_off, None),
                 ("close", shutter_controller.close, None),
             ]
 
             created_devices = {"lights": [], "shutters": [], "sensors": []}
 
-            # Exécuter le scenario
+            # Execute scenario
             for operation_name, operation_func, *args in scenario_operations:
-                # Résoudre les IDs dynamiquement
+                # Dynamically resolve IDs
                 resolved_args = []
                 for arg in args:
                     if arg is None:
-                        # Utiliser le dernier dispositif créé du type approprié
+                        # Use the last created device ID of the appropriate type
                         light_ops = ["turn_on", "turn_off"]
                         shutter_ops = ["open", "close"]
 
@@ -621,14 +617,14 @@ class TestStateOperationPerformance:
                     else:
                         resolved_args.append(arg)
 
-                # Exécuter l'opération
+                # Execute operation
                 try:
                     if resolved_args or not args:
                         result, _ = perf_timer.time_operation(
                             operation_name, operation_func, *resolved_args
                         )
 
-                        # Stocker les IDs créés
+                        # Store created IDs
                         if "create_light" in operation_name and result:
                             created_devices["lights"].append(result)
                         elif "create_shutter" in operation_name and result:
@@ -637,28 +633,28 @@ class TestStateOperationPerformance:
                             created_devices["sensors"].append(result)
 
                 except Exception as e:
-                    print(f"Erreur dans opération {operation_name}: {e}")
+                    print(f"Error in operation {operation_name}: {e}")
                     continue
 
-            # Vérifier que le scenario s'est bien déroulé
+            # Check that the scenario executed correctly
             assert len(created_devices["lights"]) >= 2
             assert len(created_devices["shutters"]) >= 1
             assert len(created_devices["sensors"]) >= 1
 
-            # Analyser les performances du scenario complet
+            # Analyze performances of the complete scenario
             total_time = sum(sum(times) for times in perf_timer.measurements.values())
             total_operations = sum(
                 len(times) for times in perf_timer.measurements.values()
             )
 
-            print("\nScenario réaliste complété:")
-            print(f"  Total opérations: {total_operations}")
-            print(f"  Temps total: {total_time:.3f}s")
+            print("\nRealistic scenario completed:")
+            print(f"  Total operations: {total_operations}")
+            print(f"  Total time: {total_time:.3f}s")
             avg_time_ms = (total_time / total_operations) * 1000
-            print(f"  Temps moyen par opération: {avg_time_ms:.2f}ms")
+            print(f"  Average time per operation: {avg_time_ms:.2f}ms")
 
-            # Le scenario complet doit se terminer en moins de 10 secondes
-            assert total_time < 10.0, f"Scenario trop lent: {total_time:.3f}s"
+            # The complete scenario should finish in less than 10 seconds
+            assert total_time < 10.0, f"Scenario too slow: {total_time:.3f}s"
 
         finally:
             session.close()

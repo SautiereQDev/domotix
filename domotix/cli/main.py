@@ -1,11 +1,11 @@
 """
-Module principal de l'interface en ligne de commande (CLI).
+Main module for the command-line interface (CLI).
 
-Ce module utilise Typer pour créer une CLI pour interagir avec le
-système domotique. Il sert de point d'entrée pour toutes les commandes.
+This module uses Typer to create a CLI for interacting with the
+home automation system. It serves as the entry point for all commands.
 
 Commands:
-    cli: Commande principale de l'application
+    cli: Main application command
 """
 
 # Core imports
@@ -18,8 +18,8 @@ app = typer.Typer()
 
 
 def main():
-    """Point d'entrée pour Poetry."""
-    # Initialiser la base de données
+    """Entry point for Poetry."""
+    # Initialize the database
     from domotix.core.database import create_tables
 
     create_tables()

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Test CLI simple pour valider le framework.
+Simple CLI test to validate the framework.
 
-Ce test crée une base de données isolée et teste les commandes CLI de base.
+This test creates an isolated database and tests basic CLI commands.
 """
 
 import os
@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def run_cli_command(args, db_path, project_root):
-    """Execute une commande CLI avec une base de données isolée."""
+    """Run a CLI command with an isolated database."""
     cmd = ["poetry", "run", "python", "-m", "domotix.cli.main"] + args
     env = {**os.environ, "DOMOTIX_DB_PATH": db_path}
 
@@ -31,18 +31,18 @@ def run_cli_command(args, db_path, project_root):
 
 
 def main():
-    """Test CLI simple."""
-    print("🚀 Test CLI simple...")
+    """Simple CLI test."""
+    print("🚀 Simple CLI test...")
 
-    # Créer une base de données temporaire
+    # Create a temporary database
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_file:
         db_path = tmp_file.name
 
     project_root = Path(__file__).parent.parent.parent
 
     try:
-        # Test 1: Lister les dispositifs (base vide)
-        print("📋 Test: Liste des dispositifs (base vide)")
+        # Test 1: List devices (empty database)
+        print("📋 Test: List devices (empty database)")
         return_code, stdout, stderr = run_cli_command(
             ["device-list"], db_path, project_root
         )
@@ -50,14 +50,14 @@ def main():
         print(f"Stdout: {stdout}")
         print(f"Stderr: {stderr}")
 
-        if return_code == 0 and "Aucun dispositif enregistré" in stdout:
-            print("✅ Test device-list réussi")
+        if return_code == 0 and "No device registered" in stdout:
+            print("✅ device-list test passed")
         else:
-            print("❌ Test device-list échoué")
+            print("❌ device-list test failed")
             return False
 
-        # Test 2: Créer une lampe
-        print("\n💡 Test: Création d'une lampe")
+        # Test 2: Create a light
+        print("\n💡 Test: Create a light")
         return_code, stdout, stderr = run_cli_command(
             ["device-add", "light", "Test Lampe", "--location", "Test"],
             db_path,
@@ -67,14 +67,14 @@ def main():
         print(f"Stdout: {stdout}")
         print(f"Stderr: {stderr}")
 
-        if return_code == 0 and "créée" in stdout:
-            print("✅ Test device-add réussi")
+        if return_code == 0 and "created" in stdout:
+            print("✅ device-add test passed")
         else:
-            print("❌ Test device-add échoué")
+            print("❌ device-add test failed")
             return False
 
-        # Test 3: Lister les dispositifs (avec 1 lampe)
-        print("\n📋 Test: Liste des dispositifs (avec 1 lampe)")
+        # Test 3: List devices (with 1 light)
+        print("\n📋 Test: List devices (with 1 light)")
         return_code, stdout, stderr = run_cli_command(
             ["device-list"], db_path, project_root
         )
@@ -83,16 +83,16 @@ def main():
         print(f"Stderr: {stderr}")
 
         if return_code == 0 and "Test Lampe" in stdout:
-            print("✅ Test device-list avec donnée réussi")
+            print("✅ device-list with data test passed")
         else:
-            print("❌ Test device-list avec donnée échoué")
+            print("❌ device-list with data test failed")
             return False
 
-        print("\n🎉 Tous les tests CLI de base sont réussis !")
+        print("\n🎉 All basic CLI tests passed!")
         return True
 
     finally:
-        # Nettoyer
+        # Cleanup
         try:
             os.unlink(db_path)
         except OSError:

@@ -8,47 +8,47 @@ from domotix.models import Light, Shutter
 
 
 def test_state_manager_singleton_metaclass():
-    """Test que StateManager est bien un singleton avec la métaclasse."""
-    # Réinitialiser pour s'assurer qu'on part de zéro
+    """Test that StateManager is truly a singleton with the metaclass."""
+    # Reset to ensure we start from zero
     StateManager.reset_instance()
 
-    # Créer deux instances
+    # Create two instances
     sm1 = StateManager()
     sm2 = StateManager()
 
-    # Vérifier que c'est la même instance
+    # Check that it's the same instance
     assert sm1 is sm2
     assert id(sm1) == id(sm2)
 
 
 def test_singleton_thread_safety():
-    """Test que le singleton est thread-safe."""
+    """Test that the singleton is thread-safe."""
     StateManager.reset_instance()
 
     instances = []
 
     def create_instance():
-        """Fonction pour créer une instance dans un thread."""
+        """Function to create an instance in a thread."""
         instance = StateManager()
         instances.append(instance)
-        # Petit délai pour augmenter les chances de conditions de course
+        # Small delay to increase race condition chances
         time.sleep(0.01)
 
-    # Créer plusieurs threads qui tentent de créer des instances
+    # Create multiple threads that try to create instances
     threads = []
     for _ in range(10):
         thread = threading.Thread(target=create_instance)
         threads.append(thread)
 
-    # Démarrer tous les threads
+    # Start all threads
     for thread in threads:
         thread.start()
 
-    # Attendre que tous les threads se terminent
+    # Wait for all threads to finish
     for thread in threads:
         thread.join()
 
-    # Vérifier que toutes les instances sont identiques
+    # Check that all instances are identical
     assert len(instances) == 10
     first_instance = instances[0]
     for instance in instances:
@@ -56,36 +56,36 @@ def test_singleton_thread_safety():
 
 
 def test_singleton_meta_class_methods():
-    """Test les méthodes de classe de la métaclasse singleton."""
+    """Test the class methods of the singleton metaclass."""
     StateManager.reset_instance()
 
-    # Vérifier qu'aucune instance n'existe au début
+    # Check that no instance exists at the beginning
     assert not SingletonMeta.has_instance(StateManager)
 
-    # Créer une instance
+    # Create an instance
     sm = StateManager()
 
-    # Vérifier que l'instance existe maintenant
+    # Check that the instance exists now
     assert StateManager.has_instance()
     current = StateManager.get_current_instance()
     assert current is sm
 
-    # Réinitialiser et vérifier la suppression
+    # Reset and check deletion
     StateManager.reset_instance()
     assert not StateManager.has_instance()
     assert StateManager.get_current_instance() is None
 
 
 def test_singleton_persistence_with_metaclass():
-    """Test que l'état persiste entre les accès au singleton avec métaclasse."""
+    """Test that the state persists between accesses to the singleton with metaclass."""
     StateManager.reset_instance()
 
-    # Première instance - ajouter un dispositif
+    # First instance - add a device
     sm1 = StateManager()
     light = Light(name="Lampe test")
     device_id = sm1.register_device(light)
 
-    # Deuxième instance - vérifier que le dispositif existe
+    # Second instance - check that the device exists
     sm2 = StateManager()
     assert sm2.device_exists(device_id)
     assert sm2.get_device_count() == 1
@@ -94,38 +94,38 @@ def test_singleton_persistence_with_metaclass():
 
 
 def test_multiple_singletons_with_metaclass():
-    """Test que la métaclasse peut gérer plusieurs classes singleton."""
+    """Test that the metaclass can manage multiple singleton classes."""
 
-    # Créer une autre classe singleton pour le test
+    # Create another singleton class for the test
     class TestSingleton(metaclass=SingletonMeta):
         def __init__(self):
             if not hasattr(self, "_initialized"):
                 self.value = "test"
                 self._initialized = True
 
-    # Réinitialiser les instances
+    # Reset instances
     StateManager.reset_instance()
     SingletonMeta.reset_instance(TestSingleton)
 
-    # Créer des instances des deux classes
+    # Create instances of both classes
     sm1 = StateManager()
     sm2 = StateManager()
     ts1 = TestSingleton()
     ts2 = TestSingleton()
 
-    # Vérifier que chaque classe a son propre singleton
+    # Check that each class has its own singleton
     assert sm1 is sm2
     assert ts1 is ts2
-    assert sm1 is not ts1  # Différentes classes, différentes instances
+    assert sm1 is not ts1  # Different classes, different instances
 
 
 def test_state_manager_enhanced_methods():
-    """Test les nouvelles méthodes améliorées du StateManager."""
+    """Test the new enhanced methods of the StateManager."""
     StateManager.reset_instance()
 
     state_manager = StateManager()
 
-    # Test register_device retourne l'ID
+    # Test register_device returns the ID
     light = Light(name="Lampe test")
     device_id = state_manager.register_device(light)
     assert isinstance(device_id, str)
@@ -143,30 +143,30 @@ def test_state_manager_enhanced_methods():
     assert not state_manager.device_exists(device_id)
     assert state_manager.get_device_count() == 0
 
-    # Test unregister device inexistant
+    # Test unregister non-existing device
     assert not state_manager.unregister_device("invalid-id")
 
 
 def test_state_manager_clear_all_devices():
-    """Test la suppression de tous les dispositifs."""
+    """Test the removal of all devices."""
     StateManager.reset_instance()
 
     state_manager = StateManager()
 
-    # Ajouter plusieurs dispositifs
+    # Add multiple devices
     state_manager.register_device(Light(name="Lampe 1"))
     state_manager.register_device(Light(name="Lampe 2"))
     state_manager.register_device(Shutter(name="Volet"))
 
     assert state_manager.get_device_count() == 3
 
-    # Supprimer tous les dispositifs
+    # Remove all devices
     state_manager.clear_all_devices()
     assert state_manager.get_device_count() == 0
 
 
 def test_state_manager_get_devices_copy():
-    """Test que get_devices retourne une copie sécurisée."""
+    """Test that get_devices returns a safe copy."""
     StateManager.reset_instance()
 
     state_manager = StateManager()
@@ -181,22 +181,22 @@ def test_state_manager_get_devices_copy():
     assert devices[id1] == light
     assert devices[id2] == shutter
 
-    # Vérifier que c'est une copie (modification ne doit pas affecter l'original)
+    # Check that it's a copy (modification should not affect the original)
     devices.clear()
     assert state_manager.get_device_count() == 2
 
 
 def test_state_manager_string_representations():
-    """Test les représentations string du StateManager."""
+    """Test the string representations of the StateManager."""
     StateManager.reset_instance()
 
     state_manager = StateManager()
 
-    # Test avec aucun dispositif
+    # Test with no device
     assert "0 dispositifs" in str(state_manager)
     assert "devices=[]" in repr(state_manager)
 
-    # Ajouter un dispositif
+    # Add a device
     light = Light(name="Lampe test")
     device_id = state_manager.register_device(light)
 
@@ -205,9 +205,9 @@ def test_state_manager_string_representations():
 
 
 def test_singleton_meta_reusability():
-    """Test que la métaclasse SingletonMeta est réutilisable."""
+    """Test that the SingletonMeta metaclass is reusable."""
 
-    # Créer deux classes différentes utilisant la même métaclasse
+    # Create two different classes using the same metaclass
     class SingletonA(metaclass=SingletonMeta):
         def __init__(self):
             if not hasattr(self, "_initialized"):
@@ -220,17 +220,17 @@ def test_singleton_meta_reusability():
                 self.name = "B"
                 self._initialized = True
 
-    # Réinitialiser les instances
+    # Reset instances
     SingletonMeta.reset_instance(SingletonA)
     SingletonMeta.reset_instance(SingletonB)
 
-    # Créer des instances
+    # Create instances
     a1 = SingletonA()
     a2 = SingletonA()
     b1 = SingletonB()
     b2 = SingletonB()
 
-    # Vérifier que chaque classe a son propre singleton
+    # Check that each class has its own singleton
     assert a1 is a2
     assert b1 is b2
     assert a1.name == "A"

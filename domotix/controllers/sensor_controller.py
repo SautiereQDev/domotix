@@ -1,12 +1,12 @@
 """
-Contrôleur pour la gestion des capteurs et dispositifs de mesure.
+Controller for managing sensors and measurement devices.
 
-Ce module contient le SensorController qui coordonne les opérations
-sur les capteurs en utilisant le pattern Repository
-pour la persistance des données.
+This module contains the SensorController which coordinates operations
+on sensors using the Repository pattern
+for data persistence.
 
 Classes:
-    SensorController: Contrôleur pour les capteurs et dispositifs de mesure
+    SensorController: Controller for sensors and measurement devices
 """
 
 from typing import List, Optional, Union, cast
@@ -17,34 +17,34 @@ from domotix.repositories.device_repository import DeviceRepository
 
 class SensorController:
     """
-    Contrôleur pour la gestion des capteurs et dispositifs de mesure.
+    Controller for managing sensors and measurement devices.
 
-    Ce contrôleur utilise l'injection de dépendance pour recevoir
-    un repository et ne dépend pas d'un singleton pour la persistance.
+    This controller uses dependency injection to receive
+    a repository and does not depend on a singleton for persistence.
 
     Attributes:
-        _repository: Repository pour la persistance des données
+        _repository: Repository for data persistence
     """
 
     def __init__(self, sensor_repository: DeviceRepository):
         """
-        Initialise le contrôleur avec un repository.
+        Initializes the controller with a repository.
 
         Args:
-            sensor_repository: Repository pour la persistance des données de capteurs
+            sensor_repository: Repository for sensor data persistence
         """
         self._repository = sensor_repository
 
     def create_sensor(self, name: str, location: Optional[str] = None) -> str:
         """
-        Crée un nouveau capteur.
+        Creates a new sensor.
 
         Args:
-            name: Nom du capteur
-            location: Emplacement optionnel
+            name: Sensor name
+            location: Optional location
 
         Returns:
-            str: ID du capteur créé
+            str: ID of the created sensor
         """
         sensor = Sensor(name=name, location=location)
         saved_sensor = self._repository.save(sensor)
@@ -52,13 +52,13 @@ class SensorController:
 
     def get_sensor(self, sensor_id: str) -> Optional[Sensor]:
         """
-        Récupère un capteur par son ID.
+        Retrieves a sensor by its ID.
 
         Args:
-            sensor_id: ID du capteur
+            sensor_id: Sensor ID
 
         Returns:
-            Optional[Sensor]: Le capteur ou None si non trouvé
+            Optional[Sensor]: The sensor or None if not found
         """
         device = self._repository.find_by_id(sensor_id)
         if device and isinstance(device, Sensor):
@@ -67,24 +67,24 @@ class SensorController:
 
     def get_all_sensors(self) -> List[Sensor]:
         """
-        Récupère tous les capteurs.
+        Retrieves all sensors.
 
         Returns:
-            List[Sensor]: Liste de tous les capteurs
+            List[Sensor]: List of all sensors
         """
         devices = self._repository.find_all()
         return [device for device in devices if isinstance(device, Sensor)]
 
     def update_value(self, sensor_id: str, value: Union[int, float]) -> bool:
         """
-        Met à jour la valeur d'un capteur.
+        Updates the value of a sensor.
 
         Args:
-            sensor_id: ID du capteur
-            value: Nouvelle valeur du capteur
+            sensor_id: ID of the sensor
+            value: New value for the sensor
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         sensor = self.get_sensor(sensor_id)
         if sensor is not None:
@@ -94,13 +94,13 @@ class SensorController:
 
     def get_value(self, sensor_id: str) -> Optional[Union[int, float]]:
         """
-        Récupère la valeur actuelle d'un capteur.
+        Retrieves the current value of a sensor.
 
         Args:
-            sensor_id: ID du capteur
+            sensor_id: ID of the sensor
 
         Returns:
-            Optional[Union[int, float]]: Valeur du capteur ou None si non trouvé
+            Optional[Union[int, float]]: Value of the sensor or None if not found
         """
         sensor = self.get_sensor(sensor_id)
         if sensor is not None:
@@ -109,47 +109,47 @@ class SensorController:
 
     def get_reading_history(self, sensor_id: str, limit: int = 100) -> List[dict]:
         """
-        Récupère l'historique des valeurs d'un capteur.
+        Retrieves the historical readings of a sensor.
 
-        Note: Cette méthode nécessiterait un repository spécialisé pour l'historique.
-        Pour l'instant, elle retourne une liste vide.
+        Note: This method would require a specialized repository for history.
+        For now, it returns an empty list.
 
         Args:
-            sensor_id: ID du capteur
-            limit: Nombre maximum de lectures à retourner
+            sensor_id: ID of the sensor
+            limit: Maximum number of readings to return
 
         Returns:
-            List[dict]: Liste des lectures historiques
+            List[dict]: List of historical readings
         """
-        # TODO: Implémenter avec un SensorReadingRepository spécialisé
+        # TODO: Implement with a specialized SensorReadingRepository
         return []
 
     def reset_value(self, sensor_id: str) -> bool:
         """
-        Remet à zéro la valeur d'un capteur.
+        Resets the value of a sensor.
 
         Args:
-            sensor_id: ID du capteur
+            sensor_id: ID of the sensor
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         sensor = self.get_sensor(sensor_id)
         if sensor is not None:
-            sensor = cast(Sensor, sensor)  # Type explicit pour MyPy
+            sensor = cast(Sensor, sensor)  # Explicit type for MyPy
             sensor.reset_value()  # type: ignore[attr-defined]
             return self._repository.update(sensor)
         return False
 
     def is_active(self, sensor_id: str) -> bool:
         """
-        Vérifie si un capteur est actif (a une valeur).
+        Checks if a sensor is active (has a value).
 
         Args:
-            sensor_id: ID du capteur
+            sensor_id: ID of the sensor
 
         Returns:
-            bool: True si le capteur est actif
+            bool: True if the sensor is active
         """
         sensor = self.get_sensor(sensor_id)
         if sensor is not None:
@@ -158,25 +158,25 @@ class SensorController:
 
     def get_sensors_by_location(self, location: str) -> List[Sensor]:
         """
-        Récupère tous les capteurs d'un emplacement donné.
+        Retrieves all sensors from a given location.
 
         Args:
-            location: Emplacement à rechercher
+            location: Location to search for
 
         Returns:
-            List[Sensor]: Liste des capteurs dans cet emplacement
+            List[Sensor]: List of sensors in that location
         """
         all_sensors = self.get_all_sensors()
         return [sensor for sensor in all_sensors if sensor.location == location]
 
     def delete_sensor(self, sensor_id: str) -> bool:
         """
-        Supprime un capteur.
+        Deletes a sensor.
 
         Args:
-            sensor_id: ID du capteur
+            sensor_id: ID of the sensor
 
         Returns:
-            bool: True si la suppression a réussi
+            bool: True if the deletion was successful
         """
         return self._repository.delete(sensor_id)

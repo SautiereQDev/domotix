@@ -4,7 +4,7 @@
 
 ### Layer Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    🎯 CLI Layer (Typer)                     │
 │                 domotix/cli/ + commands/                    │
@@ -26,6 +26,7 @@
 ### Implemented Design Patterns
 
 #### 1. **Repository Pattern** 🗄️
+
 ```python
 # Clear separation between business logic and data access
 class LightRepository(BaseRepository[Light]):
@@ -37,6 +38,7 @@ class LightRepository(BaseRepository[Light]):
 ```
 
 #### 2. **Factory Pattern** 🏭
+
 ```python
 # Centralized dependency injection
 class ControllerFactory:
@@ -47,6 +49,7 @@ class ControllerFactory:
 ```
 
 #### 3. **Singleton Pattern** 🔒
+
 ```python
 # Thread-safe state management with custom metaclass
 class StateManager(metaclass=SingletonMeta):
@@ -56,6 +59,7 @@ class StateManager(metaclass=SingletonMeta):
 ```
 
 #### 4. **Command Pattern** ⚡
+
 ```python
 # Encapsulation of device operations
 class TurnOnCommand(Command):
@@ -68,7 +72,7 @@ class TurnOnCommand(Command):
 
 ### Module Structure
 
-```
+```text
 domotix/
 ├── 🎯 cli/                    # Command-line interface
 │   ├── main.py               # Main CLI entry point

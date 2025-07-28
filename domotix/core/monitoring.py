@@ -1,17 +1,17 @@
 """
-Système de métriques et monitoring pour Domotix.
+Metrics and monitoring system for Domotix.
 
-Ce module implémente un système de monitoring moderne avec:
-- Métriques de performance en temps réel
-- Monitoring de la santé du système
-- Collecte de statistiques d'usage
-- Export pour systèmes de monitoring externes
+This module implements a modern monitoring system with:
+- Real-time performance metrics
+- System health monitoring
+- Usage statistics collection
+- Export for external monitoring systems
 
 Classes:
-    MetricType: Types de métriques supportées
-    Metric: Représentation d'une métrique
-    MetricsCollector: Collecteur de métriques thread-safe
-    HealthChecker: Vérificateur de santé du système
+    MetricType: Supported metric types
+    Metric: Metric representation
+    MetricsCollector: Thread-safe metrics collector
+    HealthChecker: System health checker
 """
 
 from __future__ import annotations

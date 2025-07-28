@@ -1,8 +1,8 @@
 """
-Tests d'intégration pour l'interface CLI avec la persistance.
+Integration tests for the CLI interface with persistence.
 
-Ce module teste l'intégration entre les commandes CLI et
-la couche de persistance nouvellement créée.
+This module tests integration between CLI commands and
+the newly created persistence layer.
 """
 
 import tempfile
@@ -19,343 +19,348 @@ from domotix.models import Light, Sensor, Shutter
 
 
 class TestDeviceCreateCommandsIntegration:
-    """Tests d'intégration pour les commandes de création."""
+    """Integration tests for creation commands."""
 
     def test_create_light_with_persistence(self):
-        """Test de création d'une lampe avec persistance."""
+        """Test creating a light with persistence."""
         service_provider_path = "domotix.cli.device_cmds.scoped_service_provider"
         with patch(service_provider_path) as mock_scoped_provider:
-            # Mock du service provider et contrôleur
+            # Mock service provider and controller
             mock_provider = Mock()
             mock_controller = Mock()
             mock_controller.create_light.return_value = 1
-            mock_controller.get_light.return_value = Light("Lampe test", "Salon")
+            mock_controller.get_light.return_value = Light("Test Light", "Living Room")
             mock_provider.get_light_controller.return_value = mock_controller
 
-            # Mock du context manager
+            # Mock context manager
             mock_context = mock_scoped_provider.create_scope.return_value
             mock_context.__enter__.return_value = mock_provider
             mock_context.__exit__.return_value = None
 
-            # Tester la création
-            DeviceCreateCommands.create_light("Lampe test", "Salon")
+            # Test creation
+            DeviceCreateCommands.create_light("Test Light", "Living Room")
 
-            # Vérifier les appels
+            # Verify calls
             mock_scoped_provider.create_scope.assert_called_once()
             mock_provider.get_light_controller.assert_called_once()
-            mock_controller.create_light.assert_called_once_with("Lampe test", "Salon")
+            mock_controller.create_light.assert_called_once_with(
+                "Test Light", "Living Room"
+            )
             mock_controller.get_light.assert_called_once_with(1)
 
     def test_create_shutter_with_persistence(self):
-        """Test de création d'un volet avec persistance."""
+        """Test creating a shutter with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.create_shutter.return_value = 1
-            mock_controller.get_shutter.return_value = Shutter("Volet test", "Chambre")
+            mock_controller.get_shutter.return_value = Shutter(
+                "Test Shutter", "Bedroom"
+            )
             mock_factory.create_shutter_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester la création
-                DeviceCreateCommands.create_shutter("Volet test", "Chambre")
+                # Test creation
+                DeviceCreateCommands.create_shutter("Test Shutter", "Bedroom")
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_shutter_controller.assert_called_once()
                 mock_controller.create_shutter.assert_called_once_with(
-                    "Volet test", "Chambre"
+                    "Test Shutter", "Bedroom"
                 )
                 mock_controller.get_shutter.assert_called_once_with(1)
 
     def test_create_sensor_with_persistence(self):
-        """Test de création d'un capteur avec persistance."""
+        """Test creating a sensor with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.create_sensor.return_value = 1
-            mock_controller.get_sensor.return_value = Sensor("Capteur test", "Salon")
+            mock_controller.get_sensor.return_value = Sensor(
+                "Test Sensor", "Living Room"
+            )
             mock_factory.create_sensor_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester la création
-                DeviceCreateCommands.create_sensor("Capteur test", "Salon")
+                # Test creation
+                DeviceCreateCommands.create_sensor("Test Sensor", "Living Room")
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_sensor_controller.assert_called_once()
                 mock_controller.create_sensor.assert_called_once_with(
-                    "Capteur test", "Salon"
+                    "Test Sensor", "Living Room"
                 )
                 mock_controller.get_sensor.assert_called_once_with(1)
 
 
 class TestDeviceListCommandsIntegration:
-    """Tests d'intégration pour les commandes de listage."""
+    """Integration tests for list commands."""
 
     def test_list_all_devices_with_persistence(self):
-        """Test de listage de tous les dispositifs avec persistance."""
+        """Test listing all devices with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Créer des dispositifs de test
-            light = Light("Lampe salon", "Salon")
+            # Create test devices
+            light = Light("Living Room Light", "Living Room")
             light.id = 1
-            shutter = Shutter("Volet chambre", "Chambre")
+            shutter = Shutter("Bedroom Shutter", "Bedroom")
             shutter.id = 2
-            sensor = Sensor("Capteur température", "Salon")
+            sensor = Sensor("Temperature Sensor", "Living Room")
             sensor.id = 3
 
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.get_all_devices.return_value = [light, shutter, sensor]
             mock_factory.create_device_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester le listage
+                # Test listing
                 DeviceListCommands.list_all_devices()
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_device_controller.assert_called_once()
                 mock_controller.get_all_devices.assert_called_once()
 
     def test_list_lights_with_persistence(self):
-        """Test de listage des lampes avec persistance."""
+        """Test listing lights with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Créer des lampes de test
-            light1 = Light("Lampe salon", "Salon")
+            # Create test lights
+            light1 = Light("Living Room Light", "Living Room")
             light1.id = 1
             light1.is_on = True
-            light2 = Light("Lampe chambre", "Chambre")
+            light2 = Light("Bedroom Light", "Bedroom")
             light2.id = 2
             light2.is_on = False
 
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.get_all_lights.return_value = [light1, light2]
             mock_factory.create_light_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester le listage
+                # Test listing
                 DeviceListCommands.list_lights()
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_light_controller.assert_called_once()
                 mock_controller.get_all_lights.assert_called_once()
 
     def test_show_device_with_persistence(self):
-        """Test d'affichage d'un dispositif avec persistance."""
+        """Test showing a device with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Créer un dispositif de test
-            light = Light("Lampe test", "Salon")
+            # Create a test device
+            light = Light("Test Light", "Living Room")
             light.id = 1
             light.is_on = True
 
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.get_device.return_value = light
             mock_factory.create_device_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester l'affichage
+                # Test showing
                 DeviceListCommands.show_device(1)
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_device_controller.assert_called_once()
                 mock_controller.get_device.assert_called_once_with(1)
 
 
 class TestDeviceStateCommandsIntegration:
-    """Tests d'intégration pour les commandes d'état."""
+    """Integration tests for state commands."""
 
     def test_turn_on_light_with_persistence(self):
-        """Test d'allumage d'une lampe avec persistance."""
+        """Test turning on a light with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.turn_on.return_value = True
             mock_factory.create_light_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester l'allumage
+                # Test turning on
                 DeviceStateCommands.turn_on_light(1)
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_light_controller.assert_called_once()
                 mock_controller.turn_on.assert_called_once_with(1)
 
     def test_open_shutter_with_persistence(self):
-        """Test d'ouverture d'un volet avec persistance."""
+        """Test opening a shutter with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.open.return_value = True
             mock_factory.create_shutter_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester l'ouverture
+                # Test opening
                 DeviceStateCommands.open_shutter(1)
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_shutter_controller.assert_called_once()
                 mock_controller.open.assert_called_once_with(1)
 
     def test_update_sensor_value_with_persistence(self):
-        """Test de mise à jour de valeur de capteur avec persistance."""
+        """Test updating sensor value with persistence."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur
+            # Mock factory and controller
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.update_value.return_value = True
             mock_factory.create_sensor_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Tester la mise à jour
+                # Test updating
                 DeviceStateCommands.update_sensor_value(1, 25.5)
 
-                # Vérifier les appels
+                # Verify calls
                 mock_get_factory.assert_called_once()
                 mock_factory.create_sensor_controller.assert_called_once()
                 mock_controller.update_value.assert_called_once_with(1, 25.5)
 
 
 class TestCLIPersistenceErrorHandling:
-    """Tests de gestion d'erreurs pour l'intégration CLI-persistance."""
+    """Error handling tests for CLI-persistence integration."""
 
     def test_create_light_failure(self):
-        """Test de gestion d'échec de création de lampe."""
-        # Mock du service provider pour create_light qui utilise
-        # l'injection de dépendance
+        """Test handling light creation failure."""
+        # Mock service provider for create_light using
+        # dependency injection
         with patch("domotix.cli.device_cmds.scoped_service_provider") as mock_provider:
-            # Configuration du mock pour le service provider
+            # Configure mock for service provider
             mock_scope = Mock()
             mock_controller = Mock()
-            mock_controller.create_light.return_value = None  # Simule l'échec
+            mock_controller.create_light.return_value = None  # Simulate failure
             mock_scope.get_light_controller.return_value = mock_controller
             mock_provider.create_scope.return_value.__enter__.return_value = mock_scope
             mock_provider.create_scope.return_value.__exit__.return_value = None
 
-            # Capturer la sortie
+            # Capture output
             with patch("builtins.print") as mock_print:
-                DeviceCreateCommands.create_light("Lampe test", "Salon")
+                DeviceCreateCommands.create_light("Test Light", "Living Room")
 
-                # Vérifier qu'un message d'erreur est affiché
+                # Verify an error message is displayed
                 mock_print.assert_called()
-                # Vérifier qu'il y a un message d'erreur avec "Erreur"
+                # Check for an error message containing "Error"
                 error_printed = any(
-                    "Erreur" in str(call) for call in mock_print.call_args_list
+                    "Error" in str(call) for call in mock_print.call_args_list
                 )
                 assert error_printed
 
     def test_device_not_found(self):
-        """Test de gestion de dispositif non trouvé."""
+        """Test handling device not found."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
         with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur qui ne trouve pas le dispositif
+            # Mock factory and controller that does not find the device
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.get_device.return_value = None
             mock_factory.create_device_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
+            # Mock session
             with patch("domotix.cli.device_cmds.create_session") as mock_session:
                 mock_session.return_value = Mock()
 
-                # Capturer la sortie
+                # Capture output
                 with patch("builtins.print") as mock_print:
                     DeviceListCommands.show_device("999")
 
-                    # Vérifier qu'un message d'erreur est affiché
+                    # Verify an error message is displayed
                     mock_print.assert_called()
-                    # Vérifier qu'il y a un message d'erreur avec "introuvable"
+                    # Check for an error message containing "not found"
                     error_printed = any(
-                        "introuvable" in str(call) for call in mock_print.call_args_list
+                        "not found" in str(call) for call in mock_print.call_args_list
                     )
                     assert error_printed
 
     def test_operation_failure(self):
-        """Test de gestion d'échec d'opération."""
+        """Test handling operation failure."""
         factory_path = "domotix.cli.device_cmds.get_controller_factory"
-        with patch(factory_path) as mock_get_factory:
-            # Mock du factory et contrôleur qui échoue l'opération
+        with (
+            patch(factory_path) as mock_get_factory,
+            patch("builtins.print") as mock_print,
+        ):
+            # Mock factory and controller that fails the operation
             mock_factory = Mock()
             mock_controller = Mock()
             mock_controller.turn_on.return_value = False
             mock_factory.create_light_controller.return_value = mock_controller
             mock_get_factory.return_value = mock_factory
 
-            # Mock de la session
-            with patch("domotix.cli.device_cmds.create_session") as mock_session:
-                mock_session.return_value = Mock()
+            # Create and run command
+            cmd = DeviceStateCommands()
+            cmd.turn_on_light("device_123")
 
-                # Capturer la sortie
-                with patch("builtins.print") as mock_print:
-                    DeviceStateCommands.turn_on_light("1")
-
-                    # Vérifier qu'un message d'erreur est affiché
-                    mock_print.assert_called()
-                    # Vérifier qu'il y a un message d'erreur avec "Échec"
-                    error_printed = any(
-                        "Échec" in str(call) for call in mock_print.call_args_list
-                    )
-                    assert error_printed
+            # Verify error message was printed
+            # Check for failure message in print calls
+            failure_msg = "Failed to turn on light"
+            error_printed = any(
+                failure_msg in str(call) for call in mock_print.call_args_list
+            )
+            assert error_printed
 
 
 class TestCLISessionManagement:
-    """Tests de gestion de session pour la CLI."""
+    """Session management tests for the CLI."""
 
     def test_session_creation_and_cleanup(self):
-        """Test de création et nettoyage de session."""
+        """Test session creation and cleanup."""
         with patch("domotix.cli.device_cmds.create_session") as mock_create_session:
             mock_session = Mock()
             mock_create_session.return_value = mock_session
@@ -367,17 +372,17 @@ class TestCLISessionManagement:
                 mock_controller.get_all_devices.return_value = []
                 mock_factory.create_device_controller.return_value = mock_controller
 
-                # Tester une commande
+                # Test a command
                 DeviceListCommands.list_all_devices()
 
-                # Vérifier que la session est créée
+                # Verify session is created
                 mock_create_session.assert_called_once()
 
-                # Vérifier que la session est fermée
+                # Verify session is closed
                 mock_session.close.assert_called_once()
 
     def test_multiple_commands_use_separate_sessions(self):
-        """Test que plusieurs commandes utilisent des sessions séparées."""
+        """Test multiple commands use separate sessions."""
         with patch("domotix.cli.device_cmds.create_session") as mock_create_session:
             mock_session1 = Mock()
             mock_session2 = Mock()
@@ -390,56 +395,56 @@ class TestCLISessionManagement:
                 mock_controller.get_all_devices.return_value = []
                 mock_factory.create_device_controller.return_value = mock_controller
 
-                # Exécuter deux commandes
+                # Execute two commands
                 DeviceListCommands.list_all_devices()
                 DeviceListCommands.list_all_devices()
 
-                # Vérifier que deux sessions sont créées
+                # Verify two sessions are created
                 assert mock_create_session.call_count == 2
 
-                # Vérifier que les deux sessions sont fermées
+                # Verify both sessions are closed
                 mock_session1.close.assert_called_once()
                 mock_session2.close.assert_called_once()
 
 
 class TestCLIRealDatabaseIntegration:
-    """Tests d'intégration avec une vraie base de données."""
+    """Integration tests with a real database."""
 
     @pytest.fixture
     def temp_db(self):
-        """Crée une base de données temporaire pour les tests."""
+        """Create a temporary database for tests."""
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
-        # Patch la configuration pour utiliser notre DB temporaire
+        # Patch configuration to use our temporary DB
         with patch("domotix.core.database.DATABASE_URL", f"sqlite:///{db_path}"):
             from domotix.core.database import Base, engine
 
             Base.metadata.create_all(engine)
             yield db_path
 
-        # Nettoyage
+        # Cleanup
         import os
 
         if os.path.exists(db_path):
             os.unlink(db_path)
 
     def test_full_lifecycle_with_real_db(self, temp_db):
-        """Test du cycle de vie complet avec une vraie base de données."""
-        # Mock du service provider pour éviter les problèmes de DI dans les tests
+        """Test full lifecycle with a real database."""
+        # Mock service provider to avoid DI issues in tests
         with patch("domotix.cli.device_cmds.scoped_service_provider") as mock_provider:
-            # Configuration du mock pour le service provider
+            # Configure mock for service provider
             mock_scope = Mock()
             mock_controller = Mock()
             mock_light = Mock()
-            mock_light.name = "Lampe réelle"
+            mock_light.name = "Real Lamp"
             mock_controller.create_light.return_value = "1"
             mock_controller.get_light.return_value = mock_light
             mock_scope.get_light_controller.return_value = mock_controller
             mock_provider.create_scope.return_value.__enter__.return_value = mock_scope
             mock_provider.create_scope.return_value.__exit__.return_value = None
 
-            # Mock pour les commandes de liste
+            # Mock for list commands
             factory_path = "domotix.cli.device_cmds.get_controller_factory"
             with patch(factory_path) as mock_get_factory:
                 mock_factory = Mock()
@@ -449,18 +454,18 @@ class TestCLIRealDatabaseIntegration:
                 mock_get_factory.return_value = mock_factory
 
                 with patch("domotix.cli.device_cmds.create_session"):
-                    # Créer une lampe
-                    DeviceCreateCommands.create_light("Lampe réelle", "Salon")
+                    # Create a light
+                    DeviceCreateCommands.create_light("Real Lamp", "Living Room")
 
-                    # Vérifier qu'elle apparaît dans la liste
+                    # Verify it appears in the list
                     with patch("builtins.print") as mock_print:
                         DeviceListCommands.list_lights()
 
-                        # Vérifier qu'il y a une sortie
+                        # Verify there is output
                         assert mock_print.called
 
-                        # Vérifier que le nom de la lampe apparaît dans la sortie
+                        # Verify the lamp's name appears in the output
                         output = " ".join(
                             str(call) for call in mock_print.call_args_list
                         )
-                        assert "Lampe réelle" in output
+                        assert "Real Lamp" in output

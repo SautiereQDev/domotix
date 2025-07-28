@@ -1,14 +1,14 @@
 """
-Module des énumérations globales du système domotique.
+Global enumerations module for the home automation system.
 
-Ce module contient toutes les énumérations utilisées dans le système
-pour standardiser les types, états et commandes.
+This module contains all enumerations used in the system
+to standardize types, states, and commands.
 
 Enums:
-    DeviceType: Types de dispositifs (LIGHT, SHUTTER, SENSOR)
-    HttpMethod: Méthodes HTTP (GET, POST, PUT, DELETE, PATCH)
-    DeviceState: États des dispositifs (ON, OFF, OPENING, CLOSING, STOPPED)
-    CommandType: Types de commandes (TURN_ON, TURN_OFF, OPEN, CLOSE, STOP)
+    DeviceType: Device types (LIGHT, SHUTTER, SENSOR)
+    HttpMethod: HTTP methods (GET, POST, PUT, DELETE, PATCH)
+    DeviceState: Device states (ON, OFF, OPENING, CLOSING, STOPPED)
+    CommandType: Command types (TURN_ON, TURN_OFF, OPEN, CLOSE, STOP)
 """
 
 from enum import Enum

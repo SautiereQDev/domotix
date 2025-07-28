@@ -1,16 +1,16 @@
 """
-Factory moderne pour la création d'objets Domotix.
+Modern factory for creating Domotix objects.
 
-Ce module implémente un système de factory moderne utilisant:
-- Injection de dépendances automatique
-- Patterns modernes de création d'objets
-- Support des types génériques
-- Configuration centralisée
+This module implements a modern factory system using:
+- Automatic dependency injection
+- Modern object creation patterns
+- Generic type support
+- Centralized configuration
 
 Classes:
-    ControllerFactory: Factory pour les contrôleurs
-    RepositoryFactory: Factory pour les repositories
-    ServiceFactory: Factory pour les services
+    ControllerFactory: Factory for controllers
+    RepositoryFactory: Factory for repositories
+    ServiceFactory: Factory for services
 """
 
 from __future__ import annotations
@@ -40,46 +40,46 @@ logger = get_logger(__name__)
 
 class ControllerFactory:
     """
-    Factory moderne pour la création de contrôleurs.
+    Modern factory for creating controllers.
 
-    Utilise l'injection de dépendances et la configuration
-    centralisée pour créer les contrôleurs appropriés.
+    Uses dependency injection and centralized configuration
+    to create the appropriate controllers.
     """
 
     def __init__(self, container: DIContainer) -> None:
         """
-        Initialise la factory avec un container DI.
+        Initializes the factory with a DI container.
 
         Args:
-            container: Container d'injection de dépendances
+            container: Dependency injection container
         """
         self._container = container
         self._repo_factory = RepositoryFactory(container)
 
     def create_device_controller(self, session: Session) -> DeviceController:
         """
-        Crée un contrôleur de dispositifs avec ses dépendances.
+        Creates a device controller with its dependencies.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Contrôleur de dispositifs configuré
+            Configured device controller
 
         Raises:
-            ControllerError: Si la création échoue
+            ControllerError: If creation fails
         """
         try:
             repository = self._repo_factory.create_device_repository(session)
 
-            # Injection manuelle car les contrôleurs existants
-            # ne sont pas encore modernisés
+            # Manual injection because existing controllers
+            # are not yet modernized
             return DeviceController(repository)
 
         except Exception as e:
-            logger.error(f"Échec de création du contrôleur de dispositifs: {e}")
+            logger.error(f"Failed to create device controller: {e}")
             raise ControllerError(
-                f"Impossible de créer le contrôleur de dispositifs: {e}",
+                f"Unable to create device controller: {e}",
                 controller_name="DeviceController",
                 error_code=ErrorCode.CONTROLLER_DEPENDENCY_ERROR,
                 cause=e,
@@ -87,25 +87,25 @@ class ControllerFactory:
 
     def create_light_controller(self, session: Session) -> LightController:
         """
-        Crée un contrôleur de lumières avec ses dépendances.
+        Creates a light controller with its dependencies.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Contrôleur de lumières configuré
+            Configured light controller
 
         Raises:
-            ControllerError: Si la création échoue
+            ControllerError: If creation fails
         """
         try:
             repository = self._repo_factory.create_light_repository(session)
             return LightController(repository)
 
         except Exception as e:
-            logger.error(f"Échec de création du contrôleur de lumières: {e}")
+            logger.error(f"Failed to create light controller: {e}")
             raise ControllerError(
-                f"Impossible de créer le contrôleur de lumières: {e}",
+                f"Unable to create light controller: {e}",
                 controller_name="LightController",
                 error_code=ErrorCode.CONTROLLER_DEPENDENCY_ERROR,
                 cause=e,
@@ -113,25 +113,25 @@ class ControllerFactory:
 
     def create_sensor_controller(self, session: Session) -> SensorController:
         """
-        Crée un contrôleur de capteurs avec ses dépendances.
+        Creates a sensor controller with its dependencies.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Contrôleur de capteurs configuré
+            Configured sensor controller
 
         Raises:
-            ControllerError: Si la création échoue
+            ControllerError: If creation fails
         """
         try:
             repository = self._repo_factory.create_sensor_repository(session)
             return SensorController(repository)
 
         except Exception as e:
-            logger.error(f"Échec de création du contrôleur de capteurs: {e}")
+            logger.error(f"Failed to create sensor controller: {e}")
             raise ControllerError(
-                f"Impossible de créer le contrôleur de capteurs: {e}",
+                f"Unable to create sensor controller: {e}",
                 controller_name="SensorController",
                 error_code=ErrorCode.CONTROLLER_DEPENDENCY_ERROR,
                 cause=e,
@@ -139,25 +139,25 @@ class ControllerFactory:
 
     def create_shutter_controller(self, session: Session) -> ShutterController:
         """
-        Crée un contrôleur de volets avec ses dépendances.
+        Creates a shutter controller with its dependencies.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Contrôleur de volets configuré
+            Configured shutter controller
 
         Raises:
-            ControllerError: Si la création échoue
+            ControllerError: If creation fails
         """
         try:
             repository = self._repo_factory.create_shutter_repository(session)
             return ShutterController(repository)
 
         except Exception as e:
-            logger.error(f"Échec de création du contrôleur de volets: {e}")
+            logger.error(f"Failed to create shutter controller: {e}")
             raise ControllerError(
-                f"Impossible de créer le contrôleur de volets: {e}",
+                f"Unable to create shutter controller: {e}",
                 controller_name="ShutterController",
                 error_code=ErrorCode.CONTROLLER_DEPENDENCY_ERROR,
                 cause=e,
@@ -166,66 +166,66 @@ class ControllerFactory:
 
 class RepositoryFactory:
     """
-    Factory moderne pour la création de repositories.
+    Modern factory for creating repositories.
 
-    Gère la création et la configuration des repositories
-    avec leurs dépendances appropriées.
+    Manages the creation and configuration of repositories
+    with their appropriate dependencies.
     """
 
     def __init__(self, container: DIContainer) -> None:
         """
-        Initialise la factory avec un container DI.
+        Initializes the factory with a DI container.
 
         Args:
-            container: Container d'injection de dépendances
+            container: Dependency injection container
         """
         self._container = container
 
     def create_device_repository(self, session: Session) -> DeviceRepository:
         """
-        Crée un repository de dispositifs.
+        Creates a device repository.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Repository de dispositifs
+            Device repository
         """
         return DeviceRepository(session)
 
     def create_light_repository(self, session: Session) -> LightRepository:
         """
-        Crée un repository de lumières.
+        Creates a light repository.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Repository de lumières
+            Light repository
         """
         return LightRepository(session)
 
     def create_sensor_repository(self, session: Session) -> SensorRepository:
         """
-        Crée un repository de capteurs.
+        Creates a sensor repository.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Repository de capteurs
+            Sensor repository
         """
         return SensorRepository(session)
 
     def create_shutter_repository(self, session: Session) -> ShutterRepository:
         """
-        Crée un repository de volets.
+        Creates a shutter repository.
 
         Args:
-            session: Session SQLAlchemy
+            session: SQLAlchemy session
 
         Returns:
-            Repository de volets
+            Shutter repository
         """
         return ShutterRepository(session)
 
@@ -233,46 +233,46 @@ class RepositoryFactory:
 @Injectable(scope=Scope.SINGLETON)
 class ServiceFactory:
     """
-    Factory pour les services métier de l'application.
+    Factory for the application's business services.
 
-    Utilise l'injection de dépendances pour créer des services
-    avec toutes leurs dépendances configurées.
+    Uses dependency injection to create services
+    with all their dependencies configured.
     """
 
     def __init__(self, container: DIContainer) -> None:
         """
-        Initialise la factory de services.
+        Initializes the service factory.
 
         Args:
-            container: Container d'injection de dépendances
+            container: Dependency injection container
         """
         self._container = container
 
     def create_controller_factory(self) -> ControllerFactory:
         """
-        Crée une factory de contrôleurs.
+        Creates a controller factory.
 
         Returns:
-            Factory de contrôleurs configurée
+            Configured controller factory
         """
         return ControllerFactory(self._container)
 
     def create_repository_factory(self) -> RepositoryFactory:
         """
-        Crée une factory de repositories.
+        Creates a repository factory.
 
         Returns:
-            Factory de repositories configurée
+            Configured repository factory
         """
         return RepositoryFactory(self._container)
 
 
 class FactoryManager:
     """
-    Gestionnaire singleton pour les factories de l'application.
+    Singleton manager for the application's factories.
 
-    Évite l'utilisation de variables globales et fournit un point
-    d'accès centralisé pour toutes les factories.
+    Avoids the use of global variables and provides a central access point
+    for all factories.
     """
 
     _instance: FactoryManager | None = None
@@ -281,29 +281,29 @@ class FactoryManager:
     _repository_factory: RepositoryFactory | None = None
 
     def __new__(cls) -> FactoryManager:
-        """Implémentation du pattern Singleton."""
+        """Singleton pattern implementation."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def get_container(self) -> DIContainer:
         """
-        Récupère le container DI.
+        Retrieves the global DI container.
 
         Returns:
-            Container d'injection de dépendances
+            Dependency injection container
         """
         if self._container is None:
             self._container = DIContainer()
-            # Configuration des services sera ajoutée ici
+            # Service configuration will be added here
         return self._container
 
     def get_controller_factory(self) -> ControllerFactory:
         """
-        Récupère la factory de contrôleurs.
+        Retrieves the global controller factory.
 
         Returns:
-            Factory de contrôleurs
+            Controller factory
         """
         if self._controller_factory is None:
             self._controller_factory = ControllerFactory(self.get_container())
@@ -311,10 +311,10 @@ class FactoryManager:
 
     def get_repository_factory(self) -> RepositoryFactory:
         """
-        Récupère la factory de repositories.
+        Retrieves the global repository factory.
 
         Returns:
-            Factory de repositories
+            Repository factory
         """
         if self._repository_factory is None:
             self._repository_factory = RepositoryFactory(self.get_container())
@@ -322,9 +322,9 @@ class FactoryManager:
 
     def reset_factories(self) -> None:
         """
-        Remet à zéro toutes les factories.
+        Resets all factories.
 
-        Utile pour les tests et le rechargement de configuration.
+        Useful for testing and reloading configuration.
         """
         self._container = None
         self._controller_factory = None
@@ -333,73 +333,73 @@ class FactoryManager:
     @classmethod
     def reset_instance(cls) -> None:
         """
-        Remet à zéro l'instance singleton.
+        Resets the singleton instance.
 
-        Utile pour les tests pour créer une nouvelle instance propre.
+        Useful for tests to create a new clean instance.
         """
         cls._instance = None
 
 
-# Fonctions de convenance pour l'API publique
+# Convenience functions for the public API
 def get_container() -> DIContainer:
     """
-    Récupère le container DI global.
+    Retrieves the global DI container.
 
     Returns:
-        Container d'injection de dépendances
+        Dependency injection container
     """
     return FactoryManager().get_container()
 
 
 def get_controller_factory() -> ControllerFactory:
     """
-    Récupère la factory de contrôleurs globale.
+    Retrieves the global controller factory.
 
     Returns:
-        Factory de contrôleurs
+        Controller factory
     """
     return FactoryManager().get_controller_factory()
 
 
 def get_repository_factory() -> RepositoryFactory:
     """
-    Récupère la factory de repositories globale.
+    Retrieves the global repository factory.
 
     Returns:
-        Factory de repositories
+        Repository factory
     """
     return FactoryManager().get_repository_factory()
 
 
 def reset_factories() -> None:
     """
-    Remet à zéro toutes les factories globales.
+    Resets all global factories.
 
-    Utile pour les tests et le rechargement de configuration.
+    Useful for testing and reloading configuration.
     """
     FactoryManager().reset_factories()
 
 
-# Compatibilité avec l'ancien système (à supprimer progressivement)
+# Compatibility with the old system (to be gradually removed)
 class LegacyControllerFactory:
-    """Factory de compatibilité pour l'ancien système."""
+    """Compatibility factory for the old system."""
 
     @staticmethod
     def create_device_controller(session: Session) -> DeviceController:
-        """Crée un contrôleur de dispositifs (compatibilité)."""
+        """Creates a device controller (compatibility)."""
         return get_controller_factory().create_device_controller(session)
 
     @staticmethod
     def create_light_controller(session: Session) -> LightController:
-        """Crée un contrôleur de lumières (compatibilité)."""
+        """Creates a light controller (compatibility)."""
         return get_controller_factory().create_light_controller(session)
 
     @staticmethod
     def create_sensor_controller(session: Session) -> SensorController:
-        """Crée un contrôleur de capteurs (compatibilité)."""
+        """Creates a sensor controller (compatibility)."""
         return get_controller_factory().create_sensor_controller(session)
 
     @staticmethod
     def create_shutter_controller(session: Session) -> ShutterController:
-        """Crée un contrôleur de volets (compatibilité)."""
+        """Creates a shutter controller (compatibility)."""
         return get_controller_factory().create_shutter_controller(session)

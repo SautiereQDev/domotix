@@ -1,20 +1,20 @@
 """
-Module des modèles de dispositifs domotiques.
+Home automation device models module.
 
-Ce module contient la classe abstraite Device qui sert de base pour tous les
-dispositifs domotiques du système. Elle définit l'interface commune que tous
-les dispositifs doivent implémenter.
+This module contains the abstract Device class, which serves as the base for all
+home automation devices in the system. It defines the common interface that all
+devices must implement.
 
 Classes:
-    Device: Classe abstraite de base pour tous les dispositifs domotiques.
+    Device: Abstract base class for all home automation devices.
 
 Example:
-    Cette classe ne peut pas être instanciée directement:
+    This class cannot be instantiated directly:
 
     >>> from domotix.models import Device
-    >>> device = Device("Test")  # Lève TypeError
+    >>> device = Device("Test")  # Raises TypeError
 
-    Elle doit être héritée par des classes concrètes comme Light ou Shutter.
+    It must be inherited by concrete classes such as Light or Shutter.
 """
 
 import uuid
@@ -25,27 +25,27 @@ from domotix.globals.enums import DeviceType
 
 
 class Device(ABC):
-    """Classe abstraite de base pour tous les dispositifs domotiques.
+    """Abstract base class for all home automation devices.
 
-    Cette classe définit l'interface commune que tous les dispositifs
-    doivent implémenter pour fonctionner avec le système domotique.
+    This class defines the common interface that all devices
+    must implement to work with the home automation system.
 
     Attributes:
-        id (str): Identifiant unique du dispositif.
-        name (str): Nom convivial du dispositif.
-        state (dict): État actuel du dispositif.
-        location (Optional[str]): Emplacement du dispositif.
+        id (str): Unique identifier for the device.
+        name (str): Friendly name for the device.
+        state (dict): Current state of the device.
+        location (Optional[str]): Location of the device.
     """
 
     def __init__(self, name: str, type: DeviceType, location: Optional[str] = None):
-        """Initialise un nouveau dispositif.
+        """Initializes a new device.
 
         Args:
-            name (str): Nom convivial du dispositif.
-            type (DeviceType): Type du dispositif.
-            state (dict): État initial du dispositif.
-            location (Optional[str], optional): Emplacement du dispositif.
-            Par défaut None.
+            name (str): Friendly name for the device.
+            type (DeviceType): Type of the device.
+            state (dict): Initial state of the device.
+            location (Optional[str], optional): Location of the device.
+            Default is None.
         """
         self.id = str(uuid.uuid4())
         self.name = name
@@ -54,18 +54,18 @@ class Device(ABC):
         self.location: Optional[str] = location
 
     def __str__(self) -> str:
-        """Représentation sous forme de chaîne du dispositif.
+        """String representation of the device.
 
         Returns:
-            str: Représentation textuelle du dispositif.
+            str: Textual representation of the device.
         """
         return f"{self.__class__.__name__}(id={self.id}, name={self.name})"
 
     def __repr__(self) -> str:
-        """Représentation technique du dispositif.
+        """Technical representation of the device.
 
         Returns:
-            str: Représentation technique détaillée du dispositif.
+            str: Detailed technical representation of the device.
         """
         return (
             f"{self.__class__.__name__}(id={self.id}, name={self.name}, "
@@ -74,25 +74,25 @@ class Device(ABC):
 
     @abstractmethod
     def get_state(self) -> dict:
-        """Renvoie l'état actuel du dispositif.
+        """Returns the current state of the device.
 
-        Cette méthode doit être implémentée par toutes les classes filles.
+        This method must be implemented by all subclasses.
 
         Returns:
-            dict: État actuel du dispositif.
+            dict: Current state of the device.
         """
         pass
 
     @abstractmethod
     def update_state(self, new_state: dict) -> bool:
-        """Met à jour l'état du dispositif.
+        """Updates the state of the device.
 
-        Cette méthode doit être implémentée par toutes les classes filles.
+        This method must be implemented by all subclasses.
 
         Args:
-            new_state (dict): Nouvel état à appliquer.
+            new_state (dict): New state to apply.
 
         Returns:
-            bool: True si la mise à jour a réussi, False sinon.
+            bool: True if the update was successful, False otherwise.
         """
         pass

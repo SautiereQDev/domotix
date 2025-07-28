@@ -1,17 +1,15 @@
 """
-Tests End-to-End (E2E) pour les workflows CLI de Domotix.
+End-to-End (E2E) Tests for Domotix CLI workflows.
 
-
-Ces tests valident l'ensemble du parcours utilisateur depuis les commandes
-CLI jusqu'à la persistance en base de données, en simulant des scenarios
-d'utilisation réels.
+These tests validate the entire user journey from CLI commands
+to database persistence, simulating real usage scenarios.
 
 Test Coverage:
-    - Création de dispositifs via CLI
-    - Listage et recherche de dispositifs
-    - Contrôle d'état des dispositifs
-    - Suppression de dispositifs
-    - Workflows complets utilisateur
+    - Device creation via CLI
+    - Device listing and search
+    - Device state control
+    - Device deletion
+    - Complete user workflows
 """
 
 import os
@@ -26,17 +24,17 @@ from domotix.repositories.device_repository import DeviceRepository
 
 
 class CliTestRunner:
-    """Helper pour exécuter les commandes CLI en mode test."""
+    """Helper to run CLI commands in test mode."""
 
     def __init__(self, test_db_path):
-        """Initialise le runner CLI avec le chemin de la base de données de test."""
+        """Initialize the CLI runner with the test database path."""
         self.test_db_path = test_db_path
         self.project_root = Path(__file__).parent.parent.parent
         self.cli_script = self.project_root / "domotix" / "cli" / "main.py"
 
     def run_cli_command(self, args):
-        """Execute domotix CLI command."""
-        # Utiliser Poetry pour exécuter avec les bonnes dépendances
+        """Run domotix CLI command."""
+        # Use Poetry to run with correct dependencies
         cmd = ["poetry", "run", "python", "-m", "domotix.cli.main"] + args
         env = {**os.environ, "DOMOTIX_DB_PATH": self.test_db_path}
 
@@ -59,22 +57,22 @@ class CliTestRunner:
 
 @pytest.fixture
 def cli_runner(test_db_path):
-    """Fixture qui fournit un runner CLI configuré."""
+    """Fixture providing a configured CLI runner."""
     return CliTestRunner(test_db_path)
 
 
 @pytest.fixture
 def test_db_path():
-    """Fixture pour créer une base de données temporaire isolée pour chaque test."""
-    # Créer une base de données temporaire unique pour ce test
+    """Fixture to create an isolated temporary database for each test."""
+    # Create a unique temporary database for this test
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_file:
         db_path = tmp_file.name
 
-    # Configurer l'environnement
+    # Configure the environment
     original_db_path = os.environ.get("DOMOTIX_DB_PATH")
     os.environ["DOMOTIX_DB_PATH"] = db_path
 
-    # Forcer la reconfiguration de la base de données
+    # Force reconfiguration of the database
     from domotix.core.database import reconfigure_database
 
     reconfigure_database()
@@ -82,44 +80,44 @@ def test_db_path():
 
     yield db_path
 
-    # Nettoyage après le test
+    # Cleanup after the test
     try:
         os.unlink(db_path)
     except OSError:
         pass
 
-    # Restaurer l'environnement
+    # Restore the environment
     if original_db_path:
         os.environ["DOMOTIX_DB_PATH"] = original_db_path
     else:
         os.environ.pop("DOMOTIX_DB_PATH", None)
 
-    # Forcer une nouvelle reconfiguration
+    # Force a new reconfiguration
     reconfigure_database()
 
 
 class TestDeviceCreationWorkflows:
-    """Tests E2E pour les workflows de création de dispositifs."""
+    """E2E tests for device creation workflows."""
 
     def test_create_light_via_cli(self, cli_runner, test_db_path):
-        """Test E2E: Création d'une lampe via CLI."""
-        # Étape 1: Créer une lampe
+        """E2E Test: Create a light via CLI."""
+        # Step 1: Create a light
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "light", "Lampe Salon", "--location", "Salon"]
         )
 
-        # Vérifier que la commande a réussi
+        # Check that the command succeeded
         assert return_code == 0, f"CLI failed: {stderr}"
-        assert "Lampe 'Lampe Salon' créée" in stdout
+        assert "Light 'Lampe Salon' created" in stdout
         assert "Salon" in stdout
 
-        # Étape 2: Vérifier que la lampe est dans la base
+        # Step 2: Verify the light is in the database
         session = create_session()
         try:
             repo = DeviceRepository(session)
             devices = repo.find_all()
 
-            # Vérifier qu'il y a exactement un dispositif
+            # Check there is exactly one device
             assert len(devices) == 1
 
             device = devices[0]
@@ -130,8 +128,8 @@ class TestDeviceCreationWorkflows:
             session.close()
 
     def test_create_shutter_via_cli(self, cli_runner, test_db_path):
-        """Test E2E: Création d'un volet via CLI."""
-        # Créer un volet
+        """E2E Test: Create a shutter via CLI."""
+        # Create a shutter
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "shutter", "Volet Chambre", "--location", "Chambre"]
         )
@@ -139,7 +137,7 @@ class TestDeviceCreationWorkflows:
         assert return_code == 0, f"CLI failed: {stderr}"
         assert "Volet 'Volet Chambre' créé" in stdout
 
-        # Vérifier la persistance
+        # Verify persistence
         session = create_session()
         try:
             repo = DeviceRepository(session)
@@ -152,7 +150,7 @@ class TestDeviceCreationWorkflows:
             session.close()
 
     def test_create_sensor_via_cli(self, cli_runner, test_db_path):
-        """Test E2E: Création d'un capteur via CLI."""
+        """E2E Test: Create a sensor via CLI."""
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "sensor", "Capteur Température", "--location", "Cuisine"]
         )
@@ -160,7 +158,7 @@ class TestDeviceCreationWorkflows:
         assert return_code == 0, f"CLI failed: {stderr}"
         assert "Capteur 'Capteur Température' créé" in stdout
 
-        # Vérifier la persistance
+        # Verify persistence
         session = create_session()
         try:
             repo = DeviceRepository(session)
@@ -174,11 +172,11 @@ class TestDeviceCreationWorkflows:
 
 
 class TestDeviceListingWorkflows:
-    """Tests E2E pour les workflows de listage de dispositifs."""
+    """E2E tests for device listing workflows."""
 
     def test_list_all_devices_workflow(self, cli_runner, test_db_path):
-        """Test E2E: Workflow complet de création et listage."""
-        # Étape 1: Créer plusieurs dispositifs
+        """E2E Test: Full workflow of creation and listing."""
+        # Step 1: Create multiple devices
         devices_to_create = [
             (["device-add", "light", "Lampe1", "--location", "Salon"], "Lampe1"),
             (["device-add", "shutter", "Volet1", "--location", "Chambre"], "Volet1"),
@@ -190,48 +188,48 @@ class TestDeviceListingWorkflows:
             assert return_code == 0, f"Failed to create {expected_name}: {stderr}"
             assert expected_name in stdout
 
-        # Étape 2: Lister tous les dispositifs
+        # Step 2: List all devices
         return_code, stdout, stderr = cli_runner.run_cli_command(["device-list"])
 
         assert return_code == 0, f"List command failed: {stderr}"
 
-        # Vérifier que tous les dispositifs créés apparaissent dans la liste
+        # Check that all created devices appear in the list
         for _, expected_name in devices_to_create:
             assert expected_name in stdout
 
-        # Vérifier que les localisations apparaissent
+        # Check that locations appear
         assert "Salon" in stdout
         assert "Chambre" in stdout
         assert "Cuisine" in stdout
 
     def test_list_devices_by_type(self, cli_runner, test_db_path):
-        """Test E2E: Listage de dispositifs par type."""
-        # Créer des dispositifs de différents types
+        """E2E Test: Listing devices by type."""
+        # Create devices of different types
         cli_runner.run_cli_command(["device-add", "light", "Lampe1"])
         cli_runner.run_cli_command(["device-add", "light", "Lampe2"])
         cli_runner.run_cli_command(["device-add", "shutter", "Volet1"])
 
-        # Lister seulement les lampes
+        # List only the lights
         return_code, stdout, stderr = cli_runner.run_cli_command(["lights-list"])
 
         assert return_code == 0, f"List lights failed: {stderr}"
         assert "Lampe1" in stdout
         assert "Lampe2" in stdout
-        assert "Volet1" not in stdout  # Les volets ne doivent pas apparaître
+        assert "Volet1" not in stdout  # Shutters should not appear
 
 
 class TestDeviceStateWorkflows:
-    """Tests E2E pour les workflows de contrôle d'état."""
+    """E2E tests for state control workflows."""
 
     def test_light_control_workflow(self, cli_runner, test_db_path):
-        """Test E2E: Workflow complet de contrôle d'une lampe."""
-        # Étape 1: Créer une lampe
+        """E2E Test: Complete workflow for controlling a light."""
+        # Step 1: Create a light
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "light", "Lampe Test"]
         )
         assert return_code == 0
 
-        # Extraire l'ID de la lampe créée (supposé être dans stdout)
+        # Extract the ID of the created light (supposed to be in stdout)
         lines = stdout.strip().split("\n")
         device_id = None
         for line in lines:
@@ -241,26 +239,26 @@ class TestDeviceStateWorkflows:
 
         assert device_id is not None, "Device ID not found in creation output"
 
-        # Étape 2: Allumer la lampe
+        # Step 2: Turn on the light
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["light-on", device_id]
         )
         assert return_code == 0, f"Turn on failed: {stderr}"
 
-        # Étape 3: Vérifier l'état via CLI
+        # Step 3: Check the status via CLI
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-status", device_id]
         )
         assert return_code == 0, f"Status check failed: {stderr}"
         assert "ON" in stdout.upper() or "allumé" in stdout.lower()
 
-        # Étape 4: Éteindre la lampe
+        # Step 4: Turn off the light
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["light-off", device_id]
         )
         assert return_code == 0, f"Turn off failed: {stderr}"
 
-        # Étape 5: Vérifier l'état final
+        # Step 5: Check final status
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-status", device_id]
         )
@@ -269,17 +267,17 @@ class TestDeviceStateWorkflows:
 
 
 class TestCompleteUserWorkflows:
-    """Tests E2E pour des workflows utilisateur complets et réalistes."""
+    """E2E tests for complete and realistic user workflows."""
 
     def test_home_automation_scenario(self, cli_runner, test_db_path):
         """
-        Test E2E: Scenario complet d'automatisation maison.
+        E2E Test: Complete home automation scenario.
 
-        Simule un utilisateur qui configure son système domotique complet.
+        Simulates a user setting up their complete home automation system.
         """
-        # Scenario: Configuration d'un appartement avec salon, chambre, cuisine
+        # Scenario: Setting up an apartment with living room, bedroom, kitchen
 
-        # Phase 1: Configuration du salon
+        # Phase 1: Living room setup
         salon_devices = [
             ["device-add", "light", "Lampe Principale", "--location", "Salon"],
             ["device-add", "light", "Lampe d'Appoint", "--location", "Salon"],
@@ -290,7 +288,7 @@ class TestCompleteUserWorkflows:
             return_code, stdout, stderr = cli_runner.run_cli_command(cmd)
             assert return_code == 0, f"Failed salon setup: {stderr}"
 
-        # Phase 2: Configuration de la chambre
+        # Phase 2: Bedroom setup
         chambre_devices = [
             ["device-add", "light", "Lampe Chevet", "--location", "Chambre"],
             ["device-add", "shutter", "Volet Chambre", "--location", "Chambre"],
@@ -301,11 +299,11 @@ class TestCompleteUserWorkflows:
             return_code, stdout, stderr = cli_runner.run_cli_command(cmd)
             assert return_code == 0, f"Failed chambre setup: {stderr}"
 
-        # Phase 3: Vérification de l'installation complète
+        # Phase 3: Verify complete installation
         return_code, stdout, stderr = cli_runner.run_cli_command(["device-list"])
         assert return_code == 0
 
-        # Vérifier que tous les dispositifs sont présents
+        # Check that all devices are present
         expected_devices = [
             "Lampe Principale",
             "Lampe d'Appoint",
@@ -318,7 +316,7 @@ class TestCompleteUserWorkflows:
         for device_name in expected_devices:
             assert device_name in stdout, f"Device {device_name} not found in listing"
 
-        # Phase 4: Test de contrôle groupé par location
+        # Phase 4: Test group control by location
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["devices-by-location", "Salon"]
         )
@@ -326,15 +324,15 @@ class TestCompleteUserWorkflows:
         assert "Lampe Principale" in stdout
         assert "Lampe d'Appoint" in stdout
         assert "Volet Salon" in stdout
-        assert "Lampe Chevet" not in stdout  # Ne doit pas être dans le salon
+        assert "Lampe Chevet" not in stdout  # Should not be in the living room
 
-        # Vérifier la persistance finale en base
+        # Final persistence check in the database
         session = create_session()
         try:
             repo = DeviceRepository(session)
             all_devices = repo.find_all()
 
-            assert len(all_devices) == 6  # 6 dispositifs créés
+            assert len(all_devices) == 6  # 6 devices created
 
             salon_devices_db = repo.find_by_location("Salon")
             assert len(salon_devices_db) == 3
@@ -346,38 +344,38 @@ class TestCompleteUserWorkflows:
             session.close()
 
     def test_error_handling_workflow(self, cli_runner, test_db_path):
-        """Test E2E: Gestion d'erreurs dans les workflows."""
-        # Test 1: Créer un dispositif avec un nom vide (peut être accepté)
+        """E2E Test: Error handling in workflows."""
+        # Test 1: Create a device with an empty name (may be accepted)
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "light", ""]
         )
-        # Un nom vide pourrait être accepté, on teste juste que ça ne crash pas
+        # An empty name might be accepted, just testing that it doesn't crash
 
-        # Test 2: Essayer de contrôler un dispositif inexistant
+        # Test 2: Try to control a non-existent device
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["light-on", "inexistent-id-12345"]
         )
-        # Vérifier qu'une erreur est reportée (dans stdout ou stderr)
+        # Check that an error is reported (in stdout or stderr)
         assert (
             "Échec" in stdout or "erreur" in stderr.lower() or "error" in stderr.lower()
         )
 
-        # Test 3: Créer un dispositif avec un type invalide
+        # Test 3: Create a device with an invalid type
         return_code, stdout, stderr = cli_runner.run_cli_command(
             ["device-add", "invalid-type", "Test Device"]
         )
-        # Vérifier que le type invalide est rejeté
+        # Check that the invalid type is rejected
         assert "non supporté" in stdout or "not supported" in stderr or return_code != 0
 
-        # Vérifier qu'aucun dispositif invalide n'a été créé
+        # Check that no invalid device has been created
         session = create_session()
         try:
             repo = DeviceRepository(session)
             devices = repo.find_all()
-            # Seul le dispositif avec nom vide pourrait exister (si accepté)
+            # Only the device with an empty name might exist (if accepted)
             assert len(devices) <= 1
             if len(devices) == 1:
-                # Si un dispositif a été créé, ce doit être celui avec le nom vide
+                # If a device was created, it should be the one with the empty name
                 assert devices[0].name == ""
         finally:
             session.close()

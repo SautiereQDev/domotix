@@ -12,12 +12,12 @@ from domotix.models import Light, Shutter
 
 
 def test_command_base_execute_not_implemented():
-    """La classe de base Command ne doit pas implémenter execute."""
+    """The base Command class must not implement execute."""
 
-    # Si Command est abstraite, on crée une sous-classe pour tester
+    # If Command is abstract, create a subclass to test
     class DummyCommand(Command):
         def execute(self):
-            # Appeler l'implémentation de base (qui devrait lever une exception)
+            # Call the base implementation (should raise an exception)
             return super().execute()
 
     cmd = DummyCommand()
@@ -26,57 +26,57 @@ def test_command_base_execute_not_implemented():
 
 
 def test_turn_on_command_executes_successfully():
-    """Test qu'un TurnOnCommand s'exécute avec succès."""
+    """Test that a TurnOnCommand executes successfully."""
     StateManager.reset_instance()
-    lampe = Light(name="Lampe test")
-    lampe.is_on = False
-    command = TurnOnCommand(device=lampe)
+    lamp = Light(name="Test lamp")
+    lamp.is_on = False
+    command = TurnOnCommand(device=lamp)
     command.execute()
-    assert lampe.is_on is True
+    assert lamp.is_on is True
 
 
 def test_turn_off_command_executes_successfully():
-    """Test qu'un TurnOffCommand s'exécute avec succès."""
+    """Test that a TurnOffCommand executes successfully."""
     StateManager.reset_instance()
-    lampe = Light(name="Lampe test2")
-    lampe.is_on = True
-    command = TurnOffCommand(device=lampe)
+    lamp = Light(name="Test lamp 2")
+    lamp.is_on = True
+    command = TurnOffCommand(device=lamp)
     command.execute()
-    assert lampe.is_on is False
+    assert lamp.is_on is False
 
 
 def test_shutter_commands_execute_successfully():
-    """Test que les commandes de volet s'exécutent avec succès."""
+    """Test that shutter commands execute successfully."""
     StateManager.reset_instance()
-    volet = Shutter(name="Volet test")
-    volet.position = 0
-    open_cmd = OpenShutterCommand(device=volet)
-    close_cmd = CloseShutterCommand(device=volet)
+    shutter = Shutter(name="Test shutter")
+    shutter.position = 0
+    open_cmd = OpenShutterCommand(device=shutter)
+    close_cmd = CloseShutterCommand(device=shutter)
 
     open_cmd.execute()
-    assert volet.position == 100
+    assert shutter.position == 100
 
     close_cmd.execute()
-    assert volet.position == 0
+    assert shutter.position == 0
 
 
 def test_commands_raise_error_with_wrong_device_type():
-    """Test que les commandes lèvent une erreur avec un mauvais type de dispositif."""
+    """Test that commands raise an error with the wrong device type."""
     StateManager.reset_instance()
-    lampe = Light(name="Lampe erreur")
-    volet = Shutter(name="Volet erreur")
+    lamp = Light(name="Error lamp")
+    shutter = Shutter(name="Error shutter")
 
-    cmd_wrong1 = OpenShutterCommand(lampe)
+    cmd_wrong1 = OpenShutterCommand(lamp)
     with pytest.raises((TypeError, AttributeError, ValueError)):
         cmd_wrong1.execute()
 
-    cmd_wrong2 = TurnOnCommand(volet)
+    cmd_wrong2 = TurnOnCommand(shutter)
     with pytest.raises((TypeError, AttributeError, ValueError)):
         cmd_wrong2.execute()
 
 
 def test_turn_on_command_validates_device_has_required_attributes():
-    """Test que TurnOnCommand valide que le dispositif a les attributs requis."""
+    """Test that TurnOnCommand validates the device has the required attributes."""
     StateManager.reset_instance()
 
     class InvalidDevice:
@@ -84,14 +84,14 @@ def test_turn_on_command_validates_device_has_required_attributes():
             self.name = name
             self.id = "test-id"
 
-    invalid_device = InvalidDevice("Device invalide")
+    invalid_device = InvalidDevice("Invalid device")
     command = TurnOnCommand(device=invalid_device)
-    with pytest.raises(AttributeError, match="n'est pas une lumière"):
+    with pytest.raises(AttributeError, match="is not a light"):
         command.execute()
 
 
 def test_open_shutter_command_validates_device_has_required_attributes():
-    """Test que OpenShutterCommand valide que le dispositif a les attributs requis."""
+    """Test that OpenShutterCommand validates the device has the required attributes."""
     StateManager.reset_instance()
 
     class InvalidDevice:
@@ -99,27 +99,27 @@ def test_open_shutter_command_validates_device_has_required_attributes():
             self.name = name
             self.id = "test-id"
 
-    invalid_device = InvalidDevice("Device invalide")
+    invalid_device = InvalidDevice("Invalid device")
     command = OpenShutterCommand(device=invalid_device)
 
-    with pytest.raises(AttributeError, match="n'est pas un volet"):
+    with pytest.raises(AttributeError, match="is not a shutter"):
         command.execute()
 
 
 def test_commands_work_with_singleton_state_manager():
-    """Test que les commandes fonctionnent avec le StateManager singleton."""
+    """Test that commands work with the StateManager singleton."""
     StateManager.reset_instance()
     state_manager = StateManager()
 
-    lampe = Light(name="Lampe singleton")
-    device_id = state_manager.register_device(lampe)
+    lamp = Light(name="Singleton lamp")
+    device_id = state_manager.register_device(lamp)
 
-    # Récupérer le dispositif via le singleton
+    # Retrieve the device via the singleton
     retrieved_device = state_manager.get_device(device_id)
 
     command = TurnOnCommand(device=retrieved_device)
     command.execute()
 
-    # Vérifier que l'état persiste dans le singleton
+    # Check that the state persists in the singleton
     final_device = state_manager.get_device(device_id)
     assert final_device.is_on is True

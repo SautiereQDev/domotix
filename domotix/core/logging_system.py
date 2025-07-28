@@ -1,15 +1,15 @@
 """
-Système de logging moderne pour Domotix.
+Modern logging system for Domotix.
 
-Ce module implémente un système de logging robuste utilisant:
-- Logger structuré avec contexte
-- Rotation automatique des fichiers
-- Formatage JSON pour les logs de production
-- Support des logs asynchrones (si asyncio est utilisé)
+This module implements a robust logging system using:
+- Structured logger with context
+- Automatic file rotation
+- JSON formatting for production logs
+- Support for asynchronous logs (if asyncio is used)
 
 Classes:
-    ContextLogger: Logger avec contexte métier
-    LoggingManager: Gestionnaire centralisé des logs
+    ContextLogger: Logger with business context
+    LoggingManager: Centralized log manager
 """
 
 from __future__ import annotations

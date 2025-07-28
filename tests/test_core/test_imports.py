@@ -1,8 +1,8 @@
-"""Tests pour vérifier que tous les imports fonctionnent correctement."""
+"""Tests to verify that all imports work correctly."""
 
 
 def test_import_models():
-    """Test que tous les modèles s'importent correctement."""
+    """Test that all models import correctly."""
     from domotix.models import Device, Light, Sensor, Shutter
 
     assert Device is not None
@@ -12,7 +12,7 @@ def test_import_models():
 
 
 def test_import_commands():
-    """Test que toutes les commandes s'importent correctement."""
+    """Test that all commands import correctly."""
     from domotix.commands import (
         CloseShutterCommand,
         Command,
@@ -29,7 +29,7 @@ def test_import_commands():
 
 
 def test_import_globals():
-    """Test que tous les éléments globaux s'importent correctement."""
+    """Test that all global elements import correctly."""
     from domotix.globals import (
         CommandExecutionError,
         CommandType,
@@ -50,7 +50,7 @@ def test_import_globals():
 
 
 def test_import_core_components():
-    """Test que tous les composants core s'importent correctement."""
+    """Test that all core components import correctly."""
     from domotix.core import HomeAutomationController, StateManager
 
     assert HomeAutomationController is not None
@@ -58,7 +58,7 @@ def test_import_core_components():
 
 
 def test_import_cli():
-    """Test que les composants CLI s'importent correctement."""
+    """Test that CLI components import correctly."""
     from domotix.cli import app, main
 
     assert app is not None
@@ -66,14 +66,14 @@ def test_import_cli():
 
 
 def test_module_structure():
-    """Test la structure des modules."""
+    """Test the structure of the modules."""
     import domotix.cli
     import domotix.commands
     import domotix.core
     import domotix.globals
     import domotix.models
 
-    # Vérifier que les modules ont les attributs attendus
+    # Check that the modules have the expected attributes
     assert hasattr(domotix.models, "__all__")
     assert hasattr(domotix.commands, "__all__")
     assert hasattr(domotix.core, "__all__")
@@ -82,10 +82,10 @@ def test_module_structure():
 
 
 def test_domotix_main_import():
-    """Test que l'import principal du package fonctionne."""
+    """Test that the main import of the package works."""
     import domotix
 
-    # Vérifier que les éléments principaux sont disponibles
+    # Check that the main elements are available
     assert hasattr(domotix, "Light")
     assert hasattr(domotix, "HomeAutomationController")
     assert hasattr(domotix, "DeviceType")

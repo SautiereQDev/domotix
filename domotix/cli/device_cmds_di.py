@@ -1,16 +1,17 @@
 """
-Module des commandes CLI complètes avec injection de dépendance.
+CLI commands module with full dependency injection.
 
-Ce module contient toutes les commandes CLI pour le système domotique
-avec injection de dépendance moderne.
+This module contains all CLI commands for the home automation system
+with modern dependency injection.
 
 Commands:
-    Générales: device_list, device_add, device_remove, device_status
-    Lampes: light_on, light_off, light_toggle, lights_list, lights_on, lights_off
-    Volets: shutter_open, shutter_close, shutter_toggle, shutter_position, shutters_list
-    Capteurs: sensor_update, sensor_reset, sensors_list, sensors_reset
-    Recherche: devices_by_location, device_search, locations_list
-    Résumés: devices_summary, devices_on, devices_off
+    General: device_list, device_add, device_remove, device_status
+    Lights: light_on, light_off, light_toggle, lights_list, lights_on, lights_off
+    Shutters: shutter_open, shutter_close, shutter_toggle, shutter_position,
+    shutters_list
+    Sensors: sensor_update, sensor_reset, sensors_list, sensors_reset
+    Search: devices_by_location, device_search, locations_list
+    Summaries: devices_summary, devices_on, devices_off
 """
 
 from typing import Optional
@@ -24,11 +25,11 @@ app = typer.Typer()
 
 
 class DeviceCreateCommands:
-    """Commandes pour créer des dispositifs avec injection de dépendance."""
+    """Commands to create devices with dependency injection."""
 
     @staticmethod
     def create_light(name: str, location: Optional[str] = None):
-        """Crée une nouvelle lampe avec gestion d'erreurs améliorée."""
+        """Creates a new light with improved error handling."""
         try:
             with scoped_service_provider.create_scope() as provider:
                 controller = provider.get_light_controller()
@@ -37,35 +38,35 @@ class DeviceCreateCommands:
                 if light_id:
                     light = controller.get_light(light_id)
                     if light is not None:
-                        print(f"✅ Lampe '{light.name}' créée avec l'ID: {light_id}")
+                        print(f"✅ Light '{light.name}' created with ID: {light_id}")
                         if location:
-                            print(f"   Emplacement: {location}")
+                            print(f"   Location: {location}")
                     else:
-                        print(f"✅ Lampe créée avec l'ID: {light_id}")
+                        print(f"✅ Light created with ID: {light_id}")
                 else:
-                    print(f"❌ Erreur lors de la création de la lampe '{name}'")
+                    print(f"❌ Error creating light '{name}'")
 
         except ValueError as e:
-            print(f"❌ Paramètres invalides: {e}")
-            print("💡 Vérifiez que le nom n'est pas vide")
+            print(f"❌ Invalid parameters: {e}")
+            print("💡 Make sure the name is not empty")
 
         except Exception as e:
-            # Import local pour éviter les dépendances circulaires
+            # Local import to avoid circular dependencies
             from domotix.core.error_handling import format_error_for_user
 
-            # Affichage d'erreur avec informations contextuelles
+            # Error display with contextual information
             if hasattr(e, "error_code"):
-                print(f"❌ Erreur [{e.error_code.value}]: {format_error_for_user(e)}")
+                print(f"❌ Error [{e.error_code.value}]: {format_error_for_user(e)}")
             else:
-                print(f"❌ Erreur lors de la création de la lampe '{name}': {e}")
+                print(f"❌ Error creating light '{name}': {e}")
 
-            # Suggestions contextuelles selon le type d'erreur
-            if "contrainte" in str(e).lower():
-                print("💡 Un dispositif avec ce nom existe peut-être déjà")
-            elif "connexion" in str(e).lower():
-                print("💡 Vérifiez la connexion à la base de données")
+            # Contextual suggestions based on error type
+            if "constraint" in str(e).lower():
+                print("💡 A device with this name may already exist")
+            elif "connection" in str(e).lower():
+                print("💡 Check the connection to the database")
             elif "validation" in str(e).lower():
-                print("💡 Vérifiez que tous les paramètres sont corrects")
+                print("💡 Ensure all parameters are correct")
 
     @staticmethod
     def create_shutter(name: str, location: Optional[str] = None):

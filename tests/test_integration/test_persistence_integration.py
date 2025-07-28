@@ -1,8 +1,8 @@
 """
-Tests d'intégration pour la persistance.
+Integration tests for persistence.
 
-Ce module contient les tests d'intégration qui testent
-l'ensemble de la chaîne de persistance (repositories + contrôleurs).
+This module contains integration tests that test
+the entire persistence chain (repositories + controllers).
 """
 
 import pytest
@@ -20,8 +20,8 @@ from domotix.models import Light, Sensor, Shutter
 
 @pytest.fixture
 def test_session():
-    """Crée une session de test en mémoire."""
-    # Réinitialise les factories pour éviter les interférences entre tests
+    """Create an in-memory test session."""
+    # Reset factories to avoid interference between tests
     FactoryManager.reset_instance()
 
     engine = create_engine("sqlite:///:memory:")
@@ -34,92 +34,92 @@ def test_session():
 
 @pytest.fixture
 def light_controller(test_session):
-    """Crée un contrôleur de lampes avec une session de test."""
+    """Create a light controller with a test session."""
     return get_controller_factory().create_light_controller(test_session)
 
 
 @pytest.fixture
 def shutter_controller(test_session):
-    """Crée un contrôleur de volets avec une session de test."""
+    """Create a shutter controller with a test session."""
     return get_controller_factory().create_shutter_controller(test_session)
 
 
 @pytest.fixture
 def sensor_controller(test_session):
-    """Crée un contrôleur de capteurs avec une session de test."""
+    """Create a sensor controller with a test session."""
     return get_controller_factory().create_sensor_controller(test_session)
 
 
 @pytest.fixture
 def device_controller(test_session):
-    """Crée un contrôleur général avec une session de test."""
+    """Create a general controller with a test session."""
     return get_controller_factory().create_device_controller(test_session)
 
 
 class TestLightControllerIntegration:
-    """Tests d'intégration pour le LightController."""
+    """Integration tests for LightController."""
 
     def test_complete_light_lifecycle(self, light_controller):
-        """Test du cycle de vie complet d'une lampe."""
-        # Créer une lampe
+        """Test the complete lifecycle of a lamp."""
+        # Create a lamp
         light_id = light_controller.create_light("Lampe salon", "Salon")
         assert light_id is not None
 
-        # Récupérer la lampe
+        # Retrieve the lamp
         light = light_controller.get_light(light_id)
         assert light is not None
         assert light.name == "Lampe salon"
         assert light.location == "Salon"
         assert light.is_on is False
 
-        # Allumer la lampe
+        # Turn on the lamp
         success = light_controller.turn_on(light_id)
         assert success is True
 
-        # Vérifier l'état
+        # Check the state
         light = light_controller.get_light(light_id)
         assert light.is_on is True
 
-        # Éteindre la lampe
+        # Turn off the lamp
         success = light_controller.turn_off(light_id)
         assert success is True
 
-        # Vérifier l'état
+        # Check the state
         light = light_controller.get_light(light_id)
         assert light.is_on is False
 
-        # Basculer l'état
+        # Toggle the state
         success = light_controller.toggle(light_id)
         assert success is True
 
-        # Vérifier l'état
+        # Check the state
         light = light_controller.get_light(light_id)
         assert light.is_on is True
 
-        # Supprimer la lampe
+        # Delete the lamp
         success = light_controller.delete_light(light_id)
         assert success is True
 
-        # Vérifier que la lampe n'existe plus
+        # Check that the lamp no longer exists
         light = light_controller.get_light(light_id)
         assert light is None
 
     def test_multiple_lights_management(self, light_controller):
-        """Test de gestion de plusieurs lampes."""
-        # Créer plusieurs lampes
+        """Test management of multiple lamps."""
+        # Create several lamps
         light1_id = light_controller.create_light("Lampe salon", "Salon")
         light2_id = light_controller.create_light("Lampe chambre", "Chambre")
         light3_id = light_controller.create_light("Spot cuisine", "Cuisine")
 
-        # Vérifier qu'elles existent toutes
+        # Check that they all exist
         all_lights = light_controller.get_all_lights()
         assert len(all_lights) == 3
 
-        # Allumer certaines lampes
+        # Turn on some lamps
         light_controller.turn_on(light1_id)
         light_controller.turn_on(light3_id)
 
-        # Vérifier les états
+        # Check the states
         light1 = light_controller.get_light(light1_id)
         light2 = light_controller.get_light(light2_id)
         light3 = light_controller.get_light(light3_id)

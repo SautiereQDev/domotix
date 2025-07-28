@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test direct d'un workflow E2E simple pour vérifier que tout fonctionne.
+Direct test of a simple E2E workflow to verify that everything works.
 """
 
 import os
@@ -8,7 +8,7 @@ import sys
 import tempfile
 import traceback
 
-# Ajouter le chemin du projet au sys.path
+# Add project path to sys.path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, project_root)
 
@@ -19,10 +19,10 @@ try:
     from domotix.repositories.device_repository import DeviceRepository
 
     def test_simple_e2e_workflow():
-        """Test E2E simple pour vérifier le fonctionnement de base."""
-        print("🚀 Démarrage du test E2E simple...")
+        """Simple E2E test to verify basic functionality."""
+        print("🚀 Starting simple E2E test...")
 
-        # Configuration de l'environnement de test
+        # Test environment setup
         temp_dir = tempfile.mkdtemp(prefix="domotix_simple_e2e_")
         db_path = os.path.join(temp_dir, "test_simple.db")
 
@@ -30,68 +30,68 @@ try:
         os.environ["DOMOTIX_DB_PATH"] = db_path
 
         try:
-            # Initialiser le système
+            # Initialize the system
             StateManager.reset_instance()
             create_tables()
-            print("✅ Base de données initialisée")
+            print("✅ Database initialized")
 
-            # Test de création de dispositif
+            # Device creation test
             session = create_session()
             try:
                 controller = get_controller_factory().create_light_controller(session)
-                print("✅ Contrôleur créé")
+                print("✅ Controller created")
 
-                # Créer une lampe
-                light_id = controller.create_light("Lampe Test E2E", "Test Room")
-                assert light_id is not None, "Création de lampe échouée"
-                print(f"✅ Lampe créée avec ID: {light_id}")
+                # Create a light
+                light_id = controller.create_light("E2E Test Light", "Test Room")
+                assert light_id is not None, "Light creation failed"
+                print(f"✅ Light created with ID: {light_id}")
 
-                # Vérifier la lampe
+                # Verify the light
                 light = controller.get_light(light_id)
-                assert light is not None, "Récupération de lampe échouée"
-                assert light.name == "Lampe Test E2E", "Nom de lampe incorrect"
-                assert light.location == "Test Room", "Localisation incorrecte"
-                print("✅ Lampe vérifiée")
+                assert light is not None, "Light retrieval failed"
+                assert light.name == "E2E Test Light", "Incorrect light name"
+                assert light.location == "Test Room", "Incorrect location"
+                print("✅ Light verified")
 
-                # Test d'état
+                # State test
                 success = controller.turn_on(light_id)
-                assert success is True, "Allumage échoué"
-                print("✅ Lampe allumée")
+                assert success is True, "Turn on failed"
+                print("✅ Light turned on")
 
-                # Vérifier l'état
+                # Verify state
                 light_on = controller.get_light(light_id)
-                assert light_on.is_on is True, "État allumé incorrect"
-                print("✅ État allumé vérifié")
+                assert light_on.is_on is True, "Incorrect light on state"
+                print("✅ Light on state verified")
 
                 # Test repository
                 repo = DeviceRepository(session)
 
-                # Compter avant la création pour avoir un référentiel
+                # Count before creation for reference
                 initial_count = repo.count_all()
-                print(f"Dispositifs initiaux: {initial_count}")
+                print(f"Initial devices count: {initial_count}")
 
-                # Vérifier que notre lampe existe
+                # Verify our light exists
                 our_light = repo.find_by_id(light_id)
-                assert our_light is not None, "Notre lampe n'existe pas en base"
-                assert our_light.name == "Lampe Test E2E", "Nom incorrect en base"
-                print("✅ Repository fonctionnel")
+                assert our_light is not None, "Our light does not exist in the database"
+                assert our_light.name == "E2E Test Light", "Incorrect name in database"
+                print("✅ Repository functional")
 
-                # Test de suppression
+                # Deletion test
                 success = controller.delete_light(light_id)
-                assert success is True, "Suppression échouée"
+                assert success is True, "Deletion failed"
 
                 deleted_light = controller.get_light(light_id)
-                assert deleted_light is None, "Lampe non supprimée"
-                print("✅ Lampe supprimée")
+                assert deleted_light is None, "Light not deleted"
+                print("✅ Light deleted")
 
-                print("🎉 Test E2E simple réussi !")
+                print("🎉 Simple E2E test passed!")
                 return True
 
             finally:
                 session.close()
 
         finally:
-            # Nettoyage
+            # Cleanup
             StateManager.reset_instance()
             import shutil
 
@@ -107,18 +107,18 @@ try:
         try:
             success = test_simple_e2e_workflow()
             if success:
-                print("\n✅ Tous les tests E2E de base sont fonctionnels !")
+                print("\n✅ All basic E2E tests are functional!")
                 sys.exit(0)
             else:
-                print("\n❌ Échec des tests E2E de base")
+                print("\n❌ Basic E2E tests failed")
                 sys.exit(1)
         except Exception as e:
-            print(f"\n💥 Erreur lors du test E2E: {e}")
-            print("\nStacktrace complète:")
+            print(f"\n💥 Error during E2E test: {e}")
+            print("\nComplete stacktrace:")
             traceback.print_exc()
             sys.exit(1)
 
 except ImportError as e:
-    print(f"❌ Erreur d'import: {e}")
-    print("Vérifiez que le projet est correctement configuré")
+    print(f"❌ Import error: {e}")
+    print("Ensure the project is correctly configured")
     sys.exit(1)

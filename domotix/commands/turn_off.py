@@ -1,26 +1,26 @@
 """
-Module de la commande pour éteindre un dispositif.
+Module for the command to turn off a device.
 
 Classes:
-    TurnOffCommand: Commande pour éteindre un dispositif
+    TurnOffCommand: Command to turn off a device
 """
 
 from .command import Command
 
 
 class TurnOffCommand(Command):
-    """Commande pour éteindre un dispositif."""
+    """Command to turn off a device."""
 
     def __init__(self, device):
         """
-        Initialise la commande.
+        Initialize the command.
 
         Args:
-            device: Dispositif à éteindre
+            device: Device to turn off
         """
         self.device = device
 
     def execute(self):
-        """Exécute la commande d'extinction."""
+        """Executes the turn off command."""
         if hasattr(self.device, "turn_off"):
             self.device.turn_off()

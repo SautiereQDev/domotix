@@ -3,94 +3,94 @@ from domotix.models import Light, Sensor
 
 
 def test_controller_init():
-    """Test que le controller s'initialise correctement."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test that the controller initializes correctly."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
     assert hasattr(controller, "_state_manager")
 
 
 def test_controller_register_and_turn_on():
-    """Test l'enregistrement d'un dispositif et son allumage."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test registering a device and turning it on."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
-    light = Light(name="Lampe test")
+    light = Light(name="Test lamp")
 
-    # Enregistrer le dispositif - utiliser la valeur de retour
+    # Register the device - use the return value
     device_id = controller.register_device(light)
 
-    # Vérifier l'état initial
+    # Check initial state
     assert not light.is_on
 
-    # Allumer le dispositif
+    # Turn on the device
     result = controller.turn_on(device_id)
     assert result is True
     assert light.is_on
 
 
 def test_controller_turn_off():
-    """Test l'extinction d'un dispositif."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test turning off a device."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
-    light = Light(name="Lampe test")
-    light.turn_on()  # Allumer d'abord
+    light = Light(name="Test lamp")
+    light.turn_on()  # Turn on first
 
     device_id = controller.register_device(light)
 
-    # Éteindre le dispositif
+    # Turn off the device
     result = controller.turn_off(device_id)
     assert result is True
     assert not light.is_on
 
 
 def test_controller_turn_on_invalid_device():
-    """Test l'allumage d'un dispositif qui n'a pas de méthode turn_on."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test turning on a device that does not have a turn_on method."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
-    sensor = Sensor(name="Capteur test")
+    sensor = Sensor(name="Test sensor")
 
     device_id = controller.register_device(sensor)
 
-    # Tenter d'allumer un capteur (qui n'a pas de turn_on)
+    # Try to turn on a sensor (which does not have turn_on)
     result = controller.turn_on(device_id)
     assert result is False
 
 
 def test_controller_turn_off_invalid_device():
-    """Test l'extinction d'un dispositif qui n'a pas de méthode turn_off."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test turning off a device that does not have a turn_off method."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
-    sensor = Sensor(name="Capteur test")
+    sensor = Sensor(name="Test sensor")
 
     device_id = controller.register_device(sensor)
 
-    # Tenter d'éteindre un capteur (qui n'a pas de turn_off)
+    # Try to turn off a sensor (which does not have turn_off)
     result = controller.turn_off(device_id)
     assert result is False
 
 
 def test_controller_get_status():
-    """Test la récupération du statut d'un dispositif."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test getting the status of a device."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
-    light = Light(name="Lampe test")
+    light = Light(name="Test lamp")
 
     device_id = controller.register_device(light)
 
-    # Vérifier le statut initial
+    # Check initial status
     status = controller.get_status(device_id)
     assert status == "OFF"
 
-    # Allumer et vérifier le nouveau statut
-    controller.turn_on(device_id)  # Utiliser le controller pour allumer
+    # Turn on and check new status
+    controller.turn_on(device_id)  # Use the controller to turn on
     status = controller.get_status(device_id)
     assert status == "ON"
 
 
 def test_controller_get_status_nonexistent_device():
-    """Test la récupération du statut d'un dispositif inexistant."""
-    StateManager.reset_instance()  # Reset pour chaque test
+    """Test getting the status of a nonexistent device."""
+    StateManager.reset_instance()  # Reset for each test
     controller = HomeAutomationController()
 
-    # Maintenant get_status retourne None au lieu de lever KeyError
+    # Now get_status returns None instead of raising KeyError
     result = controller.get_status("non-existent-id")
     assert result is None

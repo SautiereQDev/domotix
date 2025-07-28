@@ -4,61 +4,61 @@ from domotix.models import Light, Sensor, Shutter
 
 
 def test_light_default_state_and_properties():
-    """Tester que la création d'une Light initialise correctement ses propriétés."""
-    lamp = Light(name="Lampadaire")
-    # Par défaut, la lampe doit être éteinte
-    assert lamp.name == "Lampadaire"
-    assert hasattr(lamp, "is_on"), "La classe Light doit avoir un attribut is_on."
+    """Test that creating a Light initializes its properties correctly."""
+    lamp = Light(name="Floor Lamp")
+    # By default, the lamp should be off
+    assert lamp.name == "Floor Lamp"
+    assert hasattr(lamp, "is_on"), "The Light class must have an is_on attribute."
     assert lamp.is_on is False
 
 
 def test_light_turn_on_off_methods():
-    """Vérifie que les méthodes d'allumage/extinction d'une Light fonctionnent."""
-    lamp = Light(name="Lampe salon")
-    # Allumer la lampe
+    """Verify that the turn_on/turn_off methods of a Light work."""
+    lamp = Light(name="Living Room Lamp")
+    # Turn on the lamp
     lamp.turn_on()
     assert lamp.is_on is True
-    # Éteindre la lampe
+    # Turn off the lamp
     lamp.turn_off()
     assert lamp.is_on is False
 
 
 def test_light_turn_on_idempotent():
-    """Allumer une lampe déjà allumée ne doit pas provoquer d'erreur."""
-    lamp = Light(name="Lampe bureau")
-    lamp.is_on = True  # Simuler une lampe déjà allumée
-    # Tenter de l'allumer à nouveau
+    """Turning on an already-on lamp should not cause an error."""
+    lamp = Light(name="Desk Lamp")
+    lamp.is_on = True  # Simulate an already-on lamp
+    # Try to turn it on again
     lamp.turn_on()
-    # L'état reste allumé et aucune exception n'est levée
+    # State remains on and no exception is raised
     assert lamp.is_on is True
 
 
 def test_shutter_default_state_and_properties():
-    """Tester que la création d'un Shutter initialise correctement ses propriétés."""
-    volet = Shutter(name="Volet cuisine")
-    # Par défaut, le volet doit être fermé (position 0)
-    assert volet.name == "Volet cuisine"
-    position_attr = "La classe Shutter doit avoir un attribut position."
-    assert hasattr(volet, "position"), position_attr
-    assert volet.position == 0
-    # Si une propriété booléenne is_open existe, elle doit refléter l'état fermé
-    if hasattr(volet, "is_open"):
-        assert volet.is_open is False
+    """Test that creating a Shutter initializes its properties correctly."""
+    shutter = Shutter(name="Kitchen Shutter")
+    # By default, the shutter should be closed (position 0)
+    assert shutter.name == "Kitchen Shutter"
+    position_attr = "The Shutter class must have a position attribute."
+    assert hasattr(shutter, "position"), position_attr
+    assert shutter.position == 0
+    # If a boolean property is_open exists, it should reflect the closed state
+    if hasattr(shutter, "is_open"):
+        assert shutter.is_open is False
 
 
 def test_shutter_open_close_methods():
-    """Vérifie que les méthodes d'ouverture/fermeture d'un Shutter fonctionnent."""
-    volet = Shutter(name="Volet salon")
-    # Ouvrir le volet
-    volet.open()
-    assert volet.position == 100
-    if hasattr(volet, "is_open"):
-        assert volet.is_open is True
-    # Fermer le volet
-    volet.close()
-    assert volet.position == 0
-    if hasattr(volet, "is_open"):
-        assert volet.is_open is False
+    """Verify that the open/close methods of a Shutter work."""
+    shutter = Shutter(name="Living Room Shutter")
+    # Open the shutter
+    shutter.open()
+    assert shutter.position == 100
+    if hasattr(shutter, "is_open"):
+        assert shutter.is_open is True
+    # Close the shutter
+    shutter.close()
+    assert shutter.position == 0
+    if hasattr(shutter, "is_open"):
+        assert shutter.is_open is False
 
 
 def test_shutter_position_within_range():

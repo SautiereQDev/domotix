@@ -1,13 +1,13 @@
 """
-Conteneur d'injection de dépendance moderne pour l'application Domotix.
+Modern dependency injection container for the Domotix application.
 
-Ce module implémente un conteneur IoC (Inversion of Control) suivant les
-bonnes pratiques modernes d'injection de dépendance avec support Python 3.12+.
+This module implements an IoC (Inversion of Control) container following
+modern best practices for dependency injection with Python 3.12+ support.
 
 Classes:
-    DIContainer: Conteneur principal d'injection de dépendance
-    Scope: Énumération des portées de vie des objets
-    Injectable: Décorateur pour marquer les classes injectables
+    DIContainer: Main dependency injection container
+    Scope: Enumeration of object lifetimes
+    Injectable: Decorator to mark classes as injectable
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ T = TypeVar("T")
 
 
 class Scope(Enum):
-    """Énumération des portées de vie des objets."""
+    """Enumeration of object lifetimes."""
 
     SINGLETON = "singleton"
     TRANSIENT = "transient"
@@ -29,33 +29,33 @@ class Scope(Enum):
 
 
 class Injectable:
-    """Décorateur pour marquer les classes comme injectables."""
+    """Decorator to mark classes as injectable."""
 
     def __init__(self, *, scope: Scope = Scope.TRANSIENT) -> None:
         """
-        Initialise le décorateur Injectable.
+        Initialise the Injectable decorator.
 
         Args:
-            scope: Portée de vie de l'objet (par défaut TRANSIENT)
+            scope: Lifetime scope of the object (default TRANSIENT)
         """
         self.scope = scope
 
     def __call__(self, cls: type[T]) -> type[T]:
         """
-        Marque une classe comme injectable.
+        Marks a class as injectable.
 
         Args:
-            cls: Classe à marquer comme injectable
+            cls: Class to be marked as injectable
 
         Returns:
-            Classe marquée avec métadonnées d'injection
+            Marked class with injection metadata
         """
         cls._injectable_scope = self.scope  # type: ignore[attr-defined]
         return cls
 
 
 class ServiceDescriptor:
-    """Descripteur d'un service enregistré."""
+    """Descriptor of a registered service."""
 
     def __init__(
         self,
@@ -66,13 +66,13 @@ class ServiceDescriptor:
         scope: Scope = Scope.TRANSIENT,
     ) -> None:
         """
-        Initialise le descripteur de service.
+        Initialise the service descriptor.
 
         Args:
-            service_type: Type du service (interface/classe abstraite)
-            implementation_type: Type d'implémentation
-            factory: Factory function pour créer l'instance
-            scope: Portée de vie du service
+            service_type: Type of the service (interface/abstract class)
+            implementation_type: Implementation type
+            factory: Factory function to create the instance
+            scope: Lifetime scope of the service
         """
         self.service_type = service_type
         self.implementation_type = implementation_type or service_type
@@ -83,14 +83,14 @@ class ServiceDescriptor:
 
 class DIContainer:
     """
-    Conteneur d'injection de dépendance moderne.
+    Modern dependency injection container.
 
-    Implémente les patterns Service Locator et Dependency Injection
-    avec support des scopes et résolution automatique des dépendances.
+    Implements the Service Locator and Dependency Injection patterns
+    with support for scopes and automatic dependency resolution.
     """
 
     def __init__(self) -> None:
-        """Initialise le conteneur DI."""
+        """Initialise the DI container."""
         self._services: dict[type[Any], ServiceDescriptor] = {}
         self._scoped_instances: dict[type[Any], Any] = {}
         self._building_stack: set[type[Any]] = set()
@@ -103,15 +103,15 @@ class DIContainer:
         factory: Callable[[], T] | None = None,
     ) -> DIContainer:
         """
-        Enregistre un service en tant que singleton.
+        Register a service as a singleton.
 
         Args:
-            service_type: Type du service
-            implementation_type: Type d'implémentation (optionnel)
-            factory: Factory pour créer l'instance (optionnel)
+            service_type: Type of the service
+            implementation_type: Implementation type (optional)
+            factory: Factory to create the instance (optional)
 
         Returns:
-            Instance du conteneur pour chaînage
+            Container instance for chaining
         """
         descriptor = ServiceDescriptor(
             service_type,
@@ -130,15 +130,15 @@ class DIContainer:
         factory: Callable[[], T] | None = None,
     ) -> DIContainer:
         """
-        Enregistre un service en tant que transient.
+        Register a service as transient.
 
         Args:
-            service_type: Type du service
-            implementation_type: Type d'implémentation (optionnel)
-            factory: Factory pour créer l'instance (optionnel)
+            service_type: Type of the service
+            implementation_type: Implementation type (optional)
+            factory: Factory to create the instance (optional)
 
         Returns:
-            Instance du conteneur pour chaînage
+            Container instance for chaining
         """
         descriptor = ServiceDescriptor(
             service_type,
@@ -157,15 +157,15 @@ class DIContainer:
         factory: Callable[[], T] | None = None,
     ) -> DIContainer:
         """
-        Enregistre un service en tant que scoped.
+        Register a service as scoped.
 
         Args:
-            service_type: Type du service
-            implementation_type: Type d'implémentation (optionnel)
-            factory: Factory pour créer l'instance (optionnel)
+            service_type: Type of the service
+            implementation_type: Implementation type (optional)
+            factory: Factory to create the instance (optional)
 
         Returns:
-            Instance du conteneur pour chaînage
+            Container instance for chaining
         """
         descriptor = ServiceDescriptor(
             service_type,
@@ -178,14 +178,14 @@ class DIContainer:
 
     def register_instance(self, service_type: type[T], instance: T) -> DIContainer:
         """
-        Enregistre une instance existante comme singleton.
+        Register an existing instance as a singleton.
 
         Args:
-            service_type: Type du service
-            instance: Instance à enregistrer
+            service_type: Type of the service
+            instance: Instance to register
 
         Returns:
-            Instance du conteneur pour chaînage
+            Container instance for chaining
         """
         descriptor = ServiceDescriptor(service_type, scope=Scope.SINGLETON)
         descriptor.instance = instance
@@ -194,52 +194,52 @@ class DIContainer:
 
     def resolve(self, service_type: type[T]) -> T:
         """
-        Résout un service et ses dépendances.
+        Resolves a service and its dependencies.
 
         Args:
-            service_type: Type du service à résoudre
+            service_type: Type of the service to resolve
 
         Returns:
-            Instance du service
+            Instance of the service
 
         Raises:
-            ValueError: Si le service n'est pas enregistré
-            RuntimeError: Si une dépendance circulaire est détectée
+            ValueError: If the service is not registered
+            RuntimeError: If a circular dependency is detected
         """
         if service_type in self._building_stack:
             dependency_chain = " -> ".join(
                 [s.__name__ for s in self._building_stack] + [service_type.__name__]
             )
             msg = (
-                f"Dépendance circulaire détectée pour {service_type.__name__}. "
-                f"Chaîne de dépendances: {dependency_chain}"
+                f"Circular dependency detected for {service_type.__name__}. "
+                f"Dependency chain: {dependency_chain}"
             )
             raise RuntimeError(msg)
 
         if service_type not in self._services:
-            # Tentative de résolution automatique pour les classes marquées @Injectable
+            # Attempt automatic resolution for classes marked with @Injectable
             if hasattr(service_type, "_injectable_scope"):
                 self._auto_register(service_type)
             else:
-                msg = f"Service {service_type} n'est pas enregistré"
+                msg = f"Service {service_type} is not registered"
                 raise ValueError(msg)
 
         descriptor = self._services[service_type]
 
-        # Gestion des singletons
+        # Handle singletons
         if descriptor.scope == Scope.SINGLETON and descriptor.instance is not None:
             return descriptor.instance  # type: ignore[return-value, no-any-return]
 
-        # Gestion des services scoped
+        # Handle scoped services
         if descriptor.scope == Scope.SCOPED and service_type in self._scoped_instances:
             return self._scoped_instances[service_type]  # type: ignore[return-value,no-any-return]  # noqa: E501
 
-        # Création de l'instance
+        # Create the instance
         self._building_stack.add(service_type)
         try:
             instance = self._create_instance(descriptor)
 
-            # Stockage selon le scope
+            # Store according to the scope
             if descriptor.scope == Scope.SINGLETON:
                 descriptor.instance = instance
             elif descriptor.scope == Scope.SCOPED:
@@ -251,10 +251,10 @@ class DIContainer:
 
     def _auto_register(self, service_type: type[Any]) -> None:
         """
-        Enregistre automatiquement une classe marquée @Injectable.
+        Automatically registers a class marked with @Injectable.
 
         Args:
-            service_type: Type à enregistrer automatiquement
+            service_type: Type to register automatically
         """
         scope = getattr(service_type, "_injectable_scope", Scope.TRANSIENT)
         descriptor = ServiceDescriptor(
@@ -266,36 +266,36 @@ class DIContainer:
 
     def _create_instance(self, descriptor: ServiceDescriptor) -> Any:
         """
-        Crée une instance à partir d'un descripteur.
+        Creates an instance from a descriptor.
 
         Args:
-            descriptor: Descripteur du service
+            descriptor: Descriptor of the service
 
         Returns:
-            Instance créée
+            Created instance
         """
         if descriptor.factory:
-            # Injection de dépendances dans la factory
+            # Inject dependencies into the factory
             return self._inject_dependencies(descriptor.factory)
 
-        # Injection de dépendances dans le constructeur
+        # Inject dependencies into the constructor
         return self._inject_dependencies(descriptor.implementation_type)
 
     def _inject_dependencies(self, target: Callable[..., Any]) -> Any:
         """
-        Injecte les dépendances dans un callable (constructeur ou factory).
+        Injects dependencies into a callable (constructor or factory).
 
         Args:
-            target: Callable cible
+            target: Target callable
 
         Returns:
-            Résultat de l'appel avec dépendances injectées
+            Result of the call with injected dependencies
         """
         sig = inspect.signature(target)
         try:
             type_hints = get_type_hints(target)
         except (NameError, AttributeError):
-            # Fallback aux annotations directes si get_type_hints échoue
+            # Fallback to direct annotations if get_type_hints fails
             type_hints = getattr(target, "__annotations__", {})
 
         kwargs = {}
@@ -304,59 +304,59 @@ class DIContainer:
                 param_type = type_hints[param_name]
                 kwargs[param_name] = self.resolve(param_type)
             elif param.annotation != inspect.Parameter.empty:
-                # Utiliser l'annotation directement comme fallback
+                # Use the annotation directly as a fallback
                 param_type = param.annotation
                 kwargs[param_name] = self.resolve(param_type)
 
         return target(**kwargs)
 
     def clear_scoped(self) -> None:
-        """Efface toutes les instances scoped."""
+        """Clears all scoped instances."""
         self._scoped_instances.clear()
 
     def create_scope(self) -> ScopedContainer:
         """
-        Crée un nouveau scope avec des instances scoped isolées.
+        Creates a new scope with isolated scoped instances.
 
         Returns:
-            Conteneur avec scope isolé
+            Container with isolated scope
         """
         return ScopedContainer(self)
 
 
 class ScopedContainer:
     """
-    Conteneur avec scope isolé pour les instances scoped.
+    Container with isolated scope for scoped instances.
 
-    Utilisé comme context manager pour gérer automatiquement
-    le cycle de vie des instances scoped.
+    Used as a context manager to automatically manage
+    the lifecycle of scoped instances.
     """
 
     def __init__(self, parent_container: DIContainer) -> None:
         """
-        Initialise le conteneur scoped.
+        Initialise the scoped container.
 
         Args:
-            parent_container: Conteneur parent
+            parent_container: Parent container
         """
         self.parent = parent_container
         self._original_scoped_instances: dict[type[Any], Any] = {}
 
     def __enter__(self) -> DIContainer:
         """
-        Entre dans le scope.
+        Enters the scope.
 
         Returns:
-            Conteneur parent
+            Parent container
         """
         self._original_scoped_instances = self.parent._scoped_instances.copy()
         self.parent._scoped_instances.clear()
         return self.parent
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Sort du scope et restaure les instances précédentes."""
+        """Exits the scope and restores previous instances."""
         self.parent._scoped_instances = self._original_scoped_instances
 
 
-# Instance globale du conteneur
+# Global instance of the container
 container = DIContainer()

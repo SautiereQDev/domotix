@@ -1,12 +1,12 @@
 """
-Tests pour les opérations avancées des contrôleurs et repositories.
+Tests for advanced operations of controllers and repositories.
 
-Ce module teste les fonctionnalités avancées :
-- Recherche et filtrage de devices
-- Opérations en lot (bulk operations)
-- Méthodes spécialisées des contrôleurs
-- Validation et gestion d'erreurs avancée
-- Intégration avec les factories
+This module tests advanced features:
+- Device search and filtering
+- Bulk operations
+- Specialized controller methods
+- Advanced validation and error handling
+- Integration with factories
 """
 
 from unittest.mock import Mock, patch
@@ -46,10 +46,10 @@ from domotix.repositories.shutter_repository import (  # pylint: disable=import-
 
 
 class TestControllerAdvanced:
-    """Tests avancés pour les contrôleurs."""
+    """Advanced tests for controllers."""
 
     def test_device_controller_search_devices(self):
-        """Test de la recherche de devices."""
+        """Test device search."""
         mock_repo = Mock()
         mock_devices = [
             Light("Kitchen Light", "Kitchen"),
@@ -60,16 +60,16 @@ class TestControllerAdvanced:
 
         controller = DeviceController(mock_repo)
 
-        # Test recherche par nom
+        # Test search by name
         results = controller.search_devices("Kitchen")
         assert len(results) == 2
 
-        # Test recherche case insensitive
+        # Test case insensitive search
         results = controller.search_devices("kitchen")
         assert len(results) == 2
 
     def test_device_controller_bulk_operations(self):
-        """Test des opérations en lot."""
+        """Test bulk operations."""
         mock_repo = Mock()
         lights = [
             Light("Light1", "Room1"),
@@ -84,7 +84,7 @@ class TestControllerAdvanced:
 
         controller = DeviceController(mock_repo)
 
-        # Test bulk turn on avec des IDs de devices
+        # Test bulk turn on with device IDs
         device_ids = [light.id for light in lights]
         results = controller.bulk_operation(device_ids, "turn_on")
         assert len(results) == 3
@@ -94,27 +94,27 @@ class TestControllerAdvanced:
         assert len(results) == 3
 
     def test_light_controller_toggle_variations(self):
-        """Test des variations de toggle."""
+        """Test toggle variations."""
         mock_repo = Mock()
         light = Light("Test Light", "Room")
-        light.turn_off()  # S'assurer qu'elle est éteinte
+        light.turn_off()  # Ensure it's off
         mock_repo.find_by_id.return_value = light
         mock_repo.update.return_value = True
 
         controller = LightController(mock_repo)
 
-        # Test toggle quand éteinte
+        # Test toggle when off
         result = controller.toggle(light.id)
         assert result is True
         assert light.is_on is True
 
-        # Test toggle quand allumée
+        # Test toggle when on
         result = controller.toggle(light.id)
         assert result is True
         assert light.is_on is False
 
     def test_sensor_controller_advanced_methods(self):
-        """Test des méthodes avancées du SensorController."""
+        """Test advanced methods of SensorController."""
         mock_repo = Mock()
         sensor = Sensor("Test Sensor", "Room")
         sensor.update_value(25.5)
@@ -125,7 +125,7 @@ class TestControllerAdvanced:
 
         # Test get_value
         value = controller.get_value(sensor.id)
-        assert abs(value - 25.5) < 0.01  # Comparaison de float sécurisée
+        assert abs(value - 25.5) < 0.01  # Safe float comparison
 
         # Test is_active
         is_active = controller.is_active(sensor.id)
@@ -137,7 +137,7 @@ class TestControllerAdvanced:
         assert sensor.value is None
 
     def test_shutter_controller_position_methods(self):
-        """Test des méthodes de position du ShutterController."""
+        """Test position methods of ShutterController."""
         mock_repo = Mock()
         shutter = Shutter("Test Shutter", "Room")
         mock_repo.find_by_id.return_value = shutter
@@ -166,10 +166,10 @@ class TestControllerAdvanced:
 
 
 class TestRepositoryAdvanced:
-    """Tests avancés pour les repositories."""
+    """Advanced tests for repositories."""
 
     def test_device_repository_find_methods(self):
-        """Test des méthodes find du DeviceRepository."""
+        """Test find methods of DeviceRepository."""
         mock_session = Mock()
         mock_query = Mock()
         mock_session.query.return_value = mock_query
@@ -193,7 +193,7 @@ class TestRepositoryAdvanced:
         assert count == 0
 
     def test_light_repository_specialized_methods(self):
-        """Test des méthodes spécialisées du LightRepository."""
+        """Test specialized methods of LightRepository."""
         mock_session = Mock()
         mock_query = Mock()
         mock_session.query.return_value = mock_query
@@ -216,7 +216,7 @@ class TestRepositoryAdvanced:
         assert count == 0
 
     def test_sensor_repository_specialized_methods(self):
-        """Test des méthodes spécialisées du SensorRepository."""
+        """Test specialized methods of SensorRepository."""
         mock_session = Mock()
         mock_query = Mock()
         mock_session.query.return_value = mock_query
@@ -239,7 +239,7 @@ class TestRepositoryAdvanced:
         assert results == []
 
     def test_shutter_repository_specialized_methods(self):
-        """Test des méthodes spécialisées du ShutterRepository."""
+        """Test specialized methods of ShutterRepository."""
         mock_session = Mock()
         mock_query = Mock()
         mock_session.query.return_value = mock_query
@@ -263,51 +263,51 @@ class TestRepositoryAdvanced:
 
 
 class TestModelsAdvanced:
-    """Tests avancés pour les modèles."""
+    """Advanced tests for models."""
 
     def test_light_advanced_methods(self):
-        """Test des méthodes avancées de Light."""
+        """Test advanced methods of Light."""
         light = Light("Advanced Light", "Test Room")
 
-        # Test dimming (si implémenté)
+        # Test dimming (if implemented)
         if hasattr(light, "brightness"):
             light.brightness = 50
             assert light.brightness == 50
 
-        # Test color (si implémenté)
+        # Test color (if implemented)
         if hasattr(light, "color"):
             light.color = "#FF0000"
             assert light.color == "#FF0000"
 
-        # Test validation des états
+        # Test state validation
         light.turn_on()
         assert light.is_on is True
         light.turn_off()
         assert light.is_on is False
 
     def test_sensor_validation_methods(self):
-        """Test des méthodes de validation du Sensor."""
+        """Test validation methods of Sensor."""
         sensor = Sensor("Validation Sensor", "Test Room")
 
-        # Test update avec valeurs valides
+        # Test update with valid values
         sensor.update_value(25.5)
-        assert abs(sensor.value - 25.5) < 0.01  # Comparaison de float sécurisée
+        assert abs(sensor.value - 25.5) < 0.01  # Safe float comparison
 
-        # Test update avec autre valeur numérique
+        # Test update with another numeric value
         sensor.update_value(30.0)
-        assert abs(sensor.value - 30.0) < 0.01  # Comparaison de float sécurisée
+        assert abs(sensor.value - 30.0) < 0.01  # Safe float comparison
 
-        # Test validation des ranges si implémentée
+        # Test range validation if implemented
         if hasattr(sensor, "min_value") and hasattr(sensor, "max_value"):
             sensor.min_value = 0
             sensor.max_value = 100
-            sensor.update_value(150)  # Devrait être clampé ou rejété
+            sensor.update_value(150)  # Should be clamped or rejected
 
     def test_shutter_position_validation(self):
-        """Test de la validation des positions du Shutter."""
+        """Test validation of Shutter positions."""
         shutter = Shutter("Position Shutter", "Test Room")
 
-        # Test positions valides
+        # Test valid positions
         shutter.set_position(0)
         assert shutter.position == 0
 
@@ -317,30 +317,30 @@ class TestModelsAdvanced:
         shutter.set_position(100)
         assert shutter.position == 100
 
-        # Test positions invalides (si validation implémentée)
+        # Test invalid positions (if validation implemented)
         try:
             shutter.set_position(-10)
-            # Si pas d'exception, vérifier que la valeur est clampée
+            # If no exception, check if value is clamped
             assert shutter.position >= 0
         except ValueError:
-            # Exception attendue pour valeur invalide
+            # Expected exception for invalid value
             pass
 
         try:
             shutter.set_position(150)
-            # Si pas d'exception, vérifier que la valeur est clampée
+            # If no exception, check if value is clamped
             assert shutter.position <= 100
         except ValueError:
-            # Exception attendue pour valeur invalide
+            # Expected exception for invalid value
             pass
 
 
 class TestFactoryCoverage:
-    """Tests pour couvrir les factories."""
+    """Tests to cover factories."""
 
     @patch("domotix.core.factories.DeviceRepository")
     def test_controller_factory_device_controller(self, mock_repo_class):
-        """Test de création de DeviceController via factory."""
+        """Test creation of DeviceController via factory."""
         mock_repo = Mock()
         mock_repo_class.return_value = mock_repo
 
@@ -350,7 +350,7 @@ class TestFactoryCoverage:
 
     @patch("domotix.core.factories.LightRepository")
     def test_controller_factory_light_controller(self, mock_repo_class):
-        """Test de création de LightController via factory."""
+        """Test creation of LightController via factory."""
         mock_repo = Mock()
         mock_repo_class.return_value = mock_repo
 
@@ -360,7 +360,7 @@ class TestFactoryCoverage:
 
     @patch("domotix.core.factories.SensorRepository")
     def test_controller_factory_sensor_controller(self, mock_repo_class):
-        """Test de création de SensorController via factory."""
+        """Test creation of SensorController via factory."""
         mock_repo = Mock()
         mock_repo_class.return_value = mock_repo
 
@@ -370,7 +370,7 @@ class TestFactoryCoverage:
 
     @patch("domotix.core.factories.ShutterRepository")
     def test_controller_factory_shutter_controller(self, mock_repo_class):
-        """Test de création de ShutterController via factory."""
+        """Test creation of ShutterController via factory."""
         mock_repo = Mock()
         mock_repo_class.return_value = mock_repo
 
@@ -380,30 +380,30 @@ class TestFactoryCoverage:
 
 
 class TestExceptionHandling:
-    """Tests pour la gestion d'exceptions."""
+    """Tests for exception handling."""
 
     def test_device_not_found_error(self):
-        """Test de DeviceNotFoundError."""
+        """Test DeviceNotFoundError."""
         error = DeviceNotFoundError("device-123")
-        assert "[DMX-2000] Dispositif non trouvé : device-123" in str(error)
+        assert "[DMX-2000] Device not found: device-123" in str(error)
         assert hasattr(error, "device_id")
 
     def test_invalid_device_type_error(self):
-        """Test de InvalidDeviceTypeError."""
+        """Test InvalidDeviceTypeError."""
         error = InvalidDeviceTypeError("invalid_type")
         assert "invalid_type" in str(error)
         assert error.device_type == "invalid_type"
 
 
 class TestStateManagerAdvanced:
-    """Tests avancés pour StateManager."""
+    """Advanced tests for StateManager."""
 
     def test_state_manager_device_operations(self):
-        """Test des opérations sur devices du StateManager."""
+        """Test device operations of StateManager."""
         StateManager.reset_instance()
         manager = StateManager()
 
-        # Test ajout de devices
+        # Test adding devices
         light = Light("Manager Light", "Room")
         sensor = Sensor("Manager Sensor", "Room")
         shutter = Shutter("Manager Shutter", "Room")
@@ -428,14 +428,14 @@ class TestStateManagerAdvanced:
         assert len(devices_dict) == 2
 
     def test_state_manager_persistence(self):
-        """Test de la persistance du StateManager."""
+        """Test persistence of StateManager."""
         StateManager.reset_instance()
         manager1 = StateManager()
 
         light = Light("Persistent Light", "Room")
         light_id = manager1.register_device(light)
 
-        # Nouvelle instance devrait être la même
+        # New instance should be the same
         manager2 = StateManager()
         assert manager1 is manager2
 
@@ -445,16 +445,16 @@ class TestStateManagerAdvanced:
 
 
 class TestErrorScenarios:
-    """Tests pour les scénarios d'erreur."""
+    """Tests for error scenarios."""
 
     def test_controller_with_none_device(self):
-        """Test contrôleur avec device None."""
+        """Test controller with None device."""
         mock_repo = Mock()
         mock_repo.find_by_id.return_value = None
 
         controller = LightController(mock_repo)
 
-        # Toutes ces opérations devraient gérer gracieusement le None
+        # All these operations should gracefully handle the None
         result = controller.turn_on("non-existent-id")
         assert result is False
 
@@ -465,35 +465,35 @@ class TestErrorScenarios:
         assert result is False
 
     def test_repository_session_errors(self):
-        """Test des erreurs de session dans les repositories."""
+        """Test session errors in repositories."""
         mock_session = Mock()
         mock_session.query.side_effect = Exception("Database error")
 
         repo = DeviceRepository(mock_session)
 
-        # Les méthodes devraient gérer les erreurs gracieusement
+        # Methods should gracefully handle errors
         try:
             repo.find_all()
         except Exception as e:
             assert "Database error" in str(e)
 
     def test_model_validation_errors(self):
-        """Test des erreurs de validation des modèles."""
-        # Test création avec paramètres invalides
+        """Test model validation errors."""
+        # Test creation with invalid parameters
         try:
-            # Si la validation est implémentée, devrait lever une exception
-            Light("", "")  # Noms vides - assigné à _ pour ignorer
+            # If validation is implemented, should raise an exception
+            Light("", "")  # Empty names - assigned to _ to ignore
         except ValueError:
-            # Exception attendue
+            # Expected exception
             pass
 
-        # Test update avec valeurs invalides
+        # Test update with invalid values
         sensor = Sensor("Test Sensor", "Room")
         try:
             sensor.update_value("not_a_number")
         except (ValueError, TypeError):
-            # Exception attendue si validation implémentée
+            # Expected exception if validation implemented
             pass
         except Exception:
-            # Toute autre exception est aussi acceptable
+            # Any other exception is also acceptable
             pass

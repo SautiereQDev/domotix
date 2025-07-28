@@ -9,7 +9,7 @@ from domotix.models.sensor import Sensor
 
 
 def test_sensor_validation_nan():
-    """Test que la validation NaN fonctionne."""
+    """Test that NaN validation works."""
     sensor = Sensor("Test NaN", "Test")
 
     with pytest.raises(ValidationError) as exc_info:
@@ -20,41 +20,41 @@ def test_sensor_validation_nan():
 
 
 def test_sensor_validation_infinity():
-    """Test que la validation des valeurs infinies fonctionne."""
+    """Test that infinite value validation works."""
     sensor = Sensor("Test Infinity", "Test")
 
     with pytest.raises(ValidationError) as exc_info:
         sensor.update_value(float("inf"))
 
-    assert "infinie" in str(exc_info.value)
+    assert "infinite" in str(exc_info.value)
     assert exc_info.value.error_code == ErrorCode.VALIDATION_OUT_OF_RANGE
 
 
 def test_sensor_validate_range():
-    """Test de la nouvelle méthode validate_range."""
+    """Test the new validate_range method."""
     sensor = Sensor("Test Range", "Test")
 
-    # Test avec valeur dans la plage
+    # Test with value in range
     sensor.update_value(25.0)
-    sensor.validate_range(0, 50)  # Ne doit pas lever d'exception
+    sensor.validate_range(0, 50)  # Should not raise exception
 
-    # Test avec valeur hors plage
+    # Test with value out of range
     sensor.update_value(100.0)
     with pytest.raises(ValidationError) as exc_info:
         sensor.validate_range(0, 50)
 
-    assert "hors de la plage" in str(exc_info.value)
+    assert "out of range" in str(exc_info.value)
     assert exc_info.value.error_code == ErrorCode.VALIDATION_OUT_OF_RANGE
 
 
 def test_sensor_validate_range_no_value():
-    """Test validate_range sans valeur définie."""
+    """Test validate_range with no value set."""
     sensor = Sensor("Test No Value", "Test")
 
     with pytest.raises(ValidationError) as exc_info:
         sensor.validate_range(0, 100)
 
-    assert "aucune valeur définie" in str(exc_info.value)
+    assert "no value set" in str(exc_info.value)
     assert exc_info.value.error_code == ErrorCode.VALIDATION_REQUIRED_FIELD
 
 

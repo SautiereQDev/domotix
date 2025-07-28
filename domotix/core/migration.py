@@ -1,29 +1,29 @@
 """
-Guide de migration vers Python 3.12+ et bonnes pratiques modernes.
+Migration guide to Python 3.12+ and modern best practices.
 
-Ce fichier documente et automatise la migration de l'application Domotix
-vers les normes les plus récentes de Python et les bonnes pratiques modernes.
+This file documents and automates the migration of the Domotix application
+to the latest Python standards and modern best practices.
 
-Changements principaux:
-1. Migration de Python 3.13 vers 3.12+ pour une meilleure compatibilité
-2. Syntaxe moderne des types (dict au lieu de Dict, | au lieu de Union)
-3. Migration des imports typing vers collections.abc
-4. Implémentation d'un système d'injection de dépendances moderne
-5. Système de logging structuré avec contexte
-6. Gestion d'erreurs moderne avec codes structurés
-7. Configuration avec dataclasses et validation
-8. Monitoring et métriques intégrés
+Main changes:
+1. Migration from Python 3.13 to 3.12+ for better compatibility
+2. Modern type syntax (dict instead of Dict, | instead of Union)
+3. Migration of typing imports to collections.abc
+4. Implementation of a modern dependency injection system
+5. Structured logging system with context
+6. Modern error handling with structured codes
+7. Configuration with dataclasses and validation
+8. Integrated monitoring and metrics
 
-Modules modernisés:
-- domotix.core.dependency_injection: Container IoC avec scopes
-- domotix.core.service_provider: Fournisseur de services moderne
-- domotix.core.service_configuration: Configuration centralisée des services
-- domotix.core.interfaces: Protocols et classes de base
-- domotix.core.config: Configuration avec dataclasses
-- domotix.core.logging_system: Logging structuré avec contexte
-- domotix.globals.exceptions: Hiérarchie d'exceptions moderne (modernisé)
-- domotix.core.monitoring: Métriques et health checks
-- domotix.factories: Factory moderne avec DI
+Modernized modules:
+- domotix.core.dependency_injection: IoC container with scopes
+- domotix.core.service_provider: Modern service provider
+- domotix.core.service_configuration: Centralized service configuration
+- domotix.core.interfaces: Protocols and base classes
+- domotix.core.config: Configuration with dataclasses
+- domotix.core.logging_system: Structured logging with context
+- domotix.globals.exceptions: Modern exception hierarchy (modernized)
+- domotix.core.monitoring: Metrics and health checks
+- domotix.factories: Modern factory with DI
 """
 
 from __future__ import annotations
@@ -41,10 +41,10 @@ logger = get_logger(__name__)
 @dataclass(slots=True)
 class MigrationRule:
     """
-    Règle de migration pour moderniser le code.
+    Migration rule to modernize the code.
 
-    Définit une transformation spécifique à appliquer
-    sur les fichiers Python du projet.
+    Defines a specific transformation to apply
+    to the Python files of the project.
     """
 
     name: str
@@ -56,19 +56,19 @@ class MigrationRule:
 
     def apply(self, content: str) -> tuple[str, int]:
         """
-        Applique la règle de migration au contenu.
+        Applies the migration rule to the content.
 
         Args:
-            content: Contenu du fichier
+            content: File content
 
         Returns:
-            Tuple (nouveau_contenu, nombre_de_changements)
+            Tuple (new_content, number_of_changes)
         """
         if self.applies_to_imports:
-            # Application spéciale pour les imports
+            # Special application for imports
             return self._apply_import_rule(content)
         else:
-            # Application standard avec regex
+            # Standard application with regex
             new_content, count = re.subn(
                 self.pattern, self.replacement, content, flags=re.MULTILINE
             )
@@ -76,13 +76,13 @@ class MigrationRule:
 
     def _apply_import_rule(self, content: str) -> tuple[str, int]:
         """
-        Applique une règle de migration spécifique aux imports.
+        Applies a migration rule specific to imports.
 
         Args:
-            content: Contenu du fichier
+            content: File content
 
         Returns:
-            Tuple (nouveau_contenu, nombre_de_changements)
+            Tuple (new_content, number_of_changes)
         """
         lines = content.split("\n")
         new_lines = []
@@ -99,89 +99,89 @@ class MigrationRule:
         return "\n".join(new_lines), changes
 
 
-# Règles de migration pour Python 3.12+
+# Migration rules for Python 3.12+
 MIGRATION_RULES = [
-    # Migration des types vers la syntaxe moderne
+    # Migration of types to modern syntax
     MigrationRule(
         name="dict_type_modernization",
-        description="Remplace typing.Dict par dict",
+        description="Replace typing.Dict with dict",
         pattern=r"from typing import.*Dict.*",
-        replacement="# Dict remplacé par dict (Python 3.9+)",
+        replacement="# Dict replaced by dict (Python 3.9+)",
         file_extensions=[".py"],
         applies_to_imports=True,
     ),
     MigrationRule(
         name="list_type_modernization",
-        description="Remplace typing.List par list",
+        description="Replace typing.List with list",
         pattern=r"from typing import.*List.*",
-        replacement="# List remplacé par list (Python 3.9+)",
+        replacement="# List replaced by list (Python 3.9+)",
         file_extensions=[".py"],
         applies_to_imports=True,
     ),
     MigrationRule(
         name="tuple_type_modernization",
-        description="Remplace typing.Tuple par tuple",
+        description="Replace typing.Tuple with tuple",
         pattern=r"from typing import.*Tuple.*",
-        replacement="# Tuple remplacé par tuple (Python 3.9+)",
+        replacement="# Tuple replaced by tuple (Python 3.9+)",
         file_extensions=[".py"],
         applies_to_imports=True,
     ),
     MigrationRule(
         name="set_type_modernization",
-        description="Remplace typing.Set par set",
+        description="Replace typing.Set with set",
         pattern=r"from typing import.*Set.*",
-        replacement="# Set remplacé par set (Python 3.9+)",
+        replacement="# Set replaced by set (Python 3.9+)",
         file_extensions=[".py"],
         applies_to_imports=True,
     ),
-    # Migration des annotations de type
+    # Migration of type annotations
     MigrationRule(
         name="dict_annotation_modernization",
-        description="Remplace Dict[K, V] par dict[K, V]",
+        description="Replace Dict[K, V] with dict[K, V]",
         pattern=r"Dict\[([^]]+)\]",
         replacement=r"dict[\1]",
         file_extensions=[".py"],
     ),
     MigrationRule(
         name="list_annotation_modernization",
-        description="Remplace List[T] par list[T]",
+        description="Replace List[T] with list[T]",
         pattern=r"List\[([^]]+)\]",
         replacement=r"list[\1]",
         file_extensions=[".py"],
     ),
     MigrationRule(
         name="tuple_annotation_modernization",
-        description="Remplace Tuple[...] par tuple[...]",
+        description="Replace Tuple[...] with tuple[...]",
         pattern=r"Tuple\[([^]]+)\]",
         replacement=r"tuple[\1]",
         file_extensions=[".py"],
     ),
     MigrationRule(
         name="set_annotation_modernization",
-        description="Remplace Set[T] par set[T]",
+        description="Replace Set[T] with set[T]",
         pattern=r"Set\[([^]]+)\]",
         replacement=r"set[\1]",
         file_extensions=[".py"],
     ),
-    # Migration Union vers |
+    # Migration from Union to |
     MigrationRule(
         name="union_syntax_modernization",
-        description="Remplace Union[A, B] par A | B",
+        description="Replace Union[A, B] with A | B",
         pattern=r"Union\[([^,]+),\s*([^]]+)\]",
         replacement=r"\1 | \2",
         file_extensions=[".py"],
     ),
     MigrationRule(
         name="optional_syntax_modernization",
-        description="Remplace Optional[T] par T | None",
+        description="Replace Optional[T] with T | None",
         pattern=r"Optional\[([^]]+)\]",
         replacement=r"\1 | None",
         file_extensions=[".py"],
     ),
-    # Migration des imports collections.abc
+    # Migration of imports from collections.abc
     MigrationRule(
         name="callable_import_modernization",
-        description="Remplace typing.Callable par collections.abc.Callable",
+        description="Replace typing.Callable with collections.abc.Callable",
         pattern=r"from typing import(.*)Callable(.*)",
         replacement=r"from collections.abc import Callable\nfrom typing import\1\2",
         file_extensions=[".py"],
@@ -189,7 +189,7 @@ MIGRATION_RULES = [
     ),
     MigrationRule(
         name="iterator_import_modernization",
-        description="Remplace typing.Iterator par collections.abc.Iterator",
+        description="Replace typing.Iterator with collections.abc.Iterator",
         pattern=r"from typing import(.*)Iterator(.*)",
         replacement=r"from collections.abc import Iterator\nfrom typing import\1\2",
         file_extensions=[".py"],
@@ -197,24 +197,24 @@ MIGRATION_RULES = [
     ),
     MigrationRule(
         name="iterable_import_modernization",
-        description="Remplace typing.Iterable par collections.abc.Iterable",
+        description="Replace typing.Iterable with collections.abc.Iterable",
         pattern=r"from typing import(.*)Iterable(.*)",
         replacement=r"from collections.abc import Iterable\nfrom typing import\1\2",
         file_extensions=[".py"],
         applies_to_imports=True,
     ),
-    # Migration des f-strings modernes
+    # Migration of modern f-strings
     MigrationRule(
         name="percent_format_modernization",
-        description="Remplace % formatting par f-strings",
+        description="Replace % formatting with f-strings",
         pattern=r'"([^"]*%[sd][^"]*)" % \(([^)]+)\)',
         replacement=r'f"\1".format(\2)',
         file_extensions=[".py"],
     ),
-    # Migration des docstrings vers format moderne
+    # Migration of docstrings to modern format
     MigrationRule(
         name="docstring_args_modernization",
-        description="Modernise le format des docstrings Args:",
+        description="Modernize the format of docstrings Args:",
         pattern=r"(\s+)Args:\s*\n(\s+)(\w+) \(([^)]+)\): (.+)",
         replacement=r"\1Args:\n\2    \3: \5",
         file_extensions=[".py"],
@@ -224,18 +224,18 @@ MIGRATION_RULES = [
 
 class CodeMigrator:
     """
-    Migrateur de code pour appliquer les règles de modernisation.
+    Code migrator to apply modernization rules.
 
-    Scanne les fichiers Python du projet et applique automatiquement
-    les règles de migration vers Python 3.12+.
+    Scans the Python files of the project and automatically applies
+    migration rules to Python 3.12+.
     """
 
     def __init__(self, project_root: Path) -> None:
         """
-        Initialise le migrateur.
+        Initializes the migrator.
 
         Args:
-            project_root: Répertoire racine du projet
+            project_root: Root directory of the project
         """
         self.project_root = project_root
         self.dry_run = True
@@ -248,13 +248,13 @@ class CodeMigrator:
 
     def migrate_project(self, dry_run: bool = True) -> dict[str, Any]:
         """
-        Migre tout le projet vers Python 3.12+.
+        Migrates the entire project to Python 3.12+.
 
         Args:
-            dry_run: Si True, affiche les changements sans les appliquer
+            dry_run: If True, shows changes without applying them
 
         Returns:
-            Statistiques de migration
+            Migration statistics
         """
         self.dry_run = dry_run
         self.stats = {
@@ -264,12 +264,12 @@ class CodeMigrator:
             "changes_by_rule": {},
         }
 
-        logger.info(f"Début de la migration du projet (dry_run={dry_run})")
+        logger.info(f"Starting project migration (dry_run={dry_run})")
 
-        # Trouver tous les fichiers Python
+        # Find all Python files
         python_files = list(self.project_root.rglob("*.py"))
 
-        # Exclure certains répertoires
+        # Exclude certain directories
         excluded_dirs = {
             ".venv",
             "__pycache__",
@@ -284,21 +284,21 @@ class CodeMigrator:
             if not any(excluded in f.parts for excluded in excluded_dirs)
         ]
 
-        logger.info(f"Trouvé {len(python_files)} fichiers Python à traiter")
+        logger.info(f"Found {len(python_files)} Python files to process")
 
         for file_path in python_files:
             self._migrate_file(file_path)
 
-        # Rapport final
-        logger.info(f"Migration terminée: {self.stats}")
+        # Final report
+        logger.info(f"Migration completed: {self.stats}")
         return self.stats
 
     def _migrate_file(self, file_path: Path) -> None:
         """
-        Migre un fichier individuel.
+        Migrates an individual file.
 
         Args:
-            file_path: Chemin vers le fichier à migrer
+            file_path: Path to the file to migrate
         """
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -308,25 +308,25 @@ class CodeMigrator:
             current_content = original_content
             total_file_changes = 0
 
-            # Application de toutes les règles
+            # Applying all rules
             for rule in MIGRATION_RULES:
                 if file_path.suffix in rule.file_extensions:
                     new_content, changes = rule.apply(current_content)
 
                     if changes > 0:
                         logger.debug(
-                            f"Règle '{rule.name}' appliquée à {file_path}: "
-                            f"{changes} changements"
+                            f"Rule '{rule.name}' applied to {file_path}: "
+                            f"{changes} changes"
                         )
                         current_content = new_content
                         total_file_changes += changes
 
-                        # Mise à jour des statistiques
+                        # Updating statistics
                         if rule.name not in self.stats["changes_by_rule"]:
                             self.stats["changes_by_rule"][rule.name] = 0
                         self.stats["changes_by_rule"][rule.name] += changes
 
-            # Sauvegarde si des changements ont été effectués
+            # Save if changes were made
             if total_file_changes > 0:
                 self.stats["files_modified"] += 1
                 self.stats["total_changes"] += total_file_changes
@@ -335,41 +335,40 @@ class CodeMigrator:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(current_content)
                     logger.info(
-                        f"Fichier modifié: {file_path} "
-                        f"({total_file_changes} changements)"
+                        f"File modified: {file_path} " f"({total_file_changes} changes)"
                     )
                 else:
                     logger.info(
-                        f"[DRY RUN] Fichier à modifier: {file_path} "
-                        f"({total_file_changes} changements)"
+                        f"[DRY RUN] File to modify: {file_path} "
+                        f"({total_file_changes} changes)"
                     )
 
         except Exception as e:
-            logger.error(f"Erreur lors de la migration de {file_path}: {e}")
+            logger.error(f"Error migrating {file_path}: {e}")
 
 
 def generate_migration_report(project_root: Path) -> str:
     """
-    Génère un rapport de migration détaillé.
+    Generates a detailed migration report.
 
     Args:
-        project_root: Répertoire racine du projet
+        project_root: Root directory of the project
 
     Returns:
-        Rapport de migration au format Markdown
+        Migration report in Markdown format
     """
     migrator = CodeMigrator(project_root)
     stats = migrator.migrate_project(dry_run=True)
 
-    report = f"""# Rapport de Migration vers Python 3.12+
+    report = f"""# Migration Report to Python 3.12+
 
-## Résumé
+## Summary
 
-- **Fichiers traités**: {stats['files_processed']}
-- **Fichiers à modifier**: {stats['files_modified']}
-- **Total des changements**: {stats['total_changes']}
+- **Files processed**: {stats['files_processed']}
+- **Files to modify**: {stats['files_modified']}
+- **Total changes**: {stats['total_changes']}
 
-## Changements par règle
+## Changes by rule
 
 """
 
@@ -380,37 +379,37 @@ def generate_migration_report(project_root: Path) -> str:
         report += f"- **Occurrences**: {count}\n\n"
 
     report += """
-## Modules modernisés ajoutés
+## Modernized modules added
 
-1. **domotix.core.dependency_injection**: Container IoC moderne avec scopes
-2. **domotix.core.service_provider**: Pattern Service Provider
-3. **domotix.core.interfaces**: Protocols et classes de base abstraites
-4. **domotix.core.config**: Configuration avec dataclasses et validation
-5. **domotix.core.logging_system**: Logging structuré avec contexte
-6. **domotix.globals.exceptions**: Hiérarchie d'exceptions modernisée
-7. **domotix.core.monitoring**: Métriques et health checks
-8. **domotix.factories**: Factory moderne avec injection de dépendances
+1. **domotix.core.dependency_injection**: Modern IoC container with scopes
+2. **domotix.core.service_provider**: Service Provider pattern
+3. **domotix.core.interfaces**: Protocols and abstract base classes
+4. **domotix.core.config**: Configuration with dataclasses and validation
+5. **domotix.core.logging_system**: Structured logging with context
+6. **domotix.globals.exceptions**: Modernized exception hierarchy
+7. **domotix.core.monitoring**: Metrics and health checks
+8. **domotix.factories**: Modern factory with dependency injection
 
-## Prochaines étapes
+## Next steps
 
-1. Exécuter la migration avec `dry_run=False`
-2. Mettre à jour les tests pour utiliser les nouveaux modules
-3. Migrer progressivement les contrôleurs et repositories existants
-4. Ajouter les annotations de type manquantes
-5. Configurer le système de monitoring en production
+1. Run the migration with `dry_run=False`
+2. Update tests to use new modules
+3. Gradually migrate existing controllers and repositories
+4. Add missing type annotations
+5. Configure the monitoring system in production
 
-## Bonnes pratiques appliquées
+## Applied best practices
 
-- ✅ Syntaxe moderne des types (dict au lieu de Dict, | au lieu de Union)
-- ✅ Imports depuis collections.abc quand approprié
-- ✅ Dataclasses avec slots pour les performances
-- ✅ Protocols pour les interfaces
-- ✅ Context managers pour la gestion des ressources
-- ✅ Logging structuré avec contexte
-- ✅ Gestion d'erreurs avec codes standardisés
-- ✅ Injection de dépendances moderne
-- ✅ Configuration centralisée et validée
-- ✅ Monitoring et métriques intégrés
+- ✅ Modern type syntax (dict instead of Dict, | instead of Union)
+- ✅ Imports from collections.abc where appropriate
+- ✅ Dataclasses with slots for performance
+- ✅ Protocols for interfaces
+- ✅ Context managers for resource management
+- ✅ Structured logging with context
+- ✅ Error handling with standardized codes
+- ✅ Modern dependency injection
+- ✅ Centralized and validated configuration
+- ✅ Integrated monitoring and metrics
 """
 
     return report
@@ -418,28 +417,28 @@ def generate_migration_report(project_root: Path) -> str:
 
 def main() -> None:
     """
-    Point d'entrée principal pour la migration.
+    Main entry point for migration.
 
-    Exécute la migration en mode dry-run par défaut.
+    Runs the migration in dry-run mode by default.
     """
     project_root = Path(__file__).parent.parent
 
-    # Génération du rapport
+    # Generate the report
     report = generate_migration_report(project_root)
 
-    # Sauvegarde du rapport
+    # Save the report
     report_path = project_root / "MIGRATION_REPORT.md"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(report)
 
-    logger.info(f"Rapport de migration généré: {report_path}")
+    logger.info(f"Migration report generated: {report_path}")
 
-    # Migration en dry-run
+    # Migration in dry-run
     migrator = CodeMigrator(project_root)
     stats = migrator.migrate_project(dry_run=True)
 
-    print(f"Migration terminée (dry-run): {stats}")
-    print("Pour appliquer les changements, exécuter avec dry_run=False")
+    print(f"Migration completed (dry-run): {stats}")
+    print("To apply the changes, run with dry_run=False")
 
 
 if __name__ == "__main__":

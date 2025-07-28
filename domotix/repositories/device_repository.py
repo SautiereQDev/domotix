@@ -1,8 +1,8 @@
 """
-Repository pour la gestion des dispositifs.
+Repository for device management.
 
-Ce module contient le repository de base pour tous les dispositifs
-qui gère les opérations CRUD avec la base de données.
+This module contains the base repository for all devices
+that handles CRUD operations with the database.
 """
 
 from typing import List, Optional
@@ -130,13 +130,16 @@ class DeviceRepository:
 
     def find_all(self) -> List[Device]:
         """
-        Récupère tous les dispositifs.
+        Retrieves all devices.
 
         Returns:
-            List[Device]: Liste de tous les dispositifs
+            List[Device]: List of all devices (empty list if none found)
         """
-        models = self.session.query(DeviceModel).all()
-        return [self._model_to_entity(model) for model in models]
+        try:
+            models = self.session.query(DeviceModel).all()
+            return [self._model_to_entity(model) for model in models] if models else []
+        except Exception:
+            return []
 
     def update(self, device: Device) -> bool:
         """
@@ -204,37 +207,43 @@ class DeviceRepository:
 
     def find_by_location(self, location: str) -> List[Device]:
         """
-        Trouve tous les dispositifs dans un emplacement donné.
+        Finds all devices in a given location.
 
         Args:
-            location: Emplacement à rechercher
+            location: Location to search for
 
         Returns:
-            List[Device]: Liste des dispositifs dans cet emplacement
+            List[Device]: List of devices in that location (empty list if none found)
         """
-        models = (
-            self.session.query(DeviceModel)
-            .filter(DeviceModel.location == location)
-            .all()
-        )
-        return [self._model_to_entity(model) for model in models]
+        try:
+            models = (
+                self.session.query(DeviceModel)
+                .filter(DeviceModel.location == location)
+                .all()
+            )
+            return [self._model_to_entity(model) for model in models] if models else []
+        except Exception:
+            return []
 
     def find_by_type(self, device_type: DeviceType) -> List[Device]:
         """
-        Trouve tous les dispositifs d'un type donné.
+        Finds all devices of a given type.
 
         Args:
-            device_type: Type de dispositif à rechercher
+            device_type: Type of device to search for
 
         Returns:
-            List[Device]: Liste des dispositifs de ce type
+            List[Device]: List of devices of that type (empty list if none found)
         """
-        models = (
-            self.session.query(DeviceModel)
-            .filter(DeviceModel.device_type == device_type.value)
-            .all()
-        )
-        return [self._model_to_entity(model) for model in models]
+        try:
+            models = (
+                self.session.query(DeviceModel)
+                .filter(DeviceModel.device_type == device_type.value)
+                .all()
+            )
+            return [self._model_to_entity(model) for model in models] if models else []
+        except Exception:
+            return []
 
     def count_all(self) -> int:
         """
@@ -248,17 +257,20 @@ class DeviceRepository:
 
     def search_by_name(self, name_pattern: str) -> List[Device]:
         """
-        Recherche des dispositifs par nom (recherche partielle).
+        Searches for devices by name (partial match).
 
         Args:
-            name_pattern: Motif de recherche dans le nom
+            name_pattern: Search pattern for the name
 
         Returns:
-            List[Device]: Liste des dispositifs correspondants
+            List[Device]: List of matching devices (empty list if none found)
         """
-        models = (
-            self.session.query(DeviceModel)
-            .filter(DeviceModel.name.contains(name_pattern))
-            .all()
-        )
-        return [self._model_to_entity(model) for model in models]
+        try:
+            models = (
+                self.session.query(DeviceModel)
+                .filter(DeviceModel.name.contains(name_pattern))
+                .all()
+            )
+            return [self._model_to_entity(model) for model in models] if models else []
+        except Exception:
+            return []

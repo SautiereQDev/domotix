@@ -1,18 +1,18 @@
 """
-Module du modèle Shutter pour les volets et stores.
+Shutter model module for shutters and blinds.
 
-Ce module contient la classe Shutter qui représente un volet ou store
-dans le système domotique. Elle hérite de Device et ajoute des fonctionnalités
-spécifiques aux volets (ouverture, fermeture, position).
+This module contains the Shutter class, which represents a shutter or blind
+in the home automation system. It inherits from Device and adds features
+specific to shutters (open, close, position).
 
 Classes:
-    Shutter: Modèle pour les volets et stores
+    Shutter: Model for shutters and blinds
 
 Example:
     >>> from domotix.models import Shutter
-    >>> volet = Shutter("Volet salon", "Salon")
-    >>> volet.open()
-    >>> print(volet.get_status())
+    >>> shutter = Shutter("Living Room Shutter", "Living Room")
+    >>> shutter.open()
+    >>> print(shutter.get_status())
     OPEN
 """
 
@@ -24,47 +24,48 @@ from .device import Device
 
 class Shutter(Device):
     """
-    Modèle pour les volets et stores.
+    Model for shutters and blinds.
 
-    Cette classe représente tous types de volets et stores
-    (volets roulants, stores, persiennes, etc.) avec des fonctionnalités
-    d'ouverture et de fermeture.
+    This class represents all types of shutters and blinds
+    (roller shutters, blinds, shutters, etc.) with opening and closing
+    features.
 
     Attributes:
-        is_open (bool): État d'ouverture du volet (True=ouvert, False=fermé)
-        name (str): Nom descriptif hérité de Device
-        id (str): Identifiant unique hérité de Device
+        is_open (bool): Shutter opening state (True=open, False=closed)
+        name (str): Descriptive name inherited from Device
+        id (str): Unique identifier inherited from Device
 
     Example:
-        >>> volet = Shutter("Volet chambre", "Chambre")
-        >>> volet.open()
-        >>> assert volet.is_open == True
-        >>> volet.close()
-        >>> assert volet.is_open == False
+        >>> shutter = Shutter("Bedroom Shutter", "Bedroom")
+        >>> shutter.open()
+        >>> assert shutter.is_open == True
+        >>> shutter.close()
+        >>> assert shutter.is_open == False
     """
 
     def __init__(self, name: str, location: Optional[str] = None) -> None:
         """
-        Initialise un nouveau volet.
+        Initializes a new shutter.
 
         Args:
-            name: Nom descriptif du volet (ex: "Volet salon", "Store cuisine")
-            location: Emplacement du volet (ex: "Salon", "Cuisine")
+            name: Descriptive name of the shutter (e.g., "Living Room Shutter",
+            "Kitchen Blind")
+            location: Location of the shutter (e.g., "Living Room", "Kitchen")
         """
         super().__init__(name, DeviceType.SHUTTER, location)
-        self.position: int = 0  # Position en pourcentage (0=fermé, 100=ouvert)
+        self.position: int = 0  # Position in percentage (0=closed, 100=open)
 
     @property
     def is_open(self) -> bool:
-        """Vérifie si le volet est considéré comme ouvert (position > 0)."""
+        """Checks if the shutter is considered open (position > 0)."""
         return self.position > 0
 
     def get_state(self) -> dict:
         """
-        Renvoie l'état actuel du volet.
+        Returns the current state of the shutter.
 
         Returns:
-            dict: État actuel du volet avec position et statut
+            dict: Current state of the shutter with position and status
         """
         return {
             "position": self.position,
@@ -74,13 +75,13 @@ class Shutter(Device):
 
     def update_state(self, new_state: dict) -> bool:
         """
-        Met à jour l'état du volet.
+        Updates the state of the shutter.
 
         Args:
-            new_state: Dictionnaire contenant le nouvel état
+            new_state: Dictionary containing the new state
 
         Returns:
-            bool: True si la mise à jour a réussi, False sinon
+            bool: True if the update was successful, False otherwise
         """
         try:
             if "position" in new_state:
@@ -91,46 +92,46 @@ class Shutter(Device):
 
     def open(self) -> None:
         """
-        Ouvre complètement le volet.
+        Fully opens the shutter.
 
         Example:
-            >>> volet = Shutter("Test")
-            >>> volet.open()
-            >>> assert volet.position == 100
+            >>> shutter = Shutter("Test")
+            >>> shutter.open()
+            >>> assert shutter.position == 100
         """
         self.position = 100
 
     def close(self) -> None:
         """
-        Ferme complètement le volet.
+        Fully closes the shutter.
 
         Example:
-            >>> volet = Shutter("Test")
-            >>> volet.close()
-            >>> assert volet.position == 0
+            >>> shutter = Shutter("Test")
+            >>> shutter.close()
+            >>> assert shutter.position == 0
         """
         self.position = 0
 
     def set_position(self, position: int) -> None:
         """
-        Définit la position du volet.
+        Sets the position of the shutter.
 
         Args:
-            position: Position en pourcentage (0-100)
+            position: Position in percentage (0-100)
 
         Raises:
-            ValueError: Si la position n'est pas entre 0 et 100
+            ValueError: If the position is not between 0 and 100
         """
         if not 0 <= position <= 100:
-            raise ValueError("La position doit être entre 0 et 100")
+            raise ValueError("Position must be between 0 and 100")
         self.position = position
 
     def get_status(self) -> str:
         """
-        Renvoie le statut textuel du volet.
+        Returns the textual status of the shutter.
 
         Returns:
-            str: "OPEN", "CLOSED" ou "PARTIAL"
+            str: "OPEN", "CLOSED" or "PARTIAL"
         """
         if self.position == 0:
             return "CLOSED"
@@ -141,16 +142,16 @@ class Shutter(Device):
 
     def toggle(self) -> None:
         """
-        Bascule l'état du volet (ouvert <-> fermé).
+        Toggles the state of the shutter (open <-> closed).
 
-        Si le volet est ouvert, le ferme. S'il est fermé, l'ouvre.
+        If the shutter is open, it closes. If it is closed, it opens.
 
         Example:
-            >>> volet = Shutter("Test")
-            >>> volet.toggle()  # Fermé -> Ouvert
-            >>> assert volet.is_open == True
-            >>> volet.toggle()  # Ouvert -> Fermé
-            >>> assert volet.is_open == False
+            >>> shutter = Shutter("Test")
+            >>> shutter.toggle()  # Closed -> Open
+            >>> assert shutter.is_open == True
+            >>> shutter.toggle()  # Open -> Closed
+            >>> assert shutter.is_open == False
         """
         if self.is_open:
             self.close()

@@ -1,25 +1,25 @@
 """
-Module des modèles de dispositifs domotiques.
+Home automation device models module.
 
-Ce module expose toutes les classes de modèles de dispositifs disponibles
-dans le système domotique. Il sert de point d'entrée unique pour importer
-les modèles depuis d'autres parties de l'application.
+This module exposes all available device model classes
+in the home automation system. It serves as a single entry point
+for importing models from other parts of the application.
 
 Exposed Classes:
-    Device: Classe abstraite de base pour tous les dispositifs
-    Light: Modèle pour les dispositifs d'éclairage
-    Shutter: Modèle pour les volets et stores
-    Sensor: Modèle pour les capteurs et dispositifs de mesure
+    Device: Base abstract class for all devices
+    Light: Model for lighting devices
+    Shutter: Model for shutters and blinds
+    Sensor: Model for sensors and measurement devices
 
 Example:
     >>> from domotix.models import Light, Shutter
-    >>> lampe = Light("Lampe salon")
-    >>> volet = Shutter("Volet chambre")
+    >>> light = Light("Living room lamp")
+    >>> shutter = Shutter("Bedroom shutter")
 """
 
 from .base_model import DeviceModel
 
-# Imports pour les modèles
+# Model imports
 from .device import Device
 from .light import Light
 from .sensor import Sensor

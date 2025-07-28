@@ -4,14 +4,14 @@ Thank you for your interest in contributing to Domotix! This guide will help you
 
 ## 📋 Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Code Standards](#code-standards)
-- [Testing Guidelines](#testing-guidelines)
-- [Documentation](#documentation)
-- [Submitting Changes](#submitting-changes)
-- [Release Process](#release-process)
+- [Code of Conduct](#-code-of-conduct)
+- [Getting Started](#-getting-started)
+- [Development Workflow](#-development-workflow)
+- [Code Standards](#-code-standards)
+- [Testing Guidelines](#-testing-guidelines)
+- [Documentation](#-documentation)
+- [Submitting Changes](#-submitting-changes)
+- [Release Process](#-release-process)
 
 ## 🤝 Code of Conduct
 
@@ -78,7 +78,7 @@ git checkout -b feature/your-feature-name
 
 ### 2. Make Changes
 
-Follow our [coding standards](#code-standards) and ensure your changes align with the project architecture.
+Follow our [coding standards](#-code-standards) and ensure your changes align with the project architecture.
 
 ### 3. Test Your Changes
 
@@ -212,12 +212,14 @@ def create_device(self, name: str, location: str) -> Optional[Device]:
 For comprehensive Python best practices, refer to this excellent guide: **[A Guide of Best Practices for Python](https://gist.github.com/ruimaranhao/4e18cbe3dad6f68040c32ed6709090a3)**
 
 This guide covers essential topics including:
+
 - **General Development Guidelines** (following PEP 20 principles)
 - **Naming Conventions** (variables, classes, methods)
 - **Code Style** (indentation, imports, documentation)
 - **Python-specific Best Practices** (list comprehensions, context managers, etc.)
 
 Key principles from this guide that align with Domotix standards:
+
 - **"Explicit is better than implicit"** - Clear, readable code
 - **"Readability counts"** - Self-documenting code over excessive comments
 - **Consistent naming** and **proper imports** organization
@@ -229,7 +231,7 @@ Key principles from this guide that align with Domotix standards:
 
 Domotix follows **Test-Driven Development (TDD)** with comprehensive test coverage:
 
-```
+```text
     🔺 E2E Tests (5-10%)
     🔺🔺 Integration Tests (20-30%)
   🔺🔺🔺 Unit Tests (60-70%)
@@ -284,7 +286,7 @@ def test_full_device_lifecycle():
 
 #### Test Organization
 
-```
+```text
 tests/
 ├── test_models/              # Model unit tests
 ├── test_controllers/         # Controller unit tests
@@ -418,7 +420,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 - **GitHub Issues**: Bug reports and feature requests
 - **GitHub Discussions**: Questions and general discussions
-- **Email**: contact@quentinsautiere.com (for sensitive issues)
+- **Email**: [contact@quentinsautiere.com](maito:contact@quentinsautiere.com) (for sensitive issues)
 
 ### Additional Resources
 
@@ -497,6 +499,7 @@ By contributing to Domotix, you agree that your contributions will be licensed u
 ## 📞 Contact
 
 **🧑‍💻 Quentin Sautiere** - *Lead Developer & Maintainer*
+
 - 📧 Email: [contact@quentinsautiere.com](mailto:contact@quentinsautiere.com)
 - 🐙 GitHub: [@SautiereQDev](https://github.com/SautiereQDev)
 - 💼 LinkedIn: [Quentin Sautiere](https://linkedin.com/in/quentin-sautiere)

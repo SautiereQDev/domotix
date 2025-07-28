@@ -1,11 +1,11 @@
 """
-Tests pour les commandes CLI de gestion des appareils.
+Tests for CLI device management commands.
 
-Ce module teste l'interface en ligne de commande pour :
-- Création d'appareils (lumières, capteurs, volets)
-- Opérations sur les appareils (allumer, éteindre, ouvrir, fermer)
-- Listing et recherche d'appareils
-- Opérations en lot et suppression
+This module tests the command-line interface for:
+- Device creation (lights, sensors, shutters)
+- Device operations (turn on, turn off, open, close)
+- Device listing and search
+- Batch operations and deletion
 """
 
 from unittest.mock import Mock, patch

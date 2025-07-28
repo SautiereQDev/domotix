@@ -1,14 +1,14 @@
 """
-Module des commandes CLI pour la gestion des dispositifs.
+CLI commands module for device management.
 
-Ce module contient toutes les commandes CLI pour ajouter, lister,
-supprimer et voir le statut des dispositifs avec injection de dépendance moderne.
+This module contains all CLI commands to add, list,
+delete, and view the status of devices with modern dependency injection.
 
 Commands:
-    device_list: Affiche la liste des dispositifs
-    device_add: Ajoute un nouveau dispositif
-    device_remove: Supprime un dispositif
-    device_status: Affiche le statut d'un dispositif
+    device_list: Displays the list of devices
+    device_add: Adds a new device
+    device_remove: Removes a device
+    device_status: Displays the status of a device
 """
 
 from typing import Optional
@@ -19,7 +19,7 @@ from ..core.service_provider import scoped_service_provider
 from ..models import Light, Sensor, Shutter
 from .main import app
 
-# Export des classes pour l'import
+# Export classes for import
 __all__ = [
     "DeviceCreateCommands",
     "DeviceListCommands",
@@ -31,24 +31,24 @@ __all__ = [
 ]
 
 """
-Module des commandes CLI pour la gestion des dispositifs.
+CLI commands module for device management.
 
-Ce module contient toutes les commandes CLI pour ajouter, lister,
-supprimer et voir le statut des dispositifs avec persistance.
+This module contains all CLI commands to add, list,
+delete, and view the status of devices with persistence.
 
 Classes:
-    DeviceCreateCommands: Commandes de création de dispositifs
-    DeviceListCommands: Commandes de listage de dispositifs
-    DeviceStateCommands: Commandes de gestion d'état de dispositifs
+    DeviceCreateCommands: Device creation commands
+    DeviceListCommands: Device listing commands
+    DeviceStateCommands: Device state management commands
 """
 
 
 class DeviceCreateCommands:
-    """Commandes pour créer des dispositifs avec injection de dépendance."""
+    """Commands to create devices with dependency injection."""
 
     @staticmethod
     def create_light(name: str, location: Optional[str] = None):
-        """Crée une nouvelle lampe."""
+        """Creates a new light."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             light_id = controller.create_light(name, location)
@@ -56,17 +56,17 @@ class DeviceCreateCommands:
             if light_id:
                 light = controller.get_light(light_id)
                 if light is not None:
-                    print(f"✅ Lampe '{light.name}' créée avec l'ID: {light_id}")
+                    print(f"✅ Light '{light.name}' created with ID: {light_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Lampe créée avec l'ID: {light_id}")
+                    print(f"✅ Light created with ID: {light_id}")
             else:
-                print(f"❌ Erreur lors de la création de la lampe '{name}'")
+                print(f"❌ Error creating light '{name}'")
 
     @staticmethod
     def create_shutter(name: str, location: Optional[str] = None):
-        """Crée un nouveau volet."""
+        """Creates a new shutter."""
         session = create_session()
         try:
             controller = get_controller_factory().create_shutter_controller(session)
@@ -75,19 +75,19 @@ class DeviceCreateCommands:
             if shutter_id:
                 shutter = controller.get_shutter(shutter_id)
                 if shutter is not None:
-                    print(f"✅ Volet '{shutter.name}' créé avec l'ID: {shutter_id}")
+                    print(f"✅ Shutter '{shutter.name}' created with ID: {shutter_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Volet créé avec l'ID: {shutter_id}")
+                    print(f"✅ Shutter created with ID: {shutter_id}")
             else:
-                print(f"❌ Erreur lors de la création du volet '{name}'")
+                print(f"❌ Error creating shutter '{name}'")
         finally:
             session.close()
 
     @staticmethod
     def create_sensor(name: str, location: Optional[str] = None):
-        """Crée un nouveau capteur."""
+        """Creates a new sensor."""
         session = create_session()
         try:
             controller = get_controller_factory().create_sensor_controller(session)
@@ -96,295 +96,295 @@ class DeviceCreateCommands:
             if sensor_id:
                 sensor = controller.get_sensor(sensor_id)
                 if sensor is not None:
-                    print(f"✅ Capteur '{sensor.name}' créé avec l'ID: {sensor_id}")
+                    print(f"✅ Sensor '{sensor.name}' created with ID: {sensor_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Capteur créé avec l'ID: {sensor_id}")
+                    print(f"✅ Sensor created with ID: {sensor_id}")
             else:
-                print(f"❌ Erreur lors de la création du capteur '{name}'")
+                print(f"❌ Error creating sensor '{name}'")
         finally:
             session.close()
 
 
 class DeviceListCommands:
-    """Commandes pour lister les dispositifs."""
+    """Commands to list devices."""
 
     @staticmethod
     def list_all_devices():
-        """Affiche la liste de tous les dispositifs."""
+        """Displays the list of all devices."""
         session = create_session()
         try:
             controller = get_controller_factory().create_device_controller(session)
             devices = controller.get_all_devices()
 
             if not devices:
-                print("Aucun dispositif enregistré.")
+                print("No devices registered.")
                 return
 
-            print(f"🏠 Dispositifs enregistrés ({len(devices)}):")
+            print(f"🏠 Registered devices ({len(devices)}):")
             print("-" * 50)
 
             for device in devices:
                 device_type = type(device).__name__
-                # Construire le statut selon le type
+                # Build status according to type
                 if hasattr(device, "is_on"):
                     status = "ON" if device.is_on else "OFF"
                 elif hasattr(device, "is_open"):
-                    status = "OUVERT" if device.is_open else "FERMÉ"
+                    status = "OPEN" if device.is_open else "CLOSED"
                 elif hasattr(device, "value"):
-                    status = f"Valeur: {device.value}" if device.value else "Inactif"
+                    status = f"Value: {device.value}" if device.value else "Inactive"
                 else:
-                    status = "Inconnu"
+                    status = "Unknown"
 
                 print(f"📱 {device.name}")
                 print(f"   ID: {device.id}")
                 print(f"   Type: {device_type}")
-                print(f"   Emplacement: {device.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {device.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
         finally:
             session.close()
 
     @staticmethod
     def list_lights():
-        """Affiche la liste des lampes."""
+        """Displays the list of lights."""
         session = create_session()
         try:
             controller = get_controller_factory().create_light_controller(session)
             lights = controller.get_all_lights()
 
             if not lights:
-                print("Aucune lampe enregistrée.")
+                print("No lights registered.")
                 return
 
-            print(f"💡 Lampes enregistrées ({len(lights)}):")
+            print(f"💡 Registered lights ({len(lights)}):")
             print("-" * 40)
 
             for light in lights:
                 status = "ON" if light.is_on else "OFF"
                 print(f"💡 {light.name}")
                 print(f"   ID: {light.id}")
-                print(f"   Emplacement: {light.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {light.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
         finally:
             session.close()
 
     @staticmethod
     def list_shutters():
-        """Affiche la liste des volets."""
+        """Displays the list of shutters."""
         session = create_session()
         try:
             controller = get_controller_factory().create_shutter_controller(session)
             shutters = controller.get_all_shutters()
 
             if not shutters:
-                print("Aucun volet enregistré.")
+                print("No shutters registered.")
                 return
 
-            print(f"🪟 Volets enregistrés ({len(shutters)}):")
+            print(f"🪟 Registered shutters ({len(shutters)}):")
             print("-" * 40)
 
             for shutter in shutters:
-                status = "OUVERT" if shutter.is_open else "FERMÉ"
+                status = "OPEN" if shutter.is_open else "CLOSED"
                 print(f"🪟 {shutter.name}")
                 print(f"   ID: {shutter.id}")
-                print(f"   Emplacement: {shutter.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {shutter.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
         finally:
             session.close()
 
     @staticmethod
     def list_sensors():
-        """Affiche la liste des capteurs."""
+        """Displays the list of sensors."""
         session = create_session()
         try:
             controller = get_controller_factory().create_sensor_controller(session)
             sensors = controller.get_all_sensors()
 
             if not sensors:
-                print("Aucun capteur enregistré.")
+                print("No sensors registered.")
                 return
 
-            print(f"📊 Capteurs enregistrés ({len(sensors)}):")
+            print(f"📊 Registered sensors ({len(sensors)}):")
             print("-" * 40)
 
             for sensor in sensors:
-                status = f"Valeur: {sensor.value}" if sensor.value else "Inactif"
+                status = f"Value: {sensor.value}" if sensor.value else "Inactive"
                 print(f"📊 {sensor.name}")
                 print(f"   ID: {sensor.id}")
-                print(f"   Emplacement: {sensor.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {sensor.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
         finally:
             session.close()
 
     @staticmethod
     def show_device(device_id: str):
-        """Affiche les détails d'un dispositif."""
+        """Displays the details of a device."""
         session = create_session()
         try:
             controller = get_controller_factory().create_device_controller(session)
             device = controller.get_device(device_id)
 
             if not device:
-                print(f"❌ Dispositif avec l'ID {device_id} introuvable.")
+                print(f"❌ Device with ID {device_id} not found.")
                 return
 
             device_type = type(device).__name__
 
-            # Construire le statut selon le type
+            # Build status according to type
             if hasattr(device, "is_on"):
                 status = "ON" if device.is_on else "OFF"
             elif hasattr(device, "is_open"):
-                status = "OUVERT" if device.is_open else "FERMÉ"
+                status = "OPEN" if device.is_open else "CLOSED"
             elif hasattr(device, "value"):
-                status = f"Valeur: {device.value}" if device.value else "Inactif"
+                status = f"Value: {device.value}" if device.value else "Inactive"
             else:
-                status = "Inconnu"
+                status = "Unknown"
 
             print(f"📱 {device.name}")
             print(f"   ID: {device.id}")
             print(f"   Type: {device_type}")
-            print(f"   Emplacement: {device.location or 'Non défini'}")
-            print(f"   Statut: {status}")
+            print(f"   Location: {device.location or 'Undefined'}")
+            print(f"   Status: {status}")
         finally:
             session.close()
 
 
 class DeviceStateCommands:
-    """Commandes pour gérer l'état des dispositifs."""
+    """Commands to manage the state of devices."""
 
     @staticmethod
     def turn_on_light(light_id: str):
-        """Allume une lampe."""
+        """Turns on a light."""
         session = create_session()
         try:
             controller = get_controller_factory().create_light_controller(session)
             success = controller.turn_on(light_id)
 
             if success:
-                print(f"✅ Lampe {light_id} allumée.")
+                print(f"✅ Light {light_id} turned on.")
             else:
-                print(f"❌ Échec de l'allumage de la lampe {light_id}.")
+                print(f"❌ Failed to turn on light {light_id}.")
         finally:
             session.close()
 
     @staticmethod
     def turn_off_light(light_id: str):
-        """Éteint une lampe."""
+        """Turns off a light."""
         session = create_session()
         try:
             controller = get_controller_factory().create_light_controller(session)
             success = controller.turn_off(light_id)
 
             if success:
-                print(f"✅ Lampe {light_id} éteinte.")
+                print(f"✅ Light {light_id} turned off.")
             else:
-                print(f"❌ Échec de l'extinction de la lampe {light_id}.")
+                print(f"❌ Failed to turn off light {light_id}.")
         finally:
             session.close()
 
     @staticmethod
     def toggle_light(light_id: str):
-        """Bascule l'état d'une lampe."""
+        """Toggles the state of a light."""
         session = create_session()
         try:
             controller = get_controller_factory().create_light_controller(session)
             success = controller.toggle(light_id)
 
             if success:
-                # Récupérer l'état actuel pour l'afficher
+                # Retrieve current state to display
                 light = controller.get_light(light_id)
                 if light is not None:
-                    status = "allumée" if light.is_on else "éteinte"
-                    print(f"✅ Lampe {light_id} {status}.")
+                    status = "on" if light.is_on else "off"
+                    print(f"✅ Light {light_id} is now {status}.")
                 else:
-                    print(f"✅ Lampe {light_id} basculée.")
+                    print(f"✅ Light {light_id} toggled.")
             else:
-                print(f"❌ Échec du basculement de la lampe {light_id}.")
+                print(f"❌ Failed to toggle light {light_id}.")
         finally:
             session.close()
 
     @staticmethod
     def open_shutter(shutter_id: str):
-        """Ouvre un volet."""
+        """Opens a shutter."""
         session = create_session()
         try:
             controller = get_controller_factory().create_shutter_controller(session)
             success = controller.open(shutter_id)
 
             if success:
-                print(f"✅ Volet {shutter_id} ouvert.")
+                print(f"✅ Shutter {shutter_id} opened.")
             else:
-                print(f"❌ Échec de l'ouverture du volet {shutter_id}.")
+                print(f"❌ Failed to open shutter {shutter_id}.")
         finally:
             session.close()
 
     @staticmethod
     def close_shutter(shutter_id: str):
-        """Ferme un volet."""
+        """Closes a shutter."""
         session = create_session()
         try:
             controller = get_controller_factory().create_shutter_controller(session)
             success = controller.close(shutter_id)
 
             if success:
-                print(f"✅ Volet {shutter_id} fermé.")
+                print(f"✅ Shutter {shutter_id} closed.")
             else:
-                print(f"❌ Échec de la fermeture du volet {shutter_id}.")
+                print(f"❌ Failed to close shutter {shutter_id}.")
         finally:
             session.close()
 
     @staticmethod
     def update_sensor_value(sensor_id: str, value: float):
-        """Met à jour la valeur d'un capteur."""
+        """Updates the value of a sensor."""
         session = create_session()
         try:
             controller = get_controller_factory().create_sensor_controller(session)
             success = controller.update_value(sensor_id, value)
 
             if success:
-                print(f"✅ Capteur {sensor_id} mis à jour avec la valeur {value}.")
+                print(f"✅ Sensor {sensor_id} updated with value {value}.")
             else:
-                print(f"❌ Échec de la mise à jour du capteur {sensor_id}.")
+                print(f"❌ Failed to update sensor {sensor_id}.")
         finally:
             session.close()
 
     @staticmethod
     def reset_sensor(sensor_id: str):
-        """Remet à zéro un capteur."""
+        """Resets a sensor."""
         session = create_session()
         try:
             controller = get_controller_factory().create_sensor_controller(session)
             success = controller.reset_value(sensor_id)
 
             if success:
-                print(f"✅ Capteur {sensor_id} remis à zéro.")
+                print(f"✅ Sensor {sensor_id} reset.")
             else:
-                print(f"❌ Échec de la remise à zéro du capteur {sensor_id}.")
+                print(f"❌ Failed to reset sensor {sensor_id}.")
         finally:
             session.close()
 
 
-# Commandes Typer (pour la compatibilité avec l'ancien système)
+# Typer commands (for compatibility with the old system)
 @app.command()
 def device_list():
-    """Affiche la liste des dispositifs."""
+    """Displays the list of devices."""
     DeviceListCommands.list_all_devices()
 
 
 @app.command()
 def device_add(device_type: str, name: str, location: Optional[str] = None):
     """
-    Ajoute un nouveau dispositif.
+    Adds a new device.
 
     Args:
-        device_type (str): Type de dispositif (light, shutter, sensor)
-        name (str): Nom du dispositif
-        location (str, optional): Emplacement du dispositif
+        device_type (str): Device type (light, shutter, sensor)
+        name (str): Device name
+        location (str, optional): Device location
     """
     device_type = device_type.lower()
 
@@ -395,26 +395,26 @@ def device_add(device_type: str, name: str, location: Optional[str] = None):
     elif device_type == "sensor":
         DeviceCreateCommands.create_sensor(name, location)
     else:
-        print(f"❌ Type de dispositif non supporté: {device_type}")
-        print("Types supportés: light, shutter, sensor")
+        print(f"❌ Unsupported device type: {device_type}")
+        print("Supported types: light, shutter, sensor")
 
 
 @app.command()
 def device_remove(device_id: str):
     """
-    Supprime un dispositif par son ID.
+    Removes a device by its ID.
 
     Args:
-        device_id (int): Identifiant du dispositif à supprimer
+        device_id (int): Identifier of the device to remove
     """
     session = create_session()
     try:
         controller = get_controller_factory().create_device_controller(session)
 
-        # Tenter de supprimer selon le type
+        # Attempt to delete by type
         device = controller.get_device(device_id)
         if not device:
-            print(f"❌ Dispositif {device_id} non trouvé.")
+            print(f"❌ Device {device_id} not found.")
             return
 
         success = False
@@ -433,9 +433,9 @@ def device_remove(device_id: str):
             success = sensor_controller.delete_sensor(device_id)
 
         if success:
-            print(f"✅ Dispositif {device_id} supprimé avec succès.")
+            print(f"✅ Device {device_id} removed successfully.")
         else:
-            print(f"❌ Erreur lors de la suppression du dispositif {device_id}.")
+            print(f"❌ Error removing device {device_id}.")
     finally:
         session.close()
 
@@ -443,9 +443,9 @@ def device_remove(device_id: str):
 @app.command()
 def device_status(device_id: str):
     """
-    Affiche le statut d'un dispositif.
+    Displays the status of a device.
 
     Args:
-        device_id (int): Identifiant du dispositif
+        device_id (int): Device identifier
     """
     DeviceListCommands.show_device(device_id)

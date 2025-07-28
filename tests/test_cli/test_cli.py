@@ -5,15 +5,15 @@ from domotix.cli import app, main
 
 
 def test_cli_main_help():
-    """Test que l'aide de la commande CLI fonctionne."""
+    """Test that the CLI help command works."""
     runner = CliRunner()
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "Usage:" in result.stdout or "Point d'entrée principal" in result.stdout
+    assert "Usage:" in result.stdout or "Main entry point" in result.stdout
 
 
 def test_cli_main_function():
-    """Test que la fonction main peut être appelée directement."""
-    # Test que la fonction main existe et peut être appelée
-    # (pour le coverage du point d'entrée Poetry)
+    """Test that the main function can be called directly."""
+    # Test that the main function exists and can be called
+    # (for Poetry entry point coverage)
     assert callable(main)

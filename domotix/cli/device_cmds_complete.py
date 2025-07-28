@@ -1,16 +1,17 @@
 """
-Module des commandes CLI complètes avec injection de dépendance.
+CLI commands module with full dependency injection.
 
-Ce module contient toutes les commandes CLI pour le système domotique
-avec injection de dépendance moderne.
+This module contains all CLI commands for the home automation system
+with modern dependency injection.
 
 Commands:
-    Générales: device_list, device_add, device_remove, device_status
-    Lampes: light_on, light_off, light_toggle, lights_list, lights_on, lights_off
-    Volets: shutter_open, shutter_close, shutter_toggle, shutter_position, shutters_list
-    Capteurs: sensor_update, sensor_reset, sensors_list, sensors_reset
-    Recherche: devices_by_location, device_search, locations_list
-    Résumés: devices_summary, devices_on, devices_off
+    General: device_list, device_add, device_remove, device_status
+    Lights: light_on, light_off, light_toggle, lights_list, lights_on, lights_off
+    Shutters: shutter_open, shutter_close, shutter_toggle, shutter_position,
+    shutters_list
+    Sensors: sensor_update, sensor_reset, sensors_list, sensors_reset
+    Search: devices_by_location, device_search, locations_list
+    Summaries: devices_summary, devices_on, devices_off
 """
 
 from typing import Optional
@@ -24,11 +25,11 @@ app = typer.Typer()
 
 
 class DeviceCreateCommands:
-    """Commandes pour créer des dispositifs avec injection de dépendance."""
+    """Commands to create devices with dependency injection."""
 
     @staticmethod
     def create_light(name: str, location: Optional[str] = None):
-        """Crée une nouvelle lampe."""
+        """Creates a new light."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             light_id = controller.create_light(name, location)
@@ -36,17 +37,17 @@ class DeviceCreateCommands:
             if light_id:
                 light = controller.get_light(light_id)
                 if light is not None:
-                    print(f"✅ Lampe '{light.name}' créée avec l'ID: {light_id}")
+                    print(f"✅ Light '{light.name}' created with ID: {light_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Lampe créée avec l'ID: {light_id}")
+                    print(f"✅ Light created with ID: {light_id}")
             else:
-                print(f"❌ Erreur lors de la création de la lampe '{name}'")
+                print(f"❌ Error creating light '{name}'")
 
     @staticmethod
     def create_shutter(name: str, location: Optional[str] = None):
-        """Crée un nouveau volet."""
+        """Creates a new shutter."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             shutter_id = controller.create_shutter(name, location)
@@ -54,17 +55,17 @@ class DeviceCreateCommands:
             if shutter_id:
                 shutter = controller.get_shutter(shutter_id)
                 if shutter is not None:
-                    print(f"✅ Volet '{shutter.name}' créé avec l'ID: {shutter_id}")
+                    print(f"✅ Shutter '{shutter.name}' created with ID: {shutter_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Volet créé avec l'ID: {shutter_id}")
+                    print(f"✅ Shutter created with ID: {shutter_id}")
             else:
-                print(f"❌ Erreur lors de la création du volet '{name}'")
+                print(f"❌ Error creating shutter '{name}'")
 
     @staticmethod
     def create_sensor(name: str, location: Optional[str] = None):
-        """Crée un nouveau capteur."""
+        """Creates a new sensor."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_sensor_controller()
             sensor_id = controller.create_sensor(name, location)
@@ -72,154 +73,154 @@ class DeviceCreateCommands:
             if sensor_id:
                 sensor = controller.get_sensor(sensor_id)
                 if sensor is not None:
-                    print(f"✅ Capteur '{sensor.name}' créé avec l'ID: {sensor_id}")
+                    print(f"✅ Sensor '{sensor.name}' created with ID: {sensor_id}")
                     if location:
-                        print(f"   Emplacement: {location}")
+                        print(f"   Location: {location}")
                 else:
-                    print(f"✅ Capteur créé avec l'ID: {sensor_id}")
+                    print(f"✅ Sensor created with ID: {sensor_id}")
             else:
-                print(f"❌ Erreur lors de la création du capteur '{name}'")
+                print(f"❌ Error creating sensor '{name}'")
 
 
 class DeviceListCommands:
-    """Commandes pour lister les dispositifs avec injection de dépendance."""
+    """Commands to list devices with dependency injection."""
 
     @staticmethod
     def list_all_devices():
-        """Affiche la liste de tous les dispositifs."""
+        """Displays the list of all devices."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
 
             if not devices:
-                print("Aucun dispositif enregistré.")
+                print("No devices registered.")
                 return
 
-            print(f"🏠 Dispositifs enregistrés ({len(devices)}):")
+            print(f"🏠 Registered devices ({len(devices)}):")
             print("-" * 50)
 
             for device in devices:
                 device_type = type(device).__name__
-                # Construire le statut selon le type
+                # Build status according to type
                 if hasattr(device, "is_on"):
                     status = "ON" if device.is_on else "OFF"
                 elif hasattr(device, "is_open"):
-                    status = "OUVERT" if device.is_open else "FERMÉ"
+                    status = "OPEN" if device.is_open else "CLOSED"
                 elif hasattr(device, "value"):
-                    status = f"Valeur: {device.value}" if device.value else "Inactif"
+                    status = f"Value: {device.value}" if device.value else "Inactive"
                 else:
-                    status = "Inconnu"
+                    status = "Unknown"
 
                 print(f"📱 {device.name}")
                 print(f"   ID: {device.id}")
                 print(f"   Type: {device_type}")
-                print(f"   Emplacement: {device.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {device.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def list_lights():
-        """Affiche la liste de toutes les lampes."""
+        """Displays the list of all lights."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             lights = controller.get_all_lights()
 
             if not lights:
-                print("Aucune lampe enregistrée.")
+                print("No lights registered.")
                 return
 
-            print(f"💡 Lampes enregistrées ({len(lights)}):")
+            print(f"💡 Registered lights ({len(lights)}):")
             print("-" * 40)
 
             for light in lights:
                 status = "ON" if light.is_on else "OFF"
                 print(f"💡 {light.name}")
                 print(f"   ID: {light.id}")
-                print(f"   Emplacement: {light.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {light.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def list_shutters():
-        """Affiche la liste de tous les volets."""
+        """Displays the list of all shutters."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             shutters = controller.get_all_shutters()
 
             if not shutters:
-                print("Aucun volet enregistré.")
+                print("No shutters registered.")
                 return
 
-            print(f"🪟 Volets enregistrés ({len(shutters)}):")
+            print(f"🪟 Registered shutters ({len(shutters)}):")
             print("-" * 40)
 
             for shutter in shutters:
-                status = "OUVERT" if shutter.is_open else "FERMÉ"
+                status = "OPEN" if shutter.is_open else "CLOSED"
                 print(f"🪟 {shutter.name}")
                 print(f"   ID: {shutter.id}")
-                print(f"   Emplacement: {shutter.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {shutter.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def list_sensors():
-        """Affiche la liste de tous les capteurs."""
+        """Displays the list of all sensors."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_sensor_controller()
             sensors = controller.get_all_sensors()
 
             if not sensors:
-                print("Aucun capteur enregistré.")
+                print("No sensors registered.")
                 return
 
-            print(f"🌡️ Capteurs enregistrés ({len(sensors)}):")
+            print(f"🌡️ Registered sensors ({len(sensors)}):")
             print("-" * 40)
 
             for sensor in sensors:
-                status = f"Valeur: {sensor.value}" if sensor.value else "Inactif"
+                status = f"Value: {sensor.value}" if sensor.value else "Inactive"
                 print(f"🌡️ {sensor.name}")
                 print(f"   ID: {sensor.id}")
-                print(f"   Emplacement: {sensor.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {sensor.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def show_device(device_id: str):
-        """Affiche les détails d'un dispositif."""
+        """Displays the details of a device."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             device = controller.get_device(device_id)
 
             if not device:
-                print(f"❌ Dispositif avec l'ID {device_id} introuvable.")
+                print(f"❌ Device with ID {device_id} not found.")
                 return
 
             device_type = type(device).__name__
 
-            # Construire le statut selon le type
+            # Build status according to type
             if hasattr(device, "is_on"):
                 status = "ON" if device.is_on else "OFF"
             elif hasattr(device, "is_open"):
-                status = "OUVERT" if device.is_open else "FERMÉ"
+                status = "OPEN" if device.is_open else "CLOSED"
             elif hasattr(device, "value"):
-                status = f"Valeur: {device.value}" if device.value else "Inactif"
+                status = f"Value: {device.value}" if device.value else "Inactive"
             else:
-                status = "Inconnu"
+                status = "Unknown"
 
             print(f"📱 {device.name}")
             print(f"   ID: {device.id}")
             print(f"   Type: {device_type}")
-            print(f"   Emplacement: {device.location or 'Non défini'}")
-            print(f"   Statut: {status}")
+            print(f"   Location: {device.location or 'Undefined'}")
+            print(f"   Status: {status}")
 
     @staticmethod
     def list_devices_by_location(location: str):
-        """Affiche tous les dispositifs d'un emplacement."""
+        """Displays all devices in a location."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
 
-            # Filtrer par emplacement
+            # Filter by location
             filtered_devices = [
                 device
                 for device in devices
@@ -227,10 +228,10 @@ class DeviceListCommands:
             ]
 
             if not filtered_devices:
-                print(f"Aucun dispositif trouvé pour l'emplacement '{location}'.")
+                print(f"No devices found for location '{location}'.")
                 return
 
-            print(f"🏠 Dispositifs dans '{location}' ({len(filtered_devices)}):")
+            print(f"🏠 Devices in '{location}' ({len(filtered_devices)}):")
             print("-" * 50)
 
             for device in filtered_devices:
@@ -238,35 +239,35 @@ class DeviceListCommands:
                 if hasattr(device, "is_on"):
                     status = "ON" if device.is_on else "OFF"
                 elif hasattr(device, "is_open"):
-                    status = "OUVERT" if device.is_open else "FERMÉ"
+                    status = "OPEN" if device.is_open else "CLOSED"
                 elif hasattr(device, "value"):
-                    status = f"Valeur: {device.value}" if device.value else "Inactif"
+                    status = f"Value: {device.value}" if device.value else "Inactive"
                 else:
-                    status = "Inconnu"
+                    status = "Unknown"
 
                 print(f"📱 {device.name}")
                 print(f"   ID: {device.id}")
                 print(f"   Type: {device_type}")
-                print(f"   Statut: {status}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def search_devices(name: str):
-        """Recherche des dispositifs par nom."""
+        """Searches for devices by name."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
 
-            # Recherche par nom (insensible à la casse)
+            # Search by name (case-insensitive)
             found_devices = [
                 device for device in devices if name.lower() in device.name.lower()
             ]
 
             if not found_devices:
-                print(f"Aucun dispositif trouvé avec le nom '{name}'.")
+                print(f"No devices found with the name '{name}'.")
                 return
 
-            print(f"🔍 Résultats de recherche pour '{name}' ({len(found_devices)}):")
+            print(f"🔍 Search results for '{name}' ({len(found_devices)}):")
             print("-" * 50)
 
             for device in found_devices:
@@ -274,87 +275,87 @@ class DeviceListCommands:
                 if hasattr(device, "is_on"):
                     status = "ON" if device.is_on else "OFF"
                 elif hasattr(device, "is_open"):
-                    status = "OUVERT" if device.is_open else "FERMÉ"
+                    status = "OPEN" if device.is_open else "CLOSED"
                 elif hasattr(device, "value"):
-                    status = f"Valeur: {device.value}" if device.value else "Inactif"
+                    status = f"Value: {device.value}" if device.value else "Inactive"
                 else:
-                    status = "Inconnu"
+                    status = "Unknown"
 
                 print(f"📱 {device.name}")
                 print(f"   ID: {device.id}")
                 print(f"   Type: {device_type}")
-                print(f"   Emplacement: {device.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {device.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def list_locations():
-        """Affiche la liste de tous les emplacements."""
+        """Displays the list of all locations."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
 
-            # Extraire les emplacements uniques
+            # Extract unique locations
             locations = set()
             for device in devices:
                 if device.location:
                     locations.add(device.location)
 
             if not locations:
-                print("Aucun emplacement défini.")
+                print("No locations defined.")
                 return
 
             sorted_locations = sorted(locations)
-            print(f"📍 Emplacements ({len(sorted_locations)}):")
+            print(f"📍 Locations ({len(sorted_locations)}):")
             print("-" * 30)
 
             for location in sorted_locations:
-                # Compter les dispositifs par emplacement
+                # Count devices by location
                 device_count = sum(
                     1 for device in devices if device.location == location
                 )
-                print(f"📍 {location} ({device_count} dispositifs)")
+                print(f"📍 {location} ({device_count} devices)")
 
     @staticmethod
     def show_devices_summary():
-        """Affiche un résumé de tous les dispositifs."""
+        """Displays a summary of all devices."""
         with scoped_service_provider.create_scope() as provider:
             device_controller = provider.get_device_controller()
             light_controller = provider.get_light_controller()
             shutter_controller = provider.get_shutter_controller()
             sensor_controller = provider.get_sensor_controller()
 
-            # Récupérer toutes les données
+            # Retrieve all data
             all_devices = device_controller.get_all_devices()
             lights = light_controller.get_all_lights()
             shutters = shutter_controller.get_all_shutters()
             sensors = sensor_controller.get_all_sensors()
 
-            print("📊 RÉSUMÉ DES DISPOSITIFS")
+            print("📊 DEVICE SUMMARY")
             print("=" * 40)
-            print(f"Total dispositifs: {len(all_devices)}")
-            print(f"  💡 Lampes: {len(lights)}")
-            print(f"  🪟 Volets: {len(shutters)}")
-            print(f"  🌡️ Capteurs: {len(sensors)}")
+            print(f"Total devices: {len(all_devices)}")
+            print(f"  💡 Lights: {len(lights)}")
+            print(f"  🪟 Shutters: {len(shutters)}")
+            print(f"  🌡️ Sensors: {len(sensors)}")
             print()
 
             if lights:
                 lights_on = sum(1 for light in lights if light.is_on)
-                print(f"💡 Lampes allumées: {lights_on}/{len(lights)}")
+                print(f"💡 Lights on: {lights_on}/{len(lights)}")
 
             if shutters:
                 shutters_open = sum(1 for shutter in shutters if shutter.is_open)
-                print(f"🪟 Volets ouverts: {shutters_open}/{len(shutters)}")
+                print(f"🪟 Shutters open: {shutters_open}/{len(shutters)}")
 
             if sensors:
                 active_sensors = sum(
                     1 for sensor in sensors if sensor.value is not None
                 )
-                print(f"🌡️ Capteurs actifs: {active_sensors}/{len(sensors)}")
+                print(f"🌡️ Active sensors: {active_sensors}/{len(sensors)}")
 
     @staticmethod
     def list_active_devices():
-        """Affiche tous les dispositifs actifs."""
+        """Displays all active devices."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
@@ -362,30 +363,30 @@ class DeviceListCommands:
             active_devices = []
             for device in devices:
                 if hasattr(device, "is_on") and device.is_on:
-                    active_devices.append((device, "Allumée"))
+                    active_devices.append((device, "On"))
                 elif hasattr(device, "is_open") and device.is_open:
-                    active_devices.append((device, "Ouvert"))
+                    active_devices.append((device, "Open"))
                 elif hasattr(device, "value") and device.value is not None:
-                    active_devices.append((device, f"Valeur: {device.value}"))
+                    active_devices.append((device, f"Value: {device.value}"))
 
             if not active_devices:
-                print("Aucun dispositif actif.")
+                print("No active devices.")
                 return
 
-            print(f"🟢 Dispositifs actifs ({len(active_devices)}):")
+            print(f"🟢 Active devices ({len(active_devices)}):")
             print("-" * 40)
 
             for device, status in active_devices:
                 device_type = type(device).__name__
                 print(f"📱 {device.name} ({device_type})")
                 print(f"   ID: {device.id}")
-                print(f"   Emplacement: {device.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {device.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
     @staticmethod
     def list_inactive_devices():
-        """Affiche tous les dispositifs inactifs."""
+        """Displays all inactive devices."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_device_controller()
             devices = controller.get_all_devices()
@@ -393,82 +394,82 @@ class DeviceListCommands:
             inactive_devices = []
             for device in devices:
                 if hasattr(device, "is_on") and not device.is_on:
-                    inactive_devices.append((device, "Éteinte"))
+                    inactive_devices.append((device, "Off"))
                 elif hasattr(device, "is_open") and not device.is_open:
-                    inactive_devices.append((device, "Fermé"))
+                    inactive_devices.append((device, "Closed"))
                 elif hasattr(device, "value") and device.value is None:
-                    inactive_devices.append((device, "Inactif"))
+                    inactive_devices.append((device, "Inactive"))
 
             if not inactive_devices:
-                print("Aucun dispositif inactif.")
+                print("No inactive devices.")
                 return
 
-            print(f"🔴 Dispositifs inactifs ({len(inactive_devices)}):")
+            print(f"🔴 Inactive devices ({len(inactive_devices)}):")
             print("-" * 40)
 
             for device, status in inactive_devices:
                 device_type = type(device).__name__
                 print(f"📱 {device.name} ({device_type})")
                 print(f"   ID: {device.id}")
-                print(f"   Emplacement: {device.location or 'Non défini'}")
-                print(f"   Statut: {status}")
+                print(f"   Location: {device.location or 'Undefined'}")
+                print(f"   Status: {status}")
                 print()
 
 
 class DeviceStateCommands:
-    """Commandes pour gérer l'état des dispositifs avec injection de dépendance."""
+    """Commands to manage the state of devices with dependency injection."""
 
     @staticmethod
     def turn_on_light(light_id: str):
-        """Allume une lampe."""
+        """Turns on a light."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             success = controller.turn_on(light_id)
 
             if success:
-                print(f"✅ Lampe {light_id} allumée.")
+                print(f"✅ Light {light_id} turned on.")
             else:
-                print(f"❌ Échec de l'allumage de la lampe {light_id}.")
+                print(f"❌ Failed to turn on light {light_id}.")
 
     @staticmethod
     def turn_off_light(light_id: str):
-        """Éteint une lampe."""
+        """Turns off a light."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             success = controller.turn_off(light_id)
 
             if success:
-                print(f"✅ Lampe {light_id} éteinte.")
+                print(f"✅ Light {light_id} turned off.")
             else:
-                print(f"❌ Échec de l'extinction de la lampe {light_id}.")
+                print(f"❌ Failed to turn off light {light_id}.")
 
     @staticmethod
     def toggle_light(light_id: str):
-        """Bascule l'état d'une lampe."""
+        """Toggles the state of a light."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             success = controller.toggle(light_id)
 
             if success:
-                # Récupérer l'état actuel pour l'afficher
+                # Retrieve current state for display
                 light = controller.get_light(light_id)
                 if light is not None:
-                    status = "allumée" if light.is_on else "éteinte"
-                    print(f"✅ Lampe {light_id} {status}.")
+                    status = "on" if light.is_on else "off"
+                    print(f"✅ Light {light_id} is now {status}.")
                 else:
-                    print(f"✅ Lampe {light_id} basculée.")
+                    print(f"✅ Light {light_id} toggled.")
             else:
-                print(f"❌ Échec du basculement de la lampe {light_id}.")
+                print(f"❌ Failed to toggle light {light_id}.")
 
     @staticmethod
     def turn_on_all_lights():
-        """Allume toutes les lampes."""
+        """Turns on all lights."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             lights = controller.get_all_lights()
 
             if not lights:
-                print("Aucune lampe trouvée.")
+                print("No lights found.")
                 return
 
             success_count = 0
@@ -476,17 +477,17 @@ class DeviceStateCommands:
                 if controller.turn_on(light.id):
                     success_count += 1
 
-            print(f"✅ {success_count}/{len(lights)} lampes allumées.")
+            print(f"✅ {success_count}/{len(lights)} lights turned on.")
 
     @staticmethod
     def turn_off_all_lights():
-        """Éteint toutes les lampes."""
+        """Turns off all lights."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_light_controller()
             lights = controller.get_all_lights()
 
             if not lights:
-                print("Aucune lampe trouvée.")
+                print("No lights found.")
                 return
 
             success_count = 0
@@ -494,77 +495,77 @@ class DeviceStateCommands:
                 if controller.turn_off(light.id):
                     success_count += 1
 
-            print(f"✅ {success_count}/{len(lights)} lampes éteintes.")
+            print(f"✅ {success_count}/{len(lights)} lights turned off.")
 
     @staticmethod
     def open_shutter(shutter_id: str):
-        """Ouvre un volet."""
+        """Opens a shutter."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             success = controller.open(shutter_id)
 
             if success:
-                print(f"✅ Volet {shutter_id} ouvert.")
+                print(f"✅ Shutter {shutter_id} opened.")
             else:
-                print(f"❌ Échec de l'ouverture du volet {shutter_id}.")
+                print(f"❌ Failed to open shutter {shutter_id}.")
 
     @staticmethod
     def close_shutter(shutter_id: str):
-        """Ferme un volet."""
+        """Closes a shutter."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             success = controller.close(shutter_id)
 
             if success:
-                print(f"✅ Volet {shutter_id} fermé.")
+                print(f"✅ Shutter {shutter_id} closed.")
             else:
-                print(f"❌ Échec de la fermeture du volet {shutter_id}.")
+                print(f"❌ Failed to close shutter {shutter_id}.")
 
     @staticmethod
     def toggle_shutter(shutter_id: str):
-        """Bascule l'état d'un volet."""
+        """Toggles the state of a shutter."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             shutter = controller.get_shutter(shutter_id)
 
             if not shutter:
-                print(f"❌ Volet {shutter_id} non trouvé.")
+                print(f"❌ Shutter {shutter_id} not found.")
                 return
 
-            # Basculer selon l'état actuel
+            # Toggle according to current state
             if shutter.is_open:
                 success = controller.close(shutter_id)
-                action = "fermé"
+                action = "closed"
             else:
                 success = controller.open(shutter_id)
-                action = "ouvert"
+                action = "opened"
 
             if success:
-                print(f"✅ Volet {shutter_id} {action}.")
+                print(f"✅ Shutter {shutter_id} {action}.")
             else:
-                print(f"❌ Échec du basculement du volet {shutter_id}.")
+                print(f"❌ Failed to toggle shutter {shutter_id}.")
 
     @staticmethod
     def set_shutter_position(shutter_id: str, position: int):
-        """Définit la position d'un volet."""
+        """Sets the position of a shutter."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             success = controller.set_position(shutter_id, position)
 
             if success:
-                print(f"✅ Volet {shutter_id} positionné à {position}%.")
+                print(f"✅ Shutter {shutter_id} set to {position}%.")
             else:
-                print(f"❌ Échec du positionnement du volet {shutter_id}.")
+                print(f"❌ Failed to set position of shutter {shutter_id}.")
 
     @staticmethod
     def open_all_shutters():
-        """Ouvre tous les volets."""
+        """Opens all shutters."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             shutters = controller.get_all_shutters()
 
             if not shutters:
-                print("Aucun volet trouvé.")
+                print("No shutters found.")
                 return
 
             success_count = 0
@@ -572,17 +573,17 @@ class DeviceStateCommands:
                 if controller.open(shutter.id):
                     success_count += 1
 
-            print(f"✅ {success_count}/{len(shutters)} volets ouverts.")
+            print(f"✅ {success_count}/{len(shutters)} shutters opened.")
 
     @staticmethod
     def close_all_shutters():
-        """Ferme tous les volets."""
+        """Closes all shutters."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_shutter_controller()
             shutters = controller.get_all_shutters()
 
             if not shutters:
-                print("Aucun volet trouvé.")
+                print("No shutters found.")
                 return
 
             success_count = 0
@@ -590,41 +591,41 @@ class DeviceStateCommands:
                 if controller.close(shutter.id):
                     success_count += 1
 
-            print(f"✅ {success_count}/{len(shutters)} volets fermés.")
+            print(f"✅ {success_count}/{len(shutters)} shutters closed.")
 
     @staticmethod
     def update_sensor_value(sensor_id: str, value: float):
-        """Met à jour la valeur d'un capteur."""
+        """Updates the value of a sensor."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_sensor_controller()
             success = controller.update_value(sensor_id, value)
 
             if success:
-                print(f"✅ Capteur {sensor_id} mis à jour avec la valeur {value}.")
+                print(f"✅ Sensor {sensor_id} updated with value {value}.")
             else:
-                print(f"❌ Échec de la mise à jour du capteur {sensor_id}.")
+                print(f"❌ Failed to update sensor {sensor_id}.")
 
     @staticmethod
     def reset_sensor(sensor_id: str):
-        """Remet à zéro un capteur."""
+        """Resets a sensor."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_sensor_controller()
             success = controller.reset_value(sensor_id)
 
             if success:
-                print(f"✅ Capteur {sensor_id} remis à zéro.")
+                print(f"✅ Sensor {sensor_id} reset.")
             else:
-                print(f"❌ Échec de la remise à zéro du capteur {sensor_id}.")
+                print(f"❌ Failed to reset sensor {sensor_id}.")
 
     @staticmethod
     def reset_all_sensors():
-        """Remet à zéro tous les capteurs."""
+        """Resets all sensors."""
         with scoped_service_provider.create_scope() as provider:
             controller = provider.get_sensor_controller()
             sensors = controller.get_all_sensors()
 
             if not sensors:
-                print("Aucun capteur trouvé.")
+                print("No sensors found.")
                 return
 
             success_count = 0
@@ -632,7 +633,7 @@ class DeviceStateCommands:
                 if controller.reset_value(sensor.id):
                     success_count += 1
 
-            print(f"✅ {success_count}/{len(sensors)} capteurs remis à zéro.")
+            print(f"✅ {success_count}/{len(sensors)} sensors reset.")
 
 
 # === COMMANDES TYPER ===
@@ -640,19 +641,19 @@ class DeviceStateCommands:
 
 @app.command()
 def device_list():
-    """Affiche la liste des dispositifs."""
+    """Displays the list of devices."""
     DeviceListCommands.list_all_devices()
 
 
 @app.command()
 def device_add(device_type: str, name: str, location: Optional[str] = None):
     """
-    Ajoute un nouveau dispositif.
+    Adds a new device.
 
     Args:
-        device_type (str): Type de dispositif (light, shutter, sensor)
-        name (str): Nom du dispositif
-        location (str, optional): Emplacement du dispositif
+        device_type (str): Device type (light, shutter, sensor)
+        name (str): Device name
+        location (str, optional): Device location
     """
     device_type = device_type.lower()
 
@@ -663,25 +664,25 @@ def device_add(device_type: str, name: str, location: Optional[str] = None):
     elif device_type == "sensor":
         DeviceCreateCommands.create_sensor(name, location)
     else:
-        print(f"❌ Type de dispositif non supporté: {device_type}")
-        print("Types supportés: light, shutter, sensor")
+        print(f"❌ Unsupported device type: {device_type}")
+        print("Supported types: light, shutter, sensor")
 
 
 @app.command()
 def device_remove(device_id: str):
     """
-    Supprime un dispositif par son ID.
+    Removes a device by its ID.
 
     Args:
-        device_id (str): Identifiant du dispositif à supprimer
+        device_id (str): ID of the device to remove
     """
     with scoped_service_provider.create_scope() as provider:
         controller = provider.get_device_controller()
 
-        # Tenter de supprimer selon le type
+        # Attempt to remove by type
         device = controller.get_device(device_id)
         if not device:
-            print(f"❌ Dispositif {device_id} non trouvé.")
+            print(f"❌ Device {device_id} not found.")
             return
 
         success = False
@@ -696,18 +697,18 @@ def device_remove(device_id: str):
             success = sensor_controller.delete_sensor(device_id)
 
         if success:
-            print(f"✅ Dispositif {device_id} supprimé avec succès.")
+            print(f"✅ Device {device_id} successfully removed.")
         else:
-            print(f"❌ Erreur lors de la suppression du dispositif {device_id}.")
+            print(f"❌ Error removing device {device_id}.")
 
 
 @app.command()
 def device_status(device_id: str):
     """
-    Affiche le statut d'un dispositif.
+    Displays the status of a device.
 
     Args:
-        device_id (str): Identifiant du dispositif
+        device_id (str): Device ID
     """
     DeviceListCommands.show_device(device_id)
 
@@ -718,10 +719,10 @@ def device_status(device_id: str):
 @app.command()
 def light_on(light_id: str):
     """
-    Allume une lampe.
+    Turns on a light.
 
     Args:
-        light_id (str): Identifiant de la lampe
+        light_id (str): Light ID
     """
     DeviceStateCommands.turn_on_light(light_id)
 
@@ -729,10 +730,10 @@ def light_on(light_id: str):
 @app.command()
 def light_off(light_id: str):
     """
-    Éteint une lampe.
+    Turns off a light.
 
     Args:
-        light_id (str): Identifiant de la lampe
+        light_id (str): Light ID
     """
     DeviceStateCommands.turn_off_light(light_id)
 
@@ -740,29 +741,29 @@ def light_off(light_id: str):
 @app.command()
 def light_toggle(light_id: str):
     """
-    Bascule l'état d'une lampe (allumée <-> éteinte).
+    Toggles the state of a light (on <-> off).
 
     Args:
-        light_id (str): Identifiant de la lampe
+        light_id (str): Light ID
     """
     DeviceStateCommands.toggle_light(light_id)
 
 
 @app.command()
 def lights_list():
-    """Affiche la liste de toutes les lampes."""
+    """Displays the list of all lights."""
     DeviceListCommands.list_lights()
 
 
 @app.command()
 def lights_on():
-    """Allume toutes les lampes."""
+    """Turns on all lights."""
     DeviceStateCommands.turn_on_all_lights()
 
 
 @app.command()
 def lights_off():
-    """Éteint toutes les lampes."""
+    """Turns off all lights."""
     DeviceStateCommands.turn_off_all_lights()
 
 
@@ -772,10 +773,10 @@ def lights_off():
 @app.command()
 def shutter_open(shutter_id: str):
     """
-    Ouvre un volet.
+    Opens a shutter.
 
     Args:
-        shutter_id (str): Identifiant du volet
+        shutter_id (str): Shutter ID
     """
     DeviceStateCommands.open_shutter(shutter_id)
 
@@ -783,10 +784,10 @@ def shutter_open(shutter_id: str):
 @app.command()
 def shutter_close(shutter_id: str):
     """
-    Ferme un volet.
+    Closes a shutter.
 
     Args:
-        shutter_id (str): Identifiant du volet
+        shutter_id (str): Shutter ID
     """
     DeviceStateCommands.close_shutter(shutter_id)
 
@@ -794,10 +795,10 @@ def shutter_close(shutter_id: str):
 @app.command()
 def shutter_toggle(shutter_id: str):
     """
-    Bascule l'état d'un volet (ouvert <-> fermé).
+    Toggles the state of a shutter (open <-> closed).
 
     Args:
-        shutter_id (str): Identifiant du volet
+        shutter_id (str): Shutter ID
     """
     DeviceStateCommands.toggle_shutter(shutter_id)
 
@@ -805,30 +806,30 @@ def shutter_toggle(shutter_id: str):
 @app.command()
 def shutter_position(shutter_id: str, position: int):
     """
-    Définit la position d'un volet.
+    Sets the position of a shutter.
 
     Args:
-        shutter_id (str): Identifiant du volet
-        position (int): Position en pourcentage (0-100)
+        shutter_id (str): Shutter ID
+        position (int): Position in percentage (0-100)
     """
     DeviceStateCommands.set_shutter_position(shutter_id, position)
 
 
 @app.command()
 def shutters_list():
-    """Affiche la liste de tous les volets."""
+    """Displays the list of all shutters."""
     DeviceListCommands.list_shutters()
 
 
 @app.command()
 def shutters_open():
-    """Ouvre tous les volets."""
+    """Opens all shutters."""
     DeviceStateCommands.open_all_shutters()
 
 
 @app.command()
 def shutters_close():
-    """Ferme tous les volets."""
+    """Closes all shutters."""
     DeviceStateCommands.close_all_shutters()
 
 
@@ -838,11 +839,11 @@ def shutters_close():
 @app.command()
 def sensor_update(sensor_id: str, value: float):
     """
-    Met à jour la valeur d'un capteur.
+    Updates the value of a sensor.
 
     Args:
-        sensor_id (str): Identifiant du capteur
-        value (float): Nouvelle valeur du capteur
+        sensor_id (str): Sensor ID
+        value (float): New sensor value
     """
     DeviceStateCommands.update_sensor_value(sensor_id, value)
 
@@ -850,23 +851,23 @@ def sensor_update(sensor_id: str, value: float):
 @app.command()
 def sensor_reset(sensor_id: str):
     """
-    Remet à zéro un capteur.
+    Resets a sensor.
 
     Args:
-        sensor_id (str): Identifiant du capteur
+        sensor_id (str): Sensor ID
     """
     DeviceStateCommands.reset_sensor(sensor_id)
 
 
 @app.command()
 def sensors_list():
-    """Affiche la liste de tous les capteurs."""
+    """Displays the list of all sensors."""
     DeviceListCommands.list_sensors()
 
 
 @app.command()
 def sensors_reset():
-    """Remet à zéro tous les capteurs."""
+    """Resets all sensors."""
     DeviceStateCommands.reset_all_sensors()
 
 
@@ -876,10 +877,10 @@ def sensors_reset():
 @app.command()
 def devices_by_location(location: str):
     """
-    Affiche tous les dispositifs d'un emplacement.
+    Displays all devices in a location.
 
     Args:
-        location (str): Nom de l'emplacement
+        location (str): Location name
     """
     DeviceListCommands.list_devices_by_location(location)
 
@@ -887,17 +888,17 @@ def devices_by_location(location: str):
 @app.command()
 def device_search(name: str):
     """
-    Recherche des dispositifs par nom.
+    Searches for devices by name.
 
     Args:
-        name (str): Nom ou partie du nom à rechercher
+        name (str): Name or part of the name to search
     """
     DeviceListCommands.search_devices(name)
 
 
 @app.command()
 def locations_list():
-    """Affiche la liste de tous les emplacements."""
+    """Displays the list of all locations."""
     DeviceListCommands.list_locations()
 
 
@@ -906,19 +907,19 @@ def locations_list():
 
 @app.command()
 def devices_summary():
-    """Affiche un résumé de tous les dispositifs."""
+    """Displays a summary of all devices."""
     DeviceListCommands.show_devices_summary()
 
 
 @app.command()
 def devices_on():
-    """Affiche tous les dispositifs allumés/ouverts/actifs."""
+    """Displays all turned on/open/active devices."""
     DeviceListCommands.list_active_devices()
 
 
 @app.command()
 def devices_off():
-    """Affiche tous les dispositifs éteints/fermés/inactifs."""
+    """Displays all turned off/closed/inactive devices."""
     DeviceListCommands.list_inactive_devices()
 
 

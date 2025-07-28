@@ -1,12 +1,12 @@
 """
-Contrôleur générique pour la gestion de tous les types de dispositifs.
+Generic controller for managing all types of devices.
 
-Ce module contient le DeviceController qui fournit une interface unifiée
-pour gérer tous les types de dispositifs (Light, Shutter, Sensor) en utilisant
-le pattern Repository pour la persistance des données.
+This module contains the DeviceController which provides a unified interface
+for managing all types of devices (Light, Shutter, Sensor) using
+the Repository pattern for data persistence.
 
 Classes:
-    DeviceController: Contrôleur générique pour tous les types de dispositifs
+    DeviceController: Generic controller for all device types
 """
 
 from typing import Dict, List, Optional
@@ -21,36 +21,36 @@ from domotix.repositories.device_repository import DeviceRepository
 
 class DeviceController:
     """
-    Contrôleur générique pour la gestion de tous les types de dispositifs.
+    Generic controller for managing all types of devices.
 
-    Ce contrôleur fournit une interface unifiée pour gérer tous les types
-    de dispositifs dans le système domotique.
+    This controller provides a unified interface for managing all types
+    of devices in the home automation system.
 
     Attributes:
-        _repository: Repository pour la persistance des données
+        _repository: Repository for data persistence
     """
 
     def __init__(self, device_repository: DeviceRepository):
         """
-        Initialise le contrôleur avec un repository.
+        Initializes the controller with a repository.
 
         Args:
-            device_repository: Repository pour la persistance des données
+            device_repository: Repository for data persistence
         """
         self._repository = device_repository
 
     def get_device(self, device_id: str) -> Optional[Device]:
         """
-        Récupère un dispositif par son ID.
+        Retrieves a device by its ID.
 
         Args:
-            device_id: ID du dispositif
+            device_id: Device ID
 
         Returns:
-            Optional[Device]: Le dispositif ou None si non trouvé
+            Optional[Device]: The device or None if not found
 
         Raises:
-            ControllerError: En cas d'erreur lors de la récupération
+            ControllerError: In case of error during retrieval
         """
         if not device_id or not device_id.strip():
             context = ErrorContext(
@@ -59,7 +59,7 @@ class DeviceController:
                 user_data={"device_id": device_id},
             )
             raise ControllerError(
-                message="ID de dispositif requis",
+                message="Device ID required",
                 error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
                 context=context,
             )
@@ -73,55 +73,55 @@ class DeviceController:
                 user_data={"device_id": device_id},
             )
             raise ControllerError(
-                message=f"Erreur lors de la récupération du dispositif {device_id}",
+                message=f"Error retrieving device {device_id}",
                 error_code=ErrorCode.CONTROLLER_OPERATION_FAILED,
                 context=context,
             ) from e
 
     def get_all_devices(self) -> List[Device]:
         """
-        Récupère tous les dispositifs.
+        Retrieves all devices.
 
         Returns:
-            List[Device]: Liste de tous les dispositifs
+            List[Device]: List of all devices
         """
         return self._repository.find_all()
 
     def get_devices_by_type(self, device_type: type) -> List[Device]:
         """
-        Récupère tous les dispositifs d'un type donné.
+        Retrieves all devices of a given type.
 
         Args:
-            device_type: Type de dispositif (Light, Shutter, Sensor)
+            device_type: Device type (Light, Shutter, Sensor)
 
         Returns:
-            List[Device]: Liste des dispositifs de ce type
+            List[Device]: List of devices of this type
         """
         all_devices = self.get_all_devices()
         return [device for device in all_devices if isinstance(device, device_type)]
 
     def get_devices_by_location(self, location: str) -> List[Device]:
         """
-        Récupère tous les dispositifs d'un emplacement donné.
+        Retrieves all devices in a given location.
 
         Args:
-            location: Emplacement à rechercher
+            location: Location to search
 
         Returns:
-            List[Device]: Liste des dispositifs dans cet emplacement
+            List[Device]: List of devices in this location
         """
         all_devices = self.get_all_devices()
         return [device for device in all_devices if device.location == location]
 
     def get_device_status(self, device_id: str) -> Optional[Dict]:
         """
-        Récupère le statut d'un dispositif.
+        Retrieves the status of a device.
 
         Args:
-            device_id: ID du dispositif
+            device_id: Device ID
 
         Returns:
-            Optional[Dict]: Statut du dispositif ou None si non trouvé
+            Optional[Dict]: Device status or None if not found
         """
         device = self.get_device(device_id)
         if device:
@@ -130,14 +130,14 @@ class DeviceController:
 
     def update_device_state(self, device_id: str, new_state: Dict) -> bool:
         """
-        Met à jour l'état d'un dispositif.
+        Updates the state of a device.
 
         Args:
-            device_id: ID du dispositif
-            new_state: Nouvel état à appliquer
+            device_id: Device ID
+            new_state: New state to apply
 
         Returns:
-            bool: True si la mise à jour a réussi
+            bool: True if the update was successful
         """
         device = self.get_device(device_id)
         if device:
@@ -149,22 +149,22 @@ class DeviceController:
 
     def delete_device(self, device_id: str) -> bool:
         """
-        Supprime un dispositif.
+        Deletes a device.
 
         Args:
-            device_id: ID du dispositif
+            device_id: Device ID
 
         Returns:
-            bool: True si la suppression a réussi
+            bool: True if the deletion was successful
         """
         return self._repository.delete(device_id)
 
     def get_devices_summary(self) -> Dict[str, int]:
         """
-        Récupère un résumé du nombre de dispositifs par type.
+        Retrieves a summary of the number of devices by type.
 
         Returns:
-            Dict[str, int]: Dictionnaire avec le nombre de dispositifs par type
+            Dict[str, int]: Dictionary with the number of devices by type
         """
         all_devices = self.get_all_devices()
         summary = {
@@ -177,10 +177,10 @@ class DeviceController:
 
     def get_locations(self) -> List[str]:
         """
-        Récupère tous les emplacements uniques où des dispositifs sont installés.
+        Retrieves all unique locations where devices are installed.
 
         Returns:
-            List[str]: Liste des emplacements uniques
+            List[str]: List of unique locations
         """
         all_devices = self.get_all_devices()
         locations = set()
@@ -191,13 +191,13 @@ class DeviceController:
 
     def search_devices(self, query: str) -> List[Device]:
         """
-        Recherche des dispositifs par nom ou emplacement.
+        Searches for devices by name or location.
 
         Args:
-            query: Terme de recherche
+            query: Search term
 
         Returns:
-            List[Device]: Liste des dispositifs correspondants
+            List[Device]: List of matching devices
         """
         all_devices = self.get_all_devices()
         query_lower = query.lower()
@@ -215,16 +215,16 @@ class DeviceController:
         self, device_ids: List[str], operation: str, **kwargs
     ) -> Dict[str, bool]:
         """
-        Effectue une opération en lot sur plusieurs dispositifs.
+        Performs a bulk operation on multiple devices.
 
         Args:
-            device_ids: Liste des IDs des dispositifs
-            operation: Opération à effectuer ("turn_on", "turn_off", "open",
+            device_ids: List of device IDs
+            operation: Operation to perform ("turn_on", "turn_off", "open",
             "close", etc.)
-            **kwargs: Arguments supplémentaires pour l'opération
+            **kwargs: Additional arguments for the operation
 
         Returns:
-            Dict[str, bool]: Résultats de l'opération pour chaque dispositif
+            Dict[str, bool]: Results of the operation for each device
         """
         results = {}
 

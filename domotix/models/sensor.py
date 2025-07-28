@@ -1,20 +1,20 @@
 """
-Module du modèle Sensor pour les capteurs et dispositifs de mesure.
+Sensor model module for sensors and measurement devices.
 
-Ce module contient la classe Sensor qui représente un capteur ou dispositif
-de mesure dans le système domotique. Elle hérite de Device et ajoute des
-fonctionnalités spécifiques à la collecte et stockage de valeurs.
+This module contains the Sensor class, which represents a sensor or measurement device
+in the home automation system. It inherits from Device and adds features
+specific to value collection and storage.
 
 Classes:
-    Sensor: Modèle pour les capteurs (température, humidité, luminosité, etc.)
+    Sensor: Model for sensors (temperature, humidity, light, etc.)
 
 Example:
     >>> from domotix.models import Sensor
-    >>> capteur = Sensor("Capteur température salon", "Salon")
-    >>> capteur.update_value(22.5)
-    >>> print(capteur.value)
+    >>> sensor = Sensor("Living Room Temperature Sensor", "Living Room")
+    >>> sensor.update_value(22.5)
+    >>> print(sensor.value)
     22.5
-    >>> print(capteur.get_status())
+    >>> print(sensor.get_status())
     VALUE_22.5
 """
 
@@ -28,53 +28,54 @@ from .device import Device
 
 class Sensor(Device):
     """
-    Modèle pour les capteurs et dispositifs de mesure.
+    Model for sensors and measurement devices.
 
-    Cette classe représente tous types de capteurs (température, humidité,
-    luminosité, mouvement, etc.) qui collectent et stockent des valeurs
-    numériques dans le système domotique.
+    This class represents all types of sensors (temperature, humidity,
+    light, motion, etc.) that collect and store numerical values
+    in the home automation system.
 
     Attributes:
-        value (Optional[Union[int, float]]): Valeur actuelle du capteur
-        name (str): Nom descriptif hérité de Device
-        id (str): Identifiant unique hérité de Device
+        value (Optional[Union[int, float]]): Current value of the sensor
+        name (str): Descriptive name inherited from Device
+        id (str): Unique identifier inherited from Device
 
     Example:
-        >>> capteur = Sensor("Thermomètre extérieur", "Jardin")
-        >>> capteur.update_value(-5.2)
-        >>> assert capteur.value == -5.2
-        >>> print(capteur.get_status())
+        >>> sensor = Sensor("Outdoor Thermometer", "Garden")
+        >>> sensor.update_value(-5.2)
+        >>> assert sensor.value == -5.2
+        >>> print(sensor.get_status())
         VALUE_-5.2
     """
 
     def __init__(self, name: str, location: Optional[str] = None) -> None:
         """
-        Initialise un nouveau capteur.
+        Initializes a new sensor.
 
         Args:
-            name: Nom descriptif du capteur (ex: "Capteur température salon",
-                 "Détecteur mouvement entrée", "Luxmètre jardin")
-            location: Emplacement du capteur (ex: "Salon", "Entrée", "Jardin")
+            name: Descriptive name of the sensor (e.g.,
+            "Living Room Temperature Sensor", "Entrance Motion Detector",
+            "Garden Light Meter")
+            location: Location of the sensor (e.g., "Living Room", "Entrance", "Garden")
         """
         super().__init__(name, DeviceType.SENSOR, location)
-        self.value: Optional[Union[int, float]] = None  # Aucune valeur initialement
+        self.value: Optional[Union[int, float]] = None  # No initial value
 
     def update_value(self, value: Union[int, float]) -> None:
         """
-        Met à jour la valeur du capteur.
+        Updates the sensor's value.
 
         Args:
-            value: Nouvelle valeur numérique du capteur
-                  (température en °C, humidité en %, luminosité en lux, etc.)
+            value: New numerical value of the sensor
+                  (temperature in °C, humidity in %, light in lux, etc.)
 
         Raises:
-            ValidationError: Si la valeur n'est pas numérique ou n'est pas valide
+            ValidationError: If the value is not numerical or not valid
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> capteur.update_value(42.7)
-            >>> assert capteur.value == 42.7
-            >>> capteur.update_value("invalid")  # Lève ValidationError
+            >>> sensor = Sensor("Test")
+            >>> sensor.update_value(42.7)
+            >>> assert sensor.value == 42.7
+            >>> sensor.update_value("invalid")  # Raises ValidationError
         """
         if not isinstance(value, (int, float)):
             context = ErrorContext(
@@ -90,14 +91,14 @@ class Sensor(Device):
             )
             raise ValidationError(
                 message=(
-                    f"La valeur du capteur '{self.name}' doit être numérique, "
-                    f"reçu: {type(value).__name__}"
+                    f"The value of the sensor '{self.name}' must be numerical, "
+                    f"received: {type(value).__name__}"
                 ),
                 error_code=ErrorCode.VALIDATION_INVALID_TYPE,
                 context=context,
             )
 
-        # Validation des valeurs spéciales
+        # Special value validation
         if math.isnan(value):  # NaN check
             context = ErrorContext(
                 module=__name__,
@@ -110,13 +111,13 @@ class Sensor(Device):
                 },
             )
             raise ValidationError(
-                message=f"Valeur invalide (NaN) pour le capteur '{self.name}'",
+                message=f"Invalid value (NaN) for the sensor '{self.name}'",
                 error_code=ErrorCode.VALIDATION_INVALID_FORMAT,
                 context=context,
             )
 
-        # Validation des infinis
-        if not (-float("inf") < value < float("inf")):
+        # Infinity validation
+        if not -float("inf") < value < float("inf"):
             context = ErrorContext(
                 module=__name__,
                 function="update_value",
@@ -128,30 +129,30 @@ class Sensor(Device):
                 },
             )
             raise ValidationError(
-                message=f"Valeur infinie non autorisée pour le capteur '{self.name}'",
+                message=f"Unauthorized infinite value for the sensor '{self.name}'",
                 error_code=ErrorCode.VALIDATION_OUT_OF_RANGE,
                 context=context,
             )
 
-        # Assignation de la valeur après validation
+        # Assign the value after validation
         self.value = value
 
     def validate_range(self, min_value: float, max_value: float) -> None:
         """
-        Valide que la valeur actuelle est dans la plage spécifiée.
+        Validates that the current value is within the specified range.
 
         Args:
-            min_value: Valeur minimale autorisée
-            max_value: Valeur maximale autorisée
+            min_value: Minimum allowed value
+            max_value: Maximum allowed value
 
         Raises:
-            ValidationError: Si la valeur est hors de la plage spécifiée
+            ValidationError: If the value is out of the specified range
 
         Example:
-            >>> capteur = Sensor("Thermomètre")
-            >>> capteur.update_value(25.0)
-            >>> capteur.validate_range(-50, 100)  # OK
-            >>> capteur.validate_range(30, 40)    # Lève ValidationError
+            >>> sensor = Sensor("Thermometer")
+            >>> sensor.update_value(25.0)
+            >>> sensor.validate_range(-50, 100)  # OK
+            >>> sensor.validate_range(30, 40)    # Raises ValidationError
         """
         if self.value is None:
             context = ErrorContext(
@@ -165,15 +166,12 @@ class Sensor(Device):
                 },
             )
             raise ValidationError(
-                message=(
-                    f"Impossible de valider la plage pour '{self.name}': "
-                    "aucune valeur définie"
-                ),
+                message=(f"Cannot validate range for '{self.name}': " "no value set"),
                 error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
                 context=context,
             )
 
-        if not (min_value <= self.value <= max_value):
+        if not min_value <= self.value <= max_value:
             context = ErrorContext(
                 module=__name__,
                 function="validate_range",
@@ -187,8 +185,8 @@ class Sensor(Device):
             )
             raise ValidationError(
                 message=(
-                    f"Valeur {self.value} du capteur '{self.name}' "
-                    f"hors de la plage [{min_value}, {max_value}]"
+                    f"Value {self.value} of the sensor '{self.name}' "
+                    f"out of range [{min_value}, {max_value}]"
                 ),
                 error_code=ErrorCode.VALIDATION_OUT_OF_RANGE,
                 context=context,
@@ -196,17 +194,17 @@ class Sensor(Device):
 
     def is_value_valid(self) -> bool:
         """
-        Vérifie si la valeur actuelle est valide.
+        Checks if the current value is valid.
 
         Returns:
-            bool: True si la valeur est définie et valide, False sinon
+            bool: True if the value is set and valid, False otherwise
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> capteur.is_value_valid()
+            >>> sensor = Sensor("Test")
+            >>> sensor.is_value_valid()
             False
-            >>> capteur.update_value(42.0)
-            >>> capteur.is_value_valid()
+            >>> sensor.update_value(42.0)
+            >>> sensor.is_value_valid()
             True
         """
         return (
@@ -218,58 +216,58 @@ class Sensor(Device):
 
     def get_status(self) -> str:
         """
-        Retourne l'état actuel du capteur.
+        Returns the current status of the sensor.
 
         Returns:
-            str: "VALUE_X" où X est la valeur actuelle du capteur
-                "NO_VALUE" si aucune valeur n'a été définie
+            str: "VALUE_X" where X is the current value of the sensor
+                "NO_VALUE" if no value has been set
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> print(capteur.get_status())
+            >>> sensor = Sensor("Test")
+            >>> print(sensor.get_status())
             NO_VALUE
-            >>> capteur.update_value(23.4)
-            >>> print(capteur.get_status())
+            >>> sensor.update_value(23.4)
+            >>> print(sensor.get_status())
             VALUE_23.4
         """
         return f"VALUE_{self.value}" if self.value is not None else "NO_VALUE"
 
     def get_state(self) -> dict:
         """
-        Retourne l'état actuel du capteur sous forme de dictionnaire.
+        Returns the current state of the sensor as a dictionary.
 
         Returns:
-            dict: Dictionnaire contenant l'état complet du capteur
-                 avec les clés 'value' et 'has_value'
+            dict: Dictionary containing the complete state of the sensor
+                 with keys 'value' and 'has_value'
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> print(capteur.get_state())
+            >>> sensor = Sensor("Test")
+            >>> print(sensor.get_state())
             {'value': None, 'has_value': False}
-            >>> capteur.update_value(25.3)
-            >>> print(capteur.get_state())
+            >>> sensor.update_value(25.3)
+            >>> print(sensor.get_state())
             {'value': 25.3, 'has_value': True}
         """
         return {"value": self.value, "has_value": self.value is not None}
 
     def update_state(self, new_state: dict) -> bool:
         """
-        Met à jour l'état du capteur à partir d'un dictionnaire.
+        Updates the sensor's state from a dictionary.
 
         Args:
-            new_state: Dictionnaire contenant le nouvel état
-                      doit contenir la clé 'value'
+            new_state: Dictionary containing the new state
+                      must contain the key 'value'
 
         Returns:
-            bool: True si la mise à jour a réussi, False sinon
+            bool: True if the update was successful, False otherwise
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> capteur.update_state({'value': 30.5})
+            >>> sensor = Sensor("Test")
+            >>> sensor.update_state({'value': 30.5})
             True
-            >>> print(capteur.value)
+            >>> print(sensor.value)
             30.5
-            >>> capteur.update_state({'invalid': 'data'})
+            >>> sensor.update_state({'invalid': 'data'})
             False
         """
         try:
@@ -288,47 +286,47 @@ class Sensor(Device):
 
     def has_value(self) -> bool:
         """
-        Vérifie si le capteur a une valeur définie.
+        Checks if the sensor has a defined value.
 
         Returns:
-            bool: True si une valeur a été définie, False sinon
+            bool: True if a value has been set, False otherwise
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> print(capteur.has_value())
+            >>> sensor = Sensor("Test")
+            >>> print(sensor.has_value())
             False
-            >>> capteur.update_value(0)
-            >>> print(capteur.has_value())
+            >>> sensor.update_value(0)
+            >>> print(sensor.has_value())
             True
         """
         return self.value is not None
 
     def reset(self) -> None:
         """
-        Remet le capteur à zéro (supprime la valeur actuelle).
+        Resets the sensor (removes the current value).
 
-        Utile pour réinitialiser un capteur défaillant ou pour
-        les capteurs à événements discrets.
+        Useful for resetting a faulty sensor or for
+        sensors with discrete events.
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> capteur.update_value(100)
-            >>> capteur.reset()
-            >>> assert capteur.value is None
+            >>> sensor = Sensor("Test")
+            >>> sensor.update_value(100)
+            >>> sensor.reset()
+            >>> assert sensor.value is None
         """
         self.value = None
 
     def reset_value(self) -> None:
         """
-        Alias pour reset() - remet le capteur à zéro.
+        Alias for reset() - resets the sensor.
 
-        Cette méthode est un alias de reset() pour la compatibilité
-        avec l'interface attendue par les contrôleurs.
+        This method is an alias for reset() for compatibility
+        with the interface expected by controllers.
 
         Example:
-            >>> capteur = Sensor("Test")
-            >>> capteur.update_value(50)
-            >>> capteur.reset_value()
-            >>> assert capteur.value is None
+            >>> sensor = Sensor("Test")
+            >>> sensor.update_value(50)
+            >>> sensor.reset_value()
+            >>> assert sensor.value is None
         """
         self.reset()

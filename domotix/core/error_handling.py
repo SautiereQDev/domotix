@@ -1,8 +1,8 @@
 """
-Décorateurs et utilitaires pour la gestion d'erreurs améliorée.
+Decorators and utilities for improved error handling.
 
-Ce module fournit des décorateurs et utilitaires pour améliorer
-la gestion d'erreurs dans toute l'application.
+This module provides decorators and utilities to enhance
+error handling throughout the application.
 """
 
 import functools
@@ -27,15 +27,15 @@ def handle_repository_errors(
     operation: str = "unknown", reraise: bool = True, default_return: Any = None
 ) -> Callable[[F], F]:
     """
-    Décorateur pour gérer les erreurs de repository.
+    Decorator to handle repository errors.
 
     Args:
-        operation: Nom de l'opération pour le contexte d'erreur
-        reraise: Si True, relance l'exception après logging
-        default_return: Valeur par défaut si pas de reraise
+        operation: Name of the operation for error context
+        reraise: If True, re-raises the exception after logging
+        default_return: Default value if no re-raise
 
     Returns:
-        Décorateur configuré
+        Configured decorator
     """
 
     def decorator(func: F) -> F:
@@ -44,34 +44,34 @@ def handle_repository_errors(
             try:
                 return func(*args, **kwargs)
             except IntegrityError as e:
-                logger.error(f"Contrainte violée lors de '{operation}': {e}")
+                logger.error("Constraint violated during '%s': %s", operation, e)
                 if reraise:
                     raise RepositoryError(
-                        f"Violation de contrainte lors de l'opération '{operation}'",
+                        f"Constraint violation during '{operation}' operation",
                         operation=operation,
                         error_code=ErrorCode.REPOSITORY_CONSTRAINT_VIOLATION,
                         cause=e,
-                    )
+                    ) from e
                 return default_return
             except SQLAlchemyError as e:
-                logger.error(f"Erreur SQLAlchemy lors de '{operation}': {e}")
+                logger.error("SQLAlchemy error during '%s': %s", operation, e)
                 if reraise:
                     raise RepositoryError(
-                        f"Erreur de base de données lors de l'opération '{operation}'",
+                        f"Database error during '{operation}' operation",
                         operation=operation,
                         error_code=ErrorCode.REPOSITORY_CONNECTION_ERROR,
                         cause=e,
-                    )
+                    ) from e
                 return default_return
             except Exception as e:
-                logger.exception(f"Erreur inattendue lors de '{operation}': {e}")
+                logger.exception("Unexpected error during '%s': %s", operation, e)
                 if reraise:
                     raise RepositoryError(
-                        f"Erreur inattendue lors de l'opération '{operation}'",
+                        f"Unexpected error during '{operation}' operation",
                         operation=operation,
                         error_code=ErrorCode.REPOSITORY_CONNECTION_ERROR,
                         cause=e,
-                    )
+                    ) from e
                 return default_return
 
         return wrapper  # type: ignore[return-value]
@@ -81,17 +81,17 @@ def handle_repository_errors(
 
 def validate_device(device: Any) -> None:
     """
-    Valide un dispositif avant opération.
+    Validate a device before operation.
 
     Args:
-        device: Dispositif à valider
+        device: Device to validate
 
     Raises:
-        ValidationError: Si la validation échoue
+        ValidationError: If validation fails
     """
     if not device:
         raise ValidationError(
-            "Dispositif requis",
+            "Device required",
             field_name="device",
             field_value=device,
             error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
@@ -99,7 +99,7 @@ def validate_device(device: Any) -> None:
 
     if not hasattr(device, "name") or not device.name or not device.name.strip():
         raise ValidationError(
-            "Le nom du dispositif est requis",
+            "Device name is required",
             field_name="name",
             field_value=getattr(device, "name", None),
             error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
@@ -108,17 +108,17 @@ def validate_device(device: Any) -> None:
 
 def validate_device_id(device_id: str) -> None:
     """
-    Valide un ID de dispositif.
+    Validate a device ID.
 
     Args:
-        device_id: ID à valider
+        device_id: ID to validate
 
     Raises:
-        ValidationError: Si la validation échoue
+        ValidationError: If validation fails
     """
     if not device_id or not device_id.strip():
         raise ValidationError(
-            "ID de dispositif requis",
+            "Device ID required",
             field_name="device_id",
             field_value=device_id,
             error_code=ErrorCode.VALIDATION_REQUIRED_FIELD,
@@ -129,14 +129,14 @@ def handle_controller_errors(
     operation: str = "unknown", device_id: Optional[str] = None
 ) -> Callable[[F], F]:
     """
-    Décorateur pour gérer les erreurs de contrôleur.
+    Decorator to handle controller errors.
 
     Args:
-        operation: Nom de l'opération
-        device_id: ID du dispositif concerné (optionnel)
+        operation: Name of the operation
+        device_id: ID of the concerned device (optional)
 
     Returns:
-        Décorateur configuré
+        Configured decorator
     """
 
     def decorator(func: F) -> F:
@@ -145,28 +145,28 @@ def handle_controller_errors(
             try:
                 return func(*args, **kwargs)
             except ValidationError:
-                # Répropagate les erreurs de validation
+                # Re-raise validation errors
                 raise
             except RepositoryError:
-                # Répropagate les erreurs de repository
+                # Re-raise repository errors
                 raise
             except DeviceError:
-                # Répropagage les erreurs de dispositif
+                # Re-raise device errors
                 raise
             except Exception as e:
-                logger.exception(f"Erreur contrôleur lors de '{operation}': {e}")
-                # Enrichir avec le contexte du contrôleur
+                logger.exception("Controller error during '%s': %s", operation, e)
+                # Enrich with controller context
                 actual_device_id = (
                     device_id
                     or kwargs.get("device_id")
                     or (args[1] if len(args) > 1 else None)
                 )
                 raise DeviceError(
-                    f"Erreur lors de l'opération '{operation}' sur le dispositif",
+                    f"Error during '{operation}' operation on device",
                     device_id=actual_device_id,
                     error_code=ErrorCode.CONTROLLER_OPERATION_FAILED,
                     cause=e,
-                )
+                ) from e
 
         return wrapper  # type: ignore[return-value]
 
@@ -177,36 +177,36 @@ def safe_execute(
     func: Callable, *args, default_return: Any = None, log_errors: bool = True, **kwargs
 ) -> Any:
     """
-    Exécute une fonction de manière sécurisée avec gestion d'erreurs.
+    Execute a function safely with error handling.
 
     Args:
-        func: Fonction à exécuter
-        *args: Arguments positionnels
-        default_return: Valeur par défaut en cas d'erreur
-        log_errors: Si True, log les erreurs
-        **kwargs: Arguments nommés
+        func: Function to execute
+        *args: Positional arguments
+        default_return: Default value in case of error
+        log_errors: If True, logs errors
+        **kwargs: Named arguments
 
     Returns:
-        Résultat de la fonction ou valeur par défaut
+        Result of the function or default value
     """
     try:
         return func(*args, **kwargs)
     except Exception as e:
         if log_errors:
-            logger.exception(f"Erreur lors de l'exécution de {func.__name__}: {e}")
+            logger.exception("Error during execution of %s: %s", func.__name__, e)
         return default_return
 
 
 class ErrorContext:
-    """Gestionnaire de contexte pour capturer et enrichir les erreurs."""
+    """Context manager to capture and enrich errors."""
 
     def __init__(self, operation: str, **context):
         """
-        Initialise le contexte d'erreur.
+        Initialize error context.
 
         Args:
-            operation: Nom de l'opération
-            **context: Contexte additionnel
+            operation: Name of the operation
+            **context: Additional context
         """
         self.operation = operation
         self.context = context
@@ -216,12 +216,12 @@ class ErrorContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type and issubclass(exc_type, Exception):
-            # Enrichir l'exception avec le contexte
+            # Enrich the exception with context
             if hasattr(exc_val, "operation"):
                 exc_val.operation = self.operation
             if hasattr(exc_val, "context"):
                 exc_val.context.update(self.context)
-        return False  # Ne supprime pas l'exception
+        return False  # Does not suppress the exception
 
 
 def create_validation_error(
@@ -231,16 +231,16 @@ def create_validation_error(
     suggestions: Optional[list] = None,
 ) -> ValidationError:
     """
-    Crée une erreur de validation avec suggestions.
+    Create a validation error with suggestions.
 
     Args:
-        message: Message d'erreur
-        field_name: Nom du champ
-        field_value: Valeur du champ
-        suggestions: Suggestions pour corriger l'erreur
+        message: Error message
+        field_name: Field name
+        field_value: Field value
+        suggestions: Suggestions to correct the error
 
     Returns:
-        ValidationError configurée
+        Configured ValidationError
     """
     error = ValidationError(
         message,
@@ -257,16 +257,16 @@ def create_validation_error(
 
 def format_error_for_user(error: Exception) -> str:
     """
-    Formate une erreur pour l'affichage utilisateur.
+    Format an error for user display.
 
     Args:
-        error: Exception à formater
+        error: Exception to format
 
     Returns:
-        Message formaté pour l'utilisateur
+        Formatted message for the user
     """
     if hasattr(error, "error_code") and hasattr(error, "context"):
-        # Erreur Domotix avec contexte
+        # Domotix error with context
         if (
             hasattr(error.context, "user_data")
             and "suggestions" in error.context.user_data
@@ -274,5 +274,5 @@ def format_error_for_user(error: Exception) -> str:
             suggestions = error.context.user_data["suggestions"]
             return f"{str(error)}\\n💡 Suggestions: {', '.join(suggestions)}"
 
-    # Erreur standard
+    # Standard error
     return str(error)

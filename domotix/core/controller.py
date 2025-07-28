@@ -1,19 +1,19 @@
 """
-Module du controller principal du système domotique.
+Main controller module for the home automation system.
 
-Ce module contient la classe HomeAutomationController qui sert de point
-d'entrée principal pour interagir avec le système domotique. Elle utilise
-le StateManager pour gérer les dispositifs.
+This module contains the HomeAutomationController class, which serves as the main
+entry point for interacting with the home automation system. It uses
+StateManager to manage devices.
 
 Classes:
-    HomeAutomationController: Controller principal pour le système domotique
+    HomeAutomationController: Main controller for the home automation system
 
 Example:
     >>> from domotix.core import HomeAutomationController
     >>> from domotix.models import Light
     >>>
     >>> controller = HomeAutomationController()
-    >>> light = Light("Lampe salon", "Salon")
+    >>> light = Light("Living Room Lamp", "Living Room")
     >>> device_id = controller.register_device(light)
     >>> controller.turn_on(device_id)
     >>> print(controller.get_status(device_id))
@@ -22,23 +22,23 @@ Example:
 
 from typing import Dict, Optional
 
-from ..models import Device
+from ..models.device import Device
 from .state_manager import StateManager
 
 
 class HomeAutomationController:
     """
-    Controller principal pour le système domotique.
+    Main controller for the home automation system.
 
-    Cette classe sert de façade pour interagir avec le système domotique.
-    Elle utilise le StateManager pour gérer l'état des dispositifs.
+    This class acts as a facade to interact with the home automation system.
+    It uses the StateManager to manage the state of devices.
 
     Attributes:
-        _state_manager: Instance du StateManager singleton
+        _state_manager: Instance of the StateManager singleton
 
     Example:
         >>> controller = HomeAutomationController()
-        >>> light = Light("Lampe test", "Test")
+        >>> light = Light("Test Lamp", "Test")
         >>> device_id = controller.register_device(light)
         >>> controller.turn_on(device_id)
         >>> assert controller.get_status(device_id) == "ON"
@@ -46,21 +46,21 @@ class HomeAutomationController:
 
     def __init__(self) -> None:
         """
-        Initialise le controller.
+        Initializes the controller.
 
-        Récupère l'instance singleton du StateManager.
+        Retrieves the singleton instance of the StateManager.
         """
         self._state_manager = StateManager()
 
     def turn_on(self, device_id: str) -> bool:
         """
-        Allume un dispositif.
+        Turns on a device.
 
         Args:
-            device_id: Identifiant du dispositif à allumer
+            device_id: Identifier of the device to turn on
 
         Returns:
-            bool: True si l'opération a réussi, False sinon
+            bool: True if the operation was successful, False otherwise
         """
         try:
             device = self._state_manager.get_device(device_id)
@@ -73,13 +73,13 @@ class HomeAutomationController:
 
     def turn_off(self, device_id: str) -> bool:
         """
-        Éteint un dispositif.
+        Turns off a device.
 
         Args:
-            device_id: Identifiant du dispositif à éteindre
+            device_id: Identifier of the device to turn off
 
         Returns:
-            bool: True si l'opération a réussi, False sinon
+            bool: True if the operation was successful, False otherwise
         """
         try:
             device = self._state_manager.get_device(device_id)
@@ -92,18 +92,18 @@ class HomeAutomationController:
 
     def get_status(self, device_id: str) -> Optional[str]:
         """
-        Récupère le statut d'un dispositif.
+        Retrieves the status of a device.
 
         Args:
-            device_id: Identifiant du dispositif
+            device_id: Identifier of the device
 
         Returns:
-            Optional[str]: Statut du dispositif ou None si non trouvé
+            Optional[str]: Status of the device or None if not found
         """
         try:
             device = self._state_manager.get_device(device_id)
             state = device.get_state()
-            # Convertir l'état en string pour l'affichage
+            # Convert the state to string for display
             if hasattr(device, "is_on"):
                 return "ON" if device.is_on else "OFF"
             elif hasattr(device, "position"):
@@ -115,33 +115,33 @@ class HomeAutomationController:
 
     def register_device(self, device) -> str:
         """
-        Enregistre un nouveau dispositif.
+        Registers a new device.
 
         Args:
-            device: Instance de Device à enregistrer
+            device: Instance of Device to register
 
         Returns:
-            str: Identifiant unique du dispositif enregistré
+            str: Unique identifier of the registered device
         """
         return self._state_manager.register_device(device)
 
     def get_all_devices(self) -> Dict[str, Device]:
         """
-        Récupère tous les dispositifs.
+        Retrieves all devices.
 
         Returns:
-            Dict[str, Device]: Dictionnaire de tous les dispositifs
+            Dict[str, Device]: Dictionary of all devices
         """
         return self._state_manager.get_devices()
 
     def remove_device(self, device_id: str) -> bool:
         """
-        Supprime un dispositif.
+        Removes a device.
 
         Args:
-            device_id: Identifiant du dispositif à supprimer
+            device_id: Identifier of the device to remove
 
         Returns:
-            bool: True si la suppression a réussi, False sinon
+            bool: True if the removal was successful, False otherwise
         """
         return self._state_manager.unregister_device(device_id)

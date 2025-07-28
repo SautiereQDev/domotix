@@ -1,8 +1,8 @@
 """
-Configuration du conteneur d'injection de dépendance.
+Dependency injection container configuration.
 
-Ce module configure l'enregistrement de tous les services de l'application
-dans le conteneur DI selon les bonnes pratiques.
+This module configures the registration of all application services
+in the DI container according to best practices.
 """
 
 from sqlalchemy.orm import Session
@@ -23,114 +23,114 @@ from domotix.repositories import (
 )
 
 
-# Marquer les classes existantes comme injectables
+# Mark existing classes as injectable
 @Injectable(scope=Scope.SCOPED)
 class InjectedDeviceRepository(DeviceRepository):
-    """Repository de dispositifs avec injection de dépendance."""
+    """Device repository with dependency injection."""
 
     pass
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedLightRepository(LightRepository):
-    """Repository de lampes avec injection de dépendance."""
+    """Light repository with dependency injection."""
 
     pass
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedShutterRepository(ShutterRepository):
-    """Repository de volets avec injection de dépendance."""
+    """Shutter repository with dependency injection."""
 
     pass
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedSensorRepository(SensorRepository):
-    """Repository de capteurs avec injection de dépendance."""
+    """Sensor repository with dependency injection."""
 
     pass
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedDeviceController(DeviceController):
-    """Contrôleur de dispositifs avec injection de dépendance."""
+    """Device controller with dependency injection."""
 
     def __init__(self, device_repository: DeviceRepository) -> None:
         """
-        Initialise le contrôleur avec injection de dépendance.
+        Initialize the controller with dependency injection.
 
         Args:
-            device_repository: Repository injecté automatiquement
+            device_repository: Repository automatically injected
         """
         super().__init__(device_repository)
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedLightController(LightController):
-    """Contrôleur de lampes avec injection de dépendance."""
+    """Light controller with dependency injection."""
 
     def __init__(self, light_repository: DeviceRepository) -> None:
         """
-        Initialise le contrôleur avec injection de dépendance.
+        Initialize the controller with dependency injection.
 
         Args:
-            light_repository: Repository injecté automatiquement
+            light_repository: Repository automatically injected
         """
         super().__init__(light_repository)
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedShutterController(ShutterController):
-    """Contrôleur de volets avec injection de dépendance."""
+    """Shutter controller with dependency injection."""
 
     def __init__(self, shutter_repository: DeviceRepository) -> None:
         """
-        Initialise le contrôleur avec injection de dépendance.
+        Initialize the controller with dependency injection.
 
         Args:
-            shutter_repository: Repository injecté automatiquement
+            shutter_repository: Repository automatically injected
         """
         super().__init__(shutter_repository)
 
 
 @Injectable(scope=Scope.SCOPED)
 class InjectedSensorController(SensorController):
-    """Contrôleur de capteurs avec injection de dépendance."""
+    """Sensor controller with dependency injection."""
 
     def __init__(self, sensor_repository: DeviceRepository) -> None:
         """
-        Initialise le contrôleur avec injection de dépendance.
+        Initialize the controller with dependency injection.
 
         Args:
-            sensor_repository: Repository injecté automatiquement
+            sensor_repository: Repository automatically injected
         """
         super().__init__(sensor_repository)
 
 
 def configure_services(container: DIContainer) -> DIContainer:
     """
-    Configure tous les services dans le conteneur DI.
+    Configure all services in the DI container.
 
     Args:
-        container: Conteneur à configurer
+        container: Container to configure
 
     Returns:
-        DIContainer: Conteneur configuré
+        DIContainer: Configured container
     """
-    # Configuration de la session de base de données comme scoped
-    # Une nouvelle session par scope (ex: par requête HTTP, par commande CLI)
+    # Configure the database session as scoped
+    # A new session per scope (e.g., per HTTP request, per CLI command)
     container.register_scoped(Session, factory=create_session)
 
-    # Configuration des repositories comme scoped
-    # Un repository par scope, partageant la même session
+    # Configure repositories as scoped
+    # One repository per scope, sharing the same session
     container.register_scoped(DeviceRepository)
     container.register_scoped(LightRepository)
     container.register_scoped(ShutterRepository)
     container.register_scoped(SensorRepository)
 
-    # Configuration des contrôleurs comme scoped avec les versions injectables
-    # Un contrôleur par scope, avec injection automatique des repositories
+    # Configure controllers as scoped with injectable versions
+    # One controller per scope, with automatic repository injection
     container.register_scoped(
         DeviceController, implementation_type=InjectedDeviceController
     )

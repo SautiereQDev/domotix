@@ -1,12 +1,12 @@
 """
-Interfaces et protocoles pour l'architecture moderne de Domotix.
+Interfaces and protocols for the modern Domotix architecture.
 
-Ce module définit les interfaces et protocoles suivant les bonnes pratiques
-Python modernes avec typing et runtime protocols.
+This module defines interfaces and protocols following modern Python best practices
+with typing and runtime protocols.
 
 Protocols:
-    DeviceRepositoryProtocol: Interface pour les repositories de dispositifs
-    DeviceControllerProtocol: Interface pour les contrôleurs de dispositifs
+    DeviceRepositoryProtocol: Interface for device repositories
+    DeviceControllerProtocol: Interface for device controllers
 """
 
 from __future__ import annotations

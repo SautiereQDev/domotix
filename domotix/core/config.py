@@ -1,15 +1,15 @@
 """
-Configuration moderne pour l'application Domotix.
+Modern configuration for the Domotix application.
 
-Ce module utilise les dernières fonctionnalités Python pour la configuration:
-- dataclasses avec slots pour les performances
-- Pydantic pour la validation (si disponible)
-- Configuration par environnement avec des valeurs par défaut sensées
+This module uses the latest Python features for configuration:
+- dataclasses with slots for performance
+- Pydantic for validation (if available)
+- Environment-based configuration with sensible defaults
 
 Classes:
-    DatabaseConfig: Configuration de la base de données
-    ApplicationConfig: Configuration globale de l'application
-    LoggingConfig: Configuration du système de logs
+    DatabaseConfig: Database configuration
+    ApplicationConfig: Global application configuration
+    LoggingConfig: Logging system configuration
 """
 
 from __future__ import annotations

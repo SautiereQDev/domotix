@@ -1,8 +1,8 @@
 """
-Tests pour les factories modernes avec injection de dépendances.
+Tests for modern factories with dependency injection.
 
-Ce module contient tous les tests unitaires pour le nouveau système
-de factories utilisant l'injection de dépendances moderne.
+This module contains all unit tests for the new factory system
+using modern dependency injection.
 """
 
 from unittest.mock import Mock, patch
@@ -25,10 +25,10 @@ from domotix.repositories import (
 
 
 class TestModernRepositoryFactory:
-    """Tests pour le nouveau système de repository factory avec DI."""
+    """Tests for the new repository factory system with DI."""
 
     def test_create_device_repository_with_session(self):
-        """Test de création d'un DeviceRepository avec session."""
+        """Test creating a DeviceRepository with session."""
         # Arrange
         custom_session = Mock()
         repo_factory = get_repository_factory()
@@ -41,7 +41,7 @@ class TestModernRepositoryFactory:
         assert repository.session == custom_session
 
     def test_create_light_repository_with_session(self):
-        """Test de création d'un LightRepository avec session."""
+        """Test creating a LightRepository with session."""
         # Arrange
         custom_session = Mock()
         repo_factory = get_repository_factory()
@@ -54,7 +54,7 @@ class TestModernRepositoryFactory:
         assert repository.session == custom_session
 
     def test_create_shutter_repository_with_session(self):
-        """Test de création d'un ShutterRepository avec session."""
+        """Test creating a ShutterRepository with session."""
         # Arrange
         custom_session = Mock()
         repo_factory = get_repository_factory()
@@ -67,7 +67,7 @@ class TestModernRepositoryFactory:
         assert repository.session == custom_session
 
     def test_create_sensor_repository_with_session(self):
-        """Test de création d'un SensorRepository avec session."""
+        """Test creating a SensorRepository with session."""
         # Arrange
         custom_session = Mock()
         repo_factory = get_repository_factory()
@@ -80,21 +80,21 @@ class TestModernRepositoryFactory:
         assert repository.session == custom_session
 
     def test_repository_factory_singleton(self):
-        """Test que la repository factory est un singleton."""
+        """Test that the repository factory is a singleton."""
         # Act
         factory1 = get_repository_factory()
         factory2 = get_repository_factory()
 
         # Assert
-        assert factory1 is factory2, "Repository factory devrait être un singleton"
+        assert factory1 is factory2, "Repository factory should be a singleton"
 
 
 class TestModernControllerFactory:
-    """Tests pour le nouveau système de controller factory avec DI."""
+    """Tests for the new controller factory system with DI."""
 
     @patch("domotix.core.factories.RepositoryFactory")
     def test_create_device_controller_with_session(self, mock_repo_factory_class):
-        """Test de création d'un DeviceController avec session."""
+        """Test creating a DeviceController with session."""
         # Arrange
         custom_session = Mock()
         mock_repository = Mock(spec=DeviceRepository)
@@ -110,12 +110,12 @@ class TestModernControllerFactory:
 
         # Assert
         assert isinstance(controller, DeviceController)
-        # Vérifier que le repository a été injecté
+        # Check that the repository has been injected
         assert hasattr(controller, "_repository")
 
     @patch("domotix.core.factories.RepositoryFactory")
     def test_create_light_controller_with_session(self, mock_repo_factory_class):
-        """Test de création d'un LightController avec session."""
+        """Test creating a LightController with session."""
         # Arrange
         custom_session = Mock()
         mock_repository = Mock(spec=LightRepository)
@@ -135,7 +135,7 @@ class TestModernControllerFactory:
 
     @patch("domotix.core.factories.RepositoryFactory")
     def test_create_shutter_controller_with_session(self, mock_repo_factory_class):
-        """Test de création d'un ShutterController avec session."""
+        """Test creating a ShutterController with session."""
         # Arrange
         custom_session = Mock()
         mock_repository = Mock(spec=ShutterRepository)
@@ -155,7 +155,7 @@ class TestModernControllerFactory:
 
     @patch("domotix.core.factories.RepositoryFactory")
     def test_create_sensor_controller_with_session(self, mock_repo_factory_class):
-        """Test de création d'un SensorController avec session."""
+        """Test creating a SensorController with session."""
         # Arrange
         custom_session = Mock()
         mock_repository = Mock(spec=SensorRepository)
@@ -174,20 +174,20 @@ class TestModernControllerFactory:
         assert hasattr(controller, "_repository")
 
     def test_controller_factory_singleton(self):
-        """Test que la controller factory est un singleton."""
+        """Test that the controller factory is a singleton."""
         # Act
         factory1 = get_controller_factory()
         factory2 = get_controller_factory()
 
         # Assert
-        assert factory1 is factory2, "Controller factory devrait être un singleton"
+        assert factory1 is factory2, "Controller factory should be a singleton"
 
 
 class TestFactoryIntegration:
-    """Tests d'intégration pour le nouveau système de factories."""
+    """Integration tests for the new factory system."""
 
     def test_factory_singletons(self):
-        """Test que les factories sont des singletons."""
+        """Test that the factories are singletons."""
         # Act
         controller_factory1 = get_controller_factory()
         controller_factory2 = get_controller_factory()
@@ -201,7 +201,7 @@ class TestFactoryIntegration:
 
     @patch("domotix.core.database.create_session")
     def test_factories_with_dependency_injection(self, mock_create_session):
-        """Test du système DI avec les factories."""
+        """Test the DI system with the factories."""
         # Arrange
         mock_session = Mock()
         mock_create_session.return_value = mock_session
@@ -209,19 +209,19 @@ class TestFactoryIntegration:
         controller_factory = get_controller_factory()
         repo_factory = get_repository_factory()
 
-        # Act & Assert - vérifier qu'aucune exception n'est levée
+        # Act & Assert - check that no exception is raised
         try:
-            # Créer des repositories
+            # Create repositories
             device_repo = repo_factory.create_device_repository(mock_session)
             light_repo = repo_factory.create_light_repository(mock_session)
 
-            # Créer des contrôleurs
+            # Create controllers
             device_controller = controller_factory.create_device_controller(
                 mock_session
             )
             light_controller = controller_factory.create_light_controller(mock_session)
 
-            # Vérifier les types
+            # Check types
             assert isinstance(device_repo, DeviceRepository)
             assert isinstance(light_repo, LightRepository)
             assert isinstance(device_controller, DeviceController)
@@ -231,25 +231,25 @@ class TestFactoryIntegration:
             pytest.fail(f"Factory integration with DI failed: {e}")
 
     def test_modern_factory_architecture(self):
-        """Test de l'architecture moderne des factories."""
+        """Test the modern architecture of the factories."""
         # Act
         controller_factory = get_controller_factory()
         repo_factory = get_repository_factory()
 
-        # Assert - vérifier les attributs de l'architecture moderne
+        # Assert - check the attributes of the modern architecture
         assert hasattr(
             controller_factory, "_container"
-        ), "Controller factory devrait avoir un container DI"
+        ), "Controller factory should have a DI container"
         assert hasattr(
             repo_factory, "_container"
-        ), "Repository factory devrait avoir un container DI"
+        ), "Repository factory should have a DI container"
 
 
 class TestDependencyInjectionIntegration:
-    """Tests spécifiques à l'intégration avec le système DI."""
+    """Tests specific to integration with the DI system."""
 
     def test_service_provider_integration(self):
-        """Test de l'intégration avec le service provider."""
+        """Test integration with the service provider."""
         from domotix.core.service_provider import get_service_provider
 
         # Act
@@ -259,11 +259,11 @@ class TestDependencyInjectionIntegration:
         # Assert
         assert service_provider is not None
         assert controller_factory is not None
-        # Les factories utilisent le système DI moderne
+        # The factories use the modern DI system
         assert hasattr(controller_factory, "_container")
 
     def test_container_usage_in_factories(self):
-        """Test que les factories utilisent correctement le container DI."""
+        """Test that the factories correctly use the DI container."""
         # Act
         controller_factory = get_controller_factory()
         repo_factory = get_repository_factory()
@@ -271,48 +271,48 @@ class TestDependencyInjectionIntegration:
         # Assert
         assert controller_factory is not None
         assert repo_factory is not None
-        # Vérifier que le container est présent dans l'architecture
+        # Check that the container is present in the architecture
         assert hasattr(controller_factory, "_container")
         assert hasattr(repo_factory, "_container")
 
     def test_error_handling_with_modern_exceptions(self):
-        """Test de la gestion d'erreurs avec le nouveau système d'exceptions."""
+        """Test error handling with the new exception system."""
         from domotix.globals.exceptions import ControllerError
 
         # Act
         controller_factory = get_controller_factory()
 
-        # Assert - Test que les exceptions modernes sont utilisées
+        # Assert - Test that modern exceptions are used
         try:
-            # Tenter de créer avec session None devrait utiliser les
-            # nouvelles exceptions
+            # Attempting to create with session None should use the
+            # new exceptions
             controller_factory.create_device_controller(None)
         except ControllerError:
-            # C'est attendu avec le nouveau système
+            # This is expected with the new system
             pass
         except Exception as e:
-            # Vérifier que l'erreur est bien gérée
+            # Check that the error is properly handled
             assert e is not None
 
 
 class TestBackwardCompatibility:
-    """Tests de compatibilité avec l'ancien système."""
+    """Compatibility tests with the old system."""
 
     def test_legacy_imports_still_work(self):
-        """Test que les anciens imports fonctionnent encore."""
-        # Act & Assert - Les imports devraient fonctionner
+        """Test that old imports still work."""
+        # Act & Assert - The imports should work
         try:
             from domotix.core.factories import LegacyControllerFactory
 
-            # Les méthodes de compatibilité devraient exister
+            # Compatibility methods should exist
             assert hasattr(LegacyControllerFactory, "create_device_controller")
             assert hasattr(LegacyControllerFactory, "create_light_controller")
 
         except ImportError:
-            pytest.fail("La compatibilité avec l'ancien système a été rompue")
+            pytest.fail("Compatibility with the old system has been broken")
 
     def test_modern_vs_legacy_consistency(self):
-        """Test de cohérence entre nouveau et ancien système."""
+        """Test consistency between new and old systems."""
         # Arrange
         mock_session = Mock()
 
@@ -322,5 +322,5 @@ class TestBackwardCompatibility:
 
         # Assert
         assert isinstance(modern_controller, DeviceController)
-        # Le nouveau système doit créer les mêmes types que l'ancien
+        # The new system must create the same types as the old one
         assert hasattr(modern_controller, "_repository")

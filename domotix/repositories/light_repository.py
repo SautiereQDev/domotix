@@ -1,11 +1,11 @@
 """
-Repository spécialisé pour la gestion des dispositifs d'éclairage.
+Specialized repository for managing lighting devices.
 
-Ce module contient le LightRepository qui hérite du DeviceRepository
-et ajoute des méthodes spécialisées pour les lampes.
+This module contains the LightRepository, which inherits from DeviceRepository
+and adds specialized methods for lights.
 
 Classes:
-    LightRepository: Repository spécialisé pour les lampes
+    LightRepository: Specialized repository for lights
 """
 
 from typing import List
