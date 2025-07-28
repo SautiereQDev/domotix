@@ -1,27 +1,26 @@
 """
-Module de la commande pour fermer un volet.
+Module for the command to close a shutter.
 
 Classes:
-    CloseShutterCommand: Commande pour fermer un volet
+    CloseShutterCommand: Command to close a shutter
 """
 
 from .command import Command
 
 
 class CloseShutterCommand(Command):
-    """Commande pour fermer un volet."""
+    """Command to close a shutter."""
 
     def __init__(self, device):
         """
-        Initialise la commande.
+        Initialize the command.
 
         Args:
-            device: Volet à fermer
-            adapter: Adapter pour communiquer avec le volet
+            device: Shutter to close
         """
         self.device = device
 
     def execute(self):
-        """Exécute la commande de fermeture du volet."""
+        """Executes the shutter closing command."""
         if hasattr(self.device, "close"):
             self.device.close()

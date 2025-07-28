@@ -1,10 +1,10 @@
 # pylint: skip-file
 # pylint: disable=import-error,no-member
 """
-Tests pour les contrôleurs.
+Tests for controllers.
 
-Ce module contient tous les tests unitaires pour les contrôleurs
-qui gèrent les dispositifs domotiques.
+This module contains all unit tests for controllers
+that manage home automation devices.
 """
 
 from unittest.mock import MagicMock, Mock
@@ -23,13 +23,13 @@ from domotix.repositories.device_repository import DeviceRepository
 
 @pytest.fixture
 def mock_repository():
-    """Crée un mock du repository pour les tests."""
+    """Create a mock repository for tests."""
     mock = Mock(spec=DeviceRepository)
-    # Configurer les mocks pour retourner True
+    # Configure mocks to return True
     mock.update.return_value = True
     mock.delete.return_value = True
 
-    # Configurer save pour retourner un objet avec un id
+    # Configure save to return an object with an id
     saved_object = Mock()
     saved_object.id = "test-id"
     mock.save.return_value = saved_object
@@ -39,27 +39,27 @@ def mock_repository():
 
 @pytest.fixture
 def sample_light():
-    """Crée une lampe de test."""
-    return Light("Lampe test", "Salon")
+    """Create a test light."""
+    return Light("Test light", "Living Room")
 
 
 @pytest.fixture
 def sample_shutter():
-    """Crée un volet de test."""
-    return Shutter("Volet test", "Chambre")
+    """Create a test shutter."""
+    return Shutter("Test shutter", "Bedroom")
 
 
 @pytest.fixture
 def sample_sensor():
-    """Crée un capteur de test."""
-    return Sensor("Capteur test", "Jardin")
+    """Create a test sensor."""
+    return Sensor("Test sensor", "Garden")
 
 
 class TestLightController:
-    """Tests pour la classe LightController."""
+    """Tests for the LightController class."""
 
     def test_create_light(self, mock_repository):
-        """Test de création d'une lampe."""
+        """Test for creating a light."""
         # Arrange
         controller = LightController(mock_repository)
 
@@ -70,14 +70,14 @@ class TestLightController:
         assert result == "test-id"
         mock_repository.save.assert_called_once()
 
-        # Vérifier que l'argument passé est bien une Light
+        # Verify that the argument passed is indeed a Light
         call_args = mock_repository.save.call_args[0][0]
         assert isinstance(call_args, Light)
         assert call_args.name == "Lampe test"
         assert call_args.location == "Salon"
 
     def test_get_light_existing(self, mock_repository, sample_light):
-        """Test de récupération d'une lampe existante."""
+        """Test for retrieving an existing light."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_light
         controller = LightController(mock_repository)
@@ -90,7 +90,7 @@ class TestLightController:
         mock_repository.find_by_id.assert_called_once_with("test-id")
 
     def test_get_light_non_existing(self, mock_repository):
-        """Test de récupération d'une lampe inexistante."""
+        """Test for retrieving a non-existing light."""
         # Arrange
         mock_repository.find_by_id.return_value = None
         controller = LightController(mock_repository)
@@ -103,7 +103,7 @@ class TestLightController:
         mock_repository.find_by_id.assert_called_once_with("non-existent-id")
 
     def test_get_light_wrong_type(self, mock_repository, sample_shutter):
-        """Test de récupération avec un type incorrect."""
+        """Test for retrieval with an incorrect type."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_shutter
         controller = LightController(mock_repository)
@@ -115,7 +115,7 @@ class TestLightController:
         assert result is None
 
     def test_turn_on_success(self, mock_repository, sample_light):
-        """Test d'allumage réussi."""
+        """Test for successful turn on."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_light
         controller = LightController(mock_repository)
@@ -129,7 +129,7 @@ class TestLightController:
         mock_repository.update.assert_called_once_with(sample_light)
 
     def test_turn_on_light_not_found(self, mock_repository):
-        """Test d'allumage avec lampe non trouvée."""
+        """Test for turning on with light not found."""
         # Arrange
         mock_repository.find_by_id.return_value = None
         controller = LightController(mock_repository)
@@ -142,9 +142,9 @@ class TestLightController:
         mock_repository.save.assert_not_called()
 
     def test_turn_off_success(self, mock_repository, sample_light):
-        """Test d'extinction réussie."""
+        """Test for successful turn off."""
         # Arrange
-        sample_light.turn_on()  # Allumer d'abord
+        sample_light.turn_on()  # First turn on
         mock_repository.find_by_id.return_value = sample_light
         controller = LightController(mock_repository)
 
@@ -157,7 +157,7 @@ class TestLightController:
         mock_repository.update.assert_called_once_with(sample_light)
 
     def test_toggle_success(self, mock_repository, sample_light):
-        """Test de basculement réussi."""
+        """Test for successful toggle."""
         # Arrange
         initial_state = sample_light.is_on
         mock_repository.find_by_id.return_value = sample_light
@@ -172,11 +172,11 @@ class TestLightController:
         mock_repository.update.assert_called_once_with(sample_light)
 
     def test_get_all_lights(self, mock_repository):
-        """Test de récupération de toutes les lampes."""
+        """Test for retrieving all lights."""
         # Arrange
         light1 = Light("Lampe 1", "Salon")
         light2 = Light("Lampe 2", "Chambre")
-        shutter = Shutter("Volet", "Salon")  # Ne doit pas être inclus
+        shutter = Shutter("Volet", "Salon")  # Should not be included
 
         mock_repository.find_all.return_value = [light1, light2, shutter]
         controller = LightController(mock_repository)
@@ -191,7 +191,7 @@ class TestLightController:
         assert shutter not in result
 
     def test_delete_light(self, mock_repository):
-        """Test de suppression d'une lampe."""
+        """Test for deleting a light."""
         # Arrange
         mock_repository.delete.return_value = True
         controller = LightController(mock_repository)
@@ -205,10 +205,10 @@ class TestLightController:
 
 
 class TestShutterController:
-    """Tests pour la classe ShutterController."""
+    """Tests for the ShutterController class."""
 
     def test_create_shutter(self, mock_repository):
-        """Test de création d'un volet."""
+        """Test for creating a shutter."""
         # Arrange
         controller = ShutterController(mock_repository)
 
@@ -219,14 +219,14 @@ class TestShutterController:
         assert result == "test-id"
         mock_repository.save.assert_called_once()
 
-        # Vérifier que l'argument passé est bien un Shutter
+        # Verify that the argument passed is indeed a Shutter
         call_args = mock_repository.save.call_args[0][0]
         assert isinstance(call_args, Shutter)
         assert call_args.name == "Volet test"
         assert call_args.location == "Chambre"
 
     def test_open_success(self, mock_repository, sample_shutter):
-        """Test d'ouverture réussie."""
+        """Test for successful opening."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_shutter
         controller = ShutterController(mock_repository)
@@ -240,9 +240,9 @@ class TestShutterController:
         mock_repository.update.assert_called_once_with(sample_shutter)
 
     def test_close_success(self, mock_repository, sample_shutter):
-        """Test de fermeture réussie."""
+        """Test for successful closing."""
         # Arrange
-        sample_shutter.open()  # Ouvrir d'abord
+        sample_shutter.open()  # First open
         mock_repository.find_by_id.return_value = sample_shutter
         controller = ShutterController(mock_repository)
 
@@ -255,9 +255,9 @@ class TestShutterController:
         mock_repository.update.assert_called_once_with(sample_shutter)
 
     def test_set_position_success(self, mock_repository, sample_shutter):
-        """Test de définition de position."""
+        """Test for setting position."""
         # Arrange
-        # Ajouter la méthode set_position au mock
+        # Add the set_position method to the mock
         sample_shutter.set_position = MagicMock()
         mock_repository.find_by_id.return_value = sample_shutter
         controller = ShutterController(mock_repository)
@@ -271,7 +271,7 @@ class TestShutterController:
         mock_repository.update.assert_called_once_with(sample_shutter)
 
     def test_get_position_success(self, mock_repository, sample_shutter):
-        """Test de récupération de position."""
+        """Test for getting position."""
         # Arrange
         sample_shutter.position = 75
         mock_repository.find_by_id.return_value = sample_shutter
@@ -285,10 +285,10 @@ class TestShutterController:
 
 
 class TestSensorController:
-    """Tests pour la classe SensorController."""
+    """Tests for the SensorController class."""
 
     def test_create_sensor(self, mock_repository):
-        """Test de création d'un capteur."""
+        """Test for creating a sensor."""
         # Arrange
         controller = SensorController(mock_repository)
 
@@ -299,14 +299,14 @@ class TestSensorController:
         assert result == "test-id"
         mock_repository.save.assert_called_once()
 
-        # Vérifier que l'argument passé est bien un Sensor
+        # Verify that the argument passed is indeed a Sensor
         call_args = mock_repository.save.call_args[0][0]
         assert isinstance(call_args, Sensor)
         assert call_args.name == "Capteur test"
         assert call_args.location == "Jardin"
 
     def test_update_value_success(self, mock_repository, sample_sensor):
-        """Test de mise à jour de valeur réussie."""
+        """Test for successful value update."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_sensor
         controller = SensorController(mock_repository)
@@ -316,11 +316,11 @@ class TestSensorController:
 
         # Assert
         assert result is True
-        assert sample_sensor.value == 22.5
+        assert abs(sample_sensor.value - 22.5) < 1e-9
         mock_repository.update.assert_called_once_with(sample_sensor)
 
     def test_get_value_success(self, mock_repository, sample_sensor):
-        """Test de récupération de valeur."""
+        """Test for getting value."""
         # Arrange
         sample_sensor.update_value(18.7)
         mock_repository.find_by_id.return_value = sample_sensor
@@ -330,10 +330,10 @@ class TestSensorController:
         result = controller.get_value("test-id")
 
         # Assert
-        assert result == 18.7
+        assert abs(result - 18.7) < 1e-9
 
     def test_is_active_with_value(self, mock_repository, sample_sensor):
-        """Test de vérification d'activité avec valeur."""
+        """Test for activity check with value."""
         # Arrange
         sample_sensor.update_value(20.0)
         mock_repository.find_by_id.return_value = sample_sensor
@@ -346,7 +346,7 @@ class TestSensorController:
         assert result is True
 
     def test_is_active_without_value(self, mock_repository, sample_sensor):
-        """Test de vérification d'activité sans valeur."""
+        """Test for activity check without value."""
         # Arrange
         mock_repository.find_by_id.return_value = sample_sensor
         controller = SensorController(mock_repository)
@@ -358,7 +358,7 @@ class TestSensorController:
         assert result is False
 
     def test_reset_value_success(self, mock_repository, sample_sensor):
-        """Test de remise à zéro de valeur."""
+        """Test for resetting value."""
         # Arrange
         sample_sensor.update_value(25.0)
         mock_repository.find_by_id.return_value = sample_sensor
@@ -373,7 +373,7 @@ class TestSensorController:
         mock_repository.update.assert_called_once_with(sample_sensor)
 
     def test_get_sensors_by_location(self, mock_repository):
-        """Test de récupération de capteurs par emplacement."""
+        """Test for getting sensors by location."""
         # Arrange
         sensor1 = Sensor("Capteur 1", "Salon")
         sensor2 = Sensor("Capteur 2", "Salon")
@@ -393,10 +393,10 @@ class TestSensorController:
 
 
 class TestDeviceController:
-    """Tests pour la classe DeviceController."""
+    """Tests for the DeviceController class."""
 
     def test_get_devices_summary(self, mock_repository):
-        """Test de récupération du résumé des dispositifs."""
+        """Test for getting device summary."""
         # Arrange
         light = Light("Lampe", "Salon")
         shutter = Shutter("Volet", "Chambre")
@@ -416,11 +416,11 @@ class TestDeviceController:
         assert result["total"] == 4
 
     def test_get_locations(self, mock_repository):
-        """Test de récupération des emplacements."""
+        """Test for getting locations."""
         # Arrange
         light = Light("Lampe", "Salon")
         shutter = Shutter("Volet", "Chambre")
-        sensor = Sensor("Capteur", "Salon")  # Même emplacement que la lampe
+        sensor = Sensor("Capteur", "Salon")  # Same location as the lamp
 
         mock_repository.find_all.return_value = [light, shutter, sensor]
         controller = DeviceController(mock_repository)
@@ -431,10 +431,10 @@ class TestDeviceController:
         # Assert
         assert "Salon" in result
         assert "Chambre" in result
-        assert len(result) == 2  # Pas de doublons
+        assert len(result) == 2  # No duplicates
 
     def test_search_devices(self, mock_repository):
-        """Test de recherche de dispositifs."""
+        """Test for device search."""
         # Arrange
         light = Light("Lampe salon", "Salon")
         shutter = Shutter("Volet chambre", "Chambre")
@@ -447,13 +447,13 @@ class TestDeviceController:
         result = controller.search_devices("salon")
 
         # Assert
-        assert len(result) == 2  # Lampe et capteur contiennent "salon"
+        assert len(result) == 2  # Lampe and capteur contain "salon"
         assert light in result
         assert sensor in result
         assert shutter not in result
 
     def test_bulk_operation_turn_on(self, mock_repository):
-        """Test d'opération en lot pour allumer."""
+        """Test for bulk operation to turn on."""
         # Arrange
         light1 = Light("Lampe 1", "Salon")
         light2 = Light("Lampe 2", "Chambre")

@@ -1,32 +1,30 @@
 """
-Module de la commande pour allumer un dispositif.
+Module for the command to turn on a device.
 
 Classes:
-    TurnOnCommand: Commande pour allumer un dispositif
+    TurnOnCommand: Command to turn on a device
 """
 
 from .command import Command
 
 
 class TurnOnCommand(Command):
-    """Commande pour allumer un dispositif."""
+    """Command to turn on a device."""
 
     def __init__(self, device):
         """
-        Initialise la commande.
+        Initialize the command.
 
         Args:
-            device: Dispositif à allumer
+            device: Device to turn on
         """
         self.device = device
 
     def execute(self):
-        """Exécute la commande d'allumage."""
-        # Vérifier que le dispositif est une lumière
+        """Executes the turn on command."""
+        # Check that the device is a light
         if not hasattr(self.device, "turn_on") or not hasattr(self.device, "is_on"):
-            raise AttributeError(
-                f"Le dispositif {self.device.name} n'est pas une lumière"
-            )
+            raise AttributeError(f"Device {self.device.name} is not a light")
 
         if hasattr(self.device, "turn_on"):
             self.device.turn_on()

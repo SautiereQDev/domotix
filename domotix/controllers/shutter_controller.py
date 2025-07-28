@@ -1,12 +1,12 @@
 """
-Contrôleur pour la gestion des volets et stores.
+Controller for managing shutters and blinds.
 
-Ce module contient le ShutterController qui coordonne les opérations
-sur les volets et stores en utilisant le pattern Repository
-pour la persistance des données.
+This module contains the ShutterController which coordinates operations
+on shutters and blinds using the Repository pattern
+for data persistence.
 
 Classes:
-    ShutterController: Contrôleur pour les volets et stores
+    ShutterController: Controller for shutters and blinds
 """
 
 from typing import List, Optional
@@ -17,34 +17,34 @@ from domotix.repositories.device_repository import DeviceRepository
 
 class ShutterController:
     """
-    Contrôleur pour la gestion des volets et stores.
+    Controller for managing shutters and blinds.
 
-    Ce contrôleur utilise l'injection de dépendance pour recevoir
-    un repository et ne dépend pas d'un singleton pour la persistance.
+    This controller uses dependency injection to receive
+    a repository and does not depend on a singleton for persistence.
 
     Attributes:
-        _repository: Repository pour la persistance des données
+        _repository: Repository for data persistence
     """
 
     def __init__(self, shutter_repository: DeviceRepository):
         """
-        Initialise le contrôleur avec un repository.
+        Initializes the controller with a repository.
 
         Args:
-            shutter_repository: Repository pour la persistance des données de volets
+            shutter_repository: Repository for shutter data persistence
         """
         self._repository = shutter_repository
 
     def create_shutter(self, name: str, location: Optional[str] = None) -> str:
         """
-        Crée un nouveau volet.
+        Creates a new shutter.
 
         Args:
-            name: Nom du volet
-            location: Emplacement optionnel
+            name: Shutter name
+            location: Optional location
 
         Returns:
-            str: ID du volet créé
+            str: ID of the created shutter
         """
         shutter = Shutter(name=name, location=location)
         saved_shutter = self._repository.save(shutter)
@@ -52,13 +52,13 @@ class ShutterController:
 
     def get_shutter(self, shutter_id: str) -> Optional[Shutter]:
         """
-        Récupère un volet par son ID.
+        Retrieves a shutter by its ID.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            Optional[Shutter]: Le volet ou None si non trouvé
+            Optional[Shutter]: The shutter or None if not found
         """
         device = self._repository.find_by_id(shutter_id)
         if device and isinstance(device, Shutter):
@@ -67,23 +67,23 @@ class ShutterController:
 
     def get_all_shutters(self) -> List[Shutter]:
         """
-        Récupère tous les volets.
+        Retrieves all shutters.
 
         Returns:
-            List[Shutter]: Liste de tous les volets
+            List[Shutter]: List of all shutters
         """
         devices = self._repository.find_all()
         return [device for device in devices if isinstance(device, Shutter)]
 
     def open(self, shutter_id: str) -> bool:
         """
-        Ouvre un volet.
+        Opens a shutter.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         shutter = self.get_shutter(shutter_id)
         if shutter:
@@ -93,13 +93,13 @@ class ShutterController:
 
     def close(self, shutter_id: str) -> bool:
         """
-        Ferme un volet.
+        Closes a shutter.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         shutter = self.get_shutter(shutter_id)
         if shutter:
@@ -109,13 +109,13 @@ class ShutterController:
 
     def stop(self, shutter_id: str) -> bool:
         """
-        Arrête le mouvement d'un volet.
+        Stops the movement of a shutter.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         shutter = self.get_shutter(shutter_id)
         if shutter and hasattr(shutter, "stop"):
@@ -125,14 +125,14 @@ class ShutterController:
 
     def set_position(self, shutter_id: str, position: int) -> bool:
         """
-        Définit la position d'un volet.
+        Sets the position of a shutter.
 
         Args:
-            shutter_id: ID du volet
-            position: Position en pourcentage (0-100)
+            shutter_id: Shutter ID
+            position: Position in percentage (0-100)
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         shutter = self.get_shutter(shutter_id)
         if shutter and hasattr(shutter, "set_position"):
@@ -142,13 +142,13 @@ class ShutterController:
 
     def get_position(self, shutter_id: str) -> Optional[int]:
         """
-        Récupère la position d'un volet.
+        Retrieves the position of a shutter.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            Optional[int]: Position en pourcentage ou None si non trouvé
+            Optional[int]: Position in percentage or None if not found
         """
         shutter = self.get_shutter(shutter_id)
         if shutter and hasattr(shutter, "position"):
@@ -157,12 +157,12 @@ class ShutterController:
 
     def delete_shutter(self, shutter_id: str) -> bool:
         """
-        Supprime un volet.
+        Deletes a shutter.
 
         Args:
-            shutter_id: ID du volet
+            shutter_id: Shutter ID
 
         Returns:
-            bool: True si la suppression a réussi
+            bool: True if the deletion was successful
         """
         return self._repository.delete(shutter_id)

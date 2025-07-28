@@ -1,12 +1,12 @@
 """
-Contrôleur pour la gestion des dispositifs d'éclairage.
+Controller for managing lighting devices.
 
-Ce module contient le LightController qui coordonne les opérations
-sur les dispositifs d'éclairage en utilisant le pattern Repository
-pour la persistance des données.
+This module contains the LightController which coordinates operations
+on lighting devices using the Repository pattern
+for data persistence.
 
 Classes:
-    LightController: Contrôleur pour les lampes et dispositifs d'éclairage
+    LightController: Controller for lights and lighting devices
 """
 
 from typing import List, Optional
@@ -17,34 +17,34 @@ from domotix.repositories.device_repository import DeviceRepository
 
 class LightController:
     """
-    Contrôleur pour la gestion des dispositifs d'éclairage.
+    Controller for managing lighting devices.
 
-    Ce contrôleur utilise l'injection de dépendance pour recevoir
-    un repository et ne dépend pas d'un singleton pour la persistance.
+    This controller uses dependency injection to receive
+    a repository and does not depend on a singleton for persistence.
 
     Attributes:
-        _repository: Repository pour la persistance des données
+        _repository: Repository for data persistence
     """
 
     def __init__(self, light_repository: DeviceRepository):
         """
-        Initialise le contrôleur avec un repository.
+        Initializes the controller with a repository.
 
         Args:
-            light_repository: Repository pour la persistance des données de lampes
+            light_repository: Repository for light data persistence
         """
         self._repository = light_repository
 
     def create_light(self, name: str, location: Optional[str] = None) -> str:
         """
-        Crée une nouvelle lampe.
+        Creates a new light.
 
         Args:
-            name: Nom de la lampe
-            location: Emplacement optionnel
+            name: Light name
+            location: Optional location
 
         Returns:
-            str: ID de la lampe créée
+            str: ID of the created light
         """
         light = Light(name=name, location=location)
         saved_light = self._repository.save(light)
@@ -52,13 +52,13 @@ class LightController:
 
     def get_light(self, light_id: str) -> Optional[Light]:
         """
-        Récupère une lampe par son ID.
+        Retrieves a light by its ID.
 
         Args:
-            light_id: ID de la lampe
+            light_id: Light ID
 
         Returns:
-            Optional[Light]: La lampe ou None si non trouvée
+            Optional[Light]: The light or None if not found
         """
         device = self._repository.find_by_id(light_id)
         if device and isinstance(device, Light):
@@ -67,23 +67,23 @@ class LightController:
 
     def get_all_lights(self) -> List[Light]:
         """
-        Récupère toutes les lampes.
+        Retrieves all lights.
 
         Returns:
-            List[Light]: Liste de toutes les lampes
+            List[Light]: List of all lights
         """
         devices = self._repository.find_all()
         return [device for device in devices if isinstance(device, Light)]
 
     def turn_on(self, light_id: str) -> bool:
         """
-        Allume une lampe.
+        Turns on a light.
 
         Args:
-            light_id: ID de la lampe
+            light_id: Light ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         light = self.get_light(light_id)
         if light:
@@ -93,13 +93,13 @@ class LightController:
 
     def turn_off(self, light_id: str) -> bool:
         """
-        Éteint une lampe.
+        Turns off a light.
 
         Args:
-            light_id: ID de la lampe
+            light_id: Light ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         light = self.get_light(light_id)
         if light:
@@ -109,13 +109,13 @@ class LightController:
 
     def toggle(self, light_id: str) -> bool:
         """
-        Bascule l'état d'une lampe.
+        Toggles the state of a light.
 
         Args:
-            light_id: ID de la lampe
+            light_id: Light ID
 
         Returns:
-            bool: True si l'opération a réussi
+            bool: True if the operation was successful
         """
         light = self.get_light(light_id)
         if light:
@@ -125,12 +125,12 @@ class LightController:
 
     def delete_light(self, light_id: str) -> bool:
         """
-        Supprime une lampe.
+        Deletes a light.
 
         Args:
-            light_id: ID de la lampe
+            light_id: Light ID
 
         Returns:
-            bool: True si la suppression a réussi
+            bool: True if the deletion was successful
         """
         return self._repository.delete(light_id)

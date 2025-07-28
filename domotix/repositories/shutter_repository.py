@@ -1,18 +1,18 @@
 """
-Repository spécialisé pour la gestion des volets et stores.
+Specialized repository for managing shutters and blinds.
 
-Ce module contient le ShutterRepository qui hérite du DeviceRepository
-et ajoute des méthodes spécialisées pour les volets.
+This module contains the ShutterRepository, which inherits from DeviceRepository
+and adds specialized methods for shutters.
 
 Classes:
-    ShutterRepository: Repository spécialisé pour les volets
+    ShutterRepository: Specialized repository for shutters
 """
 
 from typing import List
 
 from sqlalchemy.orm import Session
 
-from domotix.models.persistence import DeviceModel
+from domotix.models.base_model import DeviceModel
 from domotix.models.shutter import Shutter
 
 from .device_repository import DeviceRepository

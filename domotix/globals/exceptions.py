@@ -1,19 +1,19 @@
 """
-Module des exceptions personnalisées du système domotique Domotix.
+Custom exceptions module for the Domotix home automation system.
 
-Ce module contient toutes les exceptions personnalisées avec une architecture
-moderne suivant les bonnes pratiques Python 3.12+ :
-- Hiérarchie d'exceptions structurée
-- Codes d'erreur standardisés
-- Contexte enrichi pour le debugging
-- Support du chaining d'exceptions
+This module contains all custom exceptions with a modern architecture
+following Python 3.12+ best practices:
+- Structured exception hierarchy
+- Standardized error codes
+- Enriched context for debugging
+- Exception chaining support
 
 Exceptions:
-    DomotixError: Exception de base pour toutes les erreurs du système
-    DeviceError: Erreurs liées aux dispositifs
-    RepositoryError: Erreurs de persistence
-    ValidationError: Erreurs de validation
-    ControllerError: Erreurs de logique métier
+    DomotixError: Base exception for all system errors
+    DeviceError: Device-related errors
+    RepositoryError: Persistence errors
+    ValidationError: Validation errors
+    ControllerError: Business logic errors
 """
 
 from __future__ import annotations
@@ -29,18 +29,18 @@ from typing import Any, Iterator
 
 class ErrorCode(str, Enum):
     """
-    Codes d'erreur standardisés pour l'application.
+    Standardized error codes for the application.
 
-    Utilise des codes structurés pour faciliter le debugging
-    et l'intégration avec des systèmes externes.
+    Uses structured codes to facilitate debugging
+    and integration with external systems.
     """
 
-    # Erreurs génériques (1xxx)
+    # Generic errors (1xxx)
     UNKNOWN_ERROR = "DMX-1000"
     INVALID_CONFIGURATION = "DMX-1001"
     INITIALIZATION_ERROR = "DMX-1002"
 
-    # Erreurs de dispositifs (2xxx)
+    # Device errors (2xxx)
     DEVICE_NOT_FOUND = "DMX-2000"
     DEVICE_INVALID_STATE = "DMX-2001"
     DEVICE_COMMUNICATION_ERROR = "DMX-2002"
@@ -48,24 +48,24 @@ class ErrorCode(str, Enum):
     DEVICE_ALREADY_EXISTS = "DMX-2004"
     DEVICE_INVALID_TYPE = "DMX-2005"
 
-    # Erreurs de repository (3xxx)
+    # Repository errors (3xxx)
     REPOSITORY_CONNECTION_ERROR = "DMX-3000"
     REPOSITORY_TRANSACTION_ERROR = "DMX-3001"
     REPOSITORY_CONSTRAINT_VIOLATION = "DMX-3002"
     REPOSITORY_DATA_CORRUPTION = "DMX-3003"
 
-    # Erreurs de validation (4xxx)
+    # Validation errors (4xxx)
     VALIDATION_REQUIRED_FIELD = "DMX-4000"
     VALIDATION_INVALID_FORMAT = "DMX-4001"
     VALIDATION_OUT_OF_RANGE = "DMX-4002"
     VALIDATION_INVALID_TYPE = "DMX-4003"
 
-    # Erreurs de contrôleur (5xxx)
+    # Controller errors (5xxx)
     CONTROLLER_OPERATION_FAILED = "DMX-5000"
     CONTROLLER_DEPENDENCY_ERROR = "DMX-5001"
     CONTROLLER_STATE_ERROR = "DMX-5002"
 
-    # Erreurs de commande (6xxx)
+    # Command errors (6xxx)
     COMMAND_EXECUTION_ERROR = "DMX-6000"
     COMMAND_INVALID_PARAMETER = "DMX-6001"
 
@@ -73,10 +73,10 @@ class ErrorCode(str, Enum):
 @dataclass(slots=True, frozen=True)
 class ErrorContext:
     """
-    Contexte d'erreur pour enrichir les exceptions.
+    Error context to enrich exceptions.
 
-    Capture des informations utiles pour le debugging
-    et la résolution de problèmes.
+    Captures useful information for debugging
+    and problem resolution.
     """
 
     timestamp: datetime = field(default_factory=datetime.now)
@@ -89,13 +89,13 @@ class ErrorContext:
     @classmethod
     def from_frame(cls, frame_info: traceback.FrameSummary) -> ErrorContext:
         """
-        Crée un contexte à partir d'informations de stack frame.
+        Creates a context from stack frame information.
 
         Args:
-            frame_info: Informations du frame de la stack
+            frame_info: Stack frame information
 
         Returns:
-            Contexte d'erreur initialisé
+            Initialized error context
         """
         return cls(
             module=frame_info.filename,
@@ -106,12 +106,12 @@ class ErrorContext:
 
 class DomotixError(Exception):
     """
-    Exception de base pour toutes les erreurs de l'application Domotix.
+    Base exception for all Domotix application errors.
 
-    Fournit une structure commune pour la gestion d'erreurs avec:
-    - Code d'erreur standardisé
-    - Contexte enrichi
-    - Support du chaining d'exceptions
+    Provides a common structure for error handling with:
+    - Standardized error code
+    - Enriched context
+    - Exception chaining support
     """
 
     def __init__(
@@ -122,32 +122,32 @@ class DomotixError(Exception):
         cause: Exception | None = None,
     ) -> None:
         """
-        Initialise l'exception Domotix.
+        Initializes the Domotix exception.
 
         Args:
-            message: Message d'erreur humainement lisible
-            error_code: Code d'erreur standardisé
-            context: Contexte de l'erreur
-            cause: Exception originale (pour le chaining)
+            message: Human-readable error message
+            error_code: Standardized error code
+            context: Error context
+            cause: Original exception (for chaining)
         """
         super().__init__(message)
         self.error_code = error_code
         self.context = context or ErrorContext()
         self.cause = cause
 
-        # Enrichissement automatique du contexte
+        # Automatic context enrichment
         if self.context.module is None:
             self._enrich_context_from_stack()
 
     def _enrich_context_from_stack(self) -> None:
-        """Enrichit le contexte avec les informations de la stack."""
+        """Enriches the context with stack information."""
         tb = sys.exc_info()[2]
         if tb is None:
-            # Aucun contexte d'exception actif, ne rien faire
+            # No active exception context, do nothing
             return
         stack = traceback.extract_tb(tb)
         if stack:
-            # Prend le dernier frame qui n'est pas dans ce module
+            # Take the last frame that is not in this module
             for frame in reversed(stack):
                 if not frame.filename.endswith("exceptions.py"):
                     self.context = ErrorContext.from_frame(frame)
@@ -155,10 +155,10 @@ class DomotixError(Exception):
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Convertit l'exception en dictionnaire.
+        Converts the exception to a dictionary.
 
         Returns:
-            Représentation dictionnaire de l'exception
+            Dictionary representation of the exception
         """
         return {
             "error_code": self.error_code.value,
@@ -173,13 +173,13 @@ class DomotixError(Exception):
         }
 
     def __str__(self) -> str:
-        """Représentation chaîne avec code d'erreur."""
+        """String representation with error code."""
         return f"[{self.error_code.value}] {super().__str__()}"
 
 
-# Exceptions spécialisées modernes (remplacent les anciennes)
+# Modern specialized exceptions (replace old ones)
 class DeviceError(DomotixError):
-    """Erreurs liées aux dispositifs."""
+    """Device-related errors."""
 
     def __init__(
         self,
@@ -194,7 +194,7 @@ class DeviceError(DomotixError):
 
 
 class RepositoryError(DomotixError):
-    """Erreurs de persistence et d'accès aux données."""
+    """Persistence and data access errors."""
 
     def __init__(
         self,
@@ -209,7 +209,7 @@ class RepositoryError(DomotixError):
 
 
 class ValidationError(DomotixError):
-    """Erreurs de validation de données."""
+    """Data validation errors."""
 
     def __init__(
         self,
@@ -226,7 +226,7 @@ class ValidationError(DomotixError):
 
 
 class ControllerError(DomotixError):
-    """Erreurs de logique métier dans les contrôleurs."""
+    """Business logic errors in controllers."""
 
     def __init__(
         self,
@@ -240,34 +240,34 @@ class ControllerError(DomotixError):
         self.controller_name = controller_name
 
 
-# Exceptions compatibles avec l'ancien système (à migrer progressivement)
+# Exceptions compatible with the old system (to be migrated gradually)
 class DeviceNotFoundError(DeviceError):
-    """Levée quand un dispositif demandé n'est pas trouvé."""
+    """Raised when a requested device is not found."""
 
     def __init__(self, device_id: str):
         super().__init__(
-            f"Dispositif non trouvé : {device_id}",
+            f"Device not found: {device_id}",
             device_id=device_id,
             error_code=ErrorCode.DEVICE_NOT_FOUND,
         )
 
 
 class InvalidDeviceTypeError(DeviceError):
-    """Levée quand un type de dispositif invalide est utilisé."""
+    """Raised when an invalid device type is used."""
 
     def __init__(self, device_type: str):
         super().__init__(
-            f"Type de dispositif invalide : {device_type}",
+            f"Invalid device type: {device_type}",
             error_code=ErrorCode.DEVICE_INVALID_TYPE,
         )
         self.device_type = device_type
 
 
 class CommandExecutionError(DomotixError):
-    """Levée quand l'exécution d'une commande échoue."""
+    """Raised when command execution fails."""
 
     def __init__(self, command: str, reason: str = ""):
-        message = f"Échec de l'exécution de la commande : {command}"
+        message = f"Command execution failed: {command}"
         if reason:
             message += f" - {reason}"
 
@@ -276,18 +276,18 @@ class CommandExecutionError(DomotixError):
         self.reason = reason
 
 
-# Gestionnaire de contexte pour la gestion d'erreurs
+# Context manager for error handling
 @contextmanager
 def error_handler(
     logger_name: str | None = None, reraise: bool = True, default_return: Any = None
 ) -> Iterator[None]:
     """
-    Gestionnaire de contexte pour la gestion automatique d'erreurs.
+    Context manager for automatic error handling.
 
     Args:
-        logger_name: Nom du logger à utiliser
-        reraise: Si True, relance l'exception après logging
-        default_return: Valeur par défaut à retourner si pas de reraise
+        logger_name: Logger name to use
+        reraise: If True, re-raises the exception after logging
+        default_return: Default value to return if no re-raise
 
     Yields:
         None
@@ -297,12 +297,12 @@ def error_handler(
             risky_operation()
     """
     try:
-        # Import local pour éviter les dépendances circulaires
+        # Import locally to avoid circular dependencies
         from domotix.core.logging_system import get_logger
 
         logger = get_logger(logger_name or __name__)
     except ImportError:
-        # Fallback si le système de logging moderne n'est pas disponible
+        # Fallback if modern logging system is not available
         import logging
 
         logger = logging.getLogger(logger_name or __name__)  # type: ignore[assignment]
@@ -310,48 +310,48 @@ def error_handler(
     try:
         yield
     except DomotixError as e:
-        # Log des erreurs Domotix avec le contexte complet
+        # Log Domotix errors with full context
         if hasattr(logger, "error") and hasattr(e, "to_dict"):
             logger.error(
-                f"Erreur Domotix: {e}",
+                f"Domotix Error: {e}",
                 error_code=e.error_code.value,
                 error_context=e.to_dict(),
             )
         else:
-            logger.error(f"Erreur Domotix: {e}")
+            logger.error(f"Domotix Error: {e}")
 
         if reraise:
             raise
         return default_return  # type: ignore[return-value, no-any-return]
     except Exception as e:
-        # Conversion des exceptions externes en DomotixError
+        # Convert external exceptions to DomotixError
         domotix_error = DomotixError(
-            f"Erreur inattendue: {e}", error_code=ErrorCode.UNKNOWN_ERROR, cause=e
+            f"Unexpected error: {e}", error_code=ErrorCode.UNKNOWN_ERROR, cause=e
         )
 
         if hasattr(logger, "exception"):
-            logger.exception(f"Erreur inattendue: {e}")
+            logger.exception(f"Unexpected error: {e}")
         else:
-            logger.error(f"Erreur inattendue: {e}")
+            logger.error(f"Unexpected error: {e}")
 
         if reraise:
             raise domotix_error from e
         return default_return  # type: ignore[return-value, no-any-return]
 
 
-# Fonctions utilitaires pour la création d'exceptions
+# Utility functions for creating exceptions
 def device_not_found(device_id: str, additional_info: str = "") -> DeviceError:
     """
-    Crée une exception DeviceError pour dispositif non trouvé.
+    Creates a DeviceError exception for device not found.
 
     Args:
-        device_id: ID du dispositif
-        additional_info: Informations supplémentaires
+        device_id: Device ID
+        additional_info: Additional information
 
     Returns:
-        Exception configurée
+        Configured exception
     """
-    message = f"Dispositif '{device_id}' non trouvé"
+    message = f"Device '{device_id}' not found"
     if additional_info:
         message += f": {additional_info}"
 
@@ -364,17 +364,17 @@ def validation_failed(
     field_name: str, field_value: Any, reason: str = ""
 ) -> ValidationError:
     """
-    Crée une exception ValidationError pour échec de validation.
+    Creates a ValidationError exception for validation failure.
 
     Args:
-        field_name: Nom du champ
-        field_value: Valeur du champ
-        reason: Raison de l'échec
+        field_name: Field name
+        field_value: Field value
+        reason: Reason for failure
 
     Returns:
-        Exception configurée
+        Configured exception
     """
-    message = f"Validation échouée pour le champ '{field_name}'"
+    message = f"Validation failed for field '{field_name}'"
     if reason:
         message += f": {reason}"
 

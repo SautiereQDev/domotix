@@ -1,18 +1,18 @@
 """
-Repository spécialisé pour la gestion des capteurs et dispositifs de mesure.
+Specialized repository for managing sensors and measurement devices.
 
-Ce module contient le SensorRepository qui hérite du DeviceRepository
-et des méthodes spécialisées pour les capteurs.
+This module contains the SensorRepository, which inherits from DeviceRepository
+and adds specialized methods for sensors.
 
 Classes:
-    SensorRepository: Repository spécialisé pour les capteurs
+    SensorRepository: Specialized repository for sensors
 """
 
 from typing import List
 
 from sqlalchemy.orm import Session
 
-from domotix.models.persistence import DeviceModel
+from domotix.models.base_model import DeviceModel
 from domotix.models.sensor import Sensor
 
 from .device_repository import DeviceRepository

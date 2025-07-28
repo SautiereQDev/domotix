@@ -1,12 +1,12 @@
 """
-Service provider moderne avec injection de dépendance.
+Modern service provider with dependency injection.
 
-Ce module remplace les factories traditionnelles par un système moderne
-d'injection de dépendance avec conteneur IoC utilisant Python 3.12+.
+This module replaces traditional factories with a modern dependency injection
+system using an IoC container with Python 3.12+.
 
 Classes:
-    ServiceProvider: Provider principal pour accéder aux services
-    ScopedServiceProvider: Provider avec gestion de scope
+    ServiceProvider: Main provider for accessing services
+    ScopedServiceProvider: Provider with scope management
 """
 
 from __future__ import annotations
@@ -35,129 +35,129 @@ T = TypeVar("T")
 
 class ServiceProvider:
     """
-    Provider principal pour accéder aux services avec injection de dépendance.
+    Main provider for accessing services with dependency injection.
 
-    Remplace les factories traditionnelles par un système moderne de DI.
+    Replaces traditional factories with a modern DI system.
     """
 
     def __init__(self, di_container: DIContainer) -> None:
         """
-        Initialise le service provider.
+        Initializes the service provider.
 
         Args:
-            di_container: Conteneur d'injection de dépendance
+            di_container: Dependency injection container
         """
         self._container = di_container
 
     def get_device_controller(self) -> DeviceController:
         """
-        Récupère un contrôleur de dispositifs avec DI.
+        Retrieves a device controller with DI.
 
         Returns:
-            Contrôleur avec dépendances injectées
+            Controller with injected dependencies
         """
         return self._container.resolve(DeviceController)
 
     def get_light_controller(self) -> LightController:
         """
-        Récupère un contrôleur de lampes avec DI.
+        Retrieves a light controller with DI.
 
         Returns:
-            Contrôleur avec dépendances injectées
+            Controller with injected dependencies
         """
         return self._container.resolve(LightController)
 
     def get_shutter_controller(self) -> ShutterController:
         """
-        Récupère un contrôleur de volets avec DI.
+        Retrieves a shutter controller with DI.
 
         Returns:
-            Contrôleur avec dépendances injectées
+            Controller with injected dependencies
         """
         return self._container.resolve(ShutterController)
 
     def get_sensor_controller(self) -> SensorController:
         """
-        Récupère un contrôleur de capteurs avec DI.
+        Retrieves a sensor controller with DI.
 
         Returns:
-            Contrôleur avec dépendances injectées
+            Controller with injected dependencies
         """
         return self._container.resolve(SensorController)
 
     def get_device_repository(self) -> DeviceRepository:
         """
-        Récupère un repository de dispositifs avec DI.
+        Retrieves a device repository with DI.
 
         Returns:
-            Repository avec dépendances injectées
+            Repository with injected dependencies
         """
         return self._container.resolve(DeviceRepository)
 
     def get_light_repository(self) -> LightRepository:
         """
-        Récupère un repository de lampes avec DI.
+        Retrieves a light repository with DI.
 
         Returns:
-            Repository avec dépendances injectées
+            Repository with injected dependencies
         """
         return self._container.resolve(LightRepository)
 
     def get_shutter_repository(self) -> ShutterRepository:
         """
-        Récupère un repository de volets avec DI.
+        Retrieves a shutter repository with DI.
 
         Returns:
-            Repository avec dépendances injectées
+            Repository with injected dependencies
         """
         return self._container.resolve(ShutterRepository)
 
     def get_sensor_repository(self) -> SensorRepository:
         """
-        Récupère un repository de capteurs avec DI.
+        Retrieves a sensor repository with DI.
 
         Returns:
-            Repository avec dépendances injectées
+            Repository with injected dependencies
         """
         return self._container.resolve(SensorRepository)
 
     def resolve(self, service_type: type[T]) -> T:
         """
-        Résout un service arbitraire.
+        Resolves an arbitrary service.
 
         Args:
-            service_type: Type du service à résoudre
+            service_type: Type of the service to resolve
 
         Returns:
-            Instance du service
+            Instance of the service
         """
         return self._container.resolve(service_type)
 
 
 class ScopedServiceProvider:
     """
-    Provider avec gestion automatique de scope.
+    Provider with automatic scope management.
 
-    Utilise un context manager pour gérer automatiquement
-    le cycle de vie des services scoped.
+    Uses a context manager to automatically manage
+    the lifecycle of scoped services.
     """
 
     def __init__(self, di_container: DIContainer) -> None:
         """
-        Initialise le scoped service provider.
+        Initializes the scoped service provider.
 
         Args:
-            di_container: Conteneur d'injection de dépendance
+            di_container: Dependency injection container
         """
         self._container = di_container
 
     @contextmanager
     def create_scope(self) -> Generator[ServiceProvider, None, None]:
         """
-        Crée un nouveau scope pour l'exécution.
+        Creates a new scope for execution.
 
         Yields:
-            Provider avec scope isolé
+            Provider with isolated scope
         """
         with self._container.create_scope() as scoped_container:
             yield ServiceProvider(scoped_container)
@@ -176,20 +176,20 @@ scoped_service_provider = ScopedServiceProvider(_configured_container)
 # Fonctions de convenance pour compatibilité avec l'ancien système
 def get_service_provider() -> ServiceProvider:
     """
-    Fonction de convenance pour récupérer le service provider global.
+    Convenience function to retrieve the global service provider.
 
     Returns:
-        Service provider configuré avec toutes les dépendances
+        Service provider configured with all dependencies
     """
     return service_provider
 
 
 def get_device_controller() -> DeviceController:
     """
-    Fonction de convenance pour récupérer un contrôleur de dispositifs.
+    Convenience function to retrieve a device controller.
 
     Returns:
-        Contrôleur avec dépendances injectées
+        Controller with injected dependencies
     """
     with scoped_service_provider.create_scope() as provider:
         return provider.get_device_controller()
@@ -197,10 +197,10 @@ def get_device_controller() -> DeviceController:
 
 def get_light_controller() -> LightController:
     """
-    Fonction de convenance pour récupérer un contrôleur de lampes.
+    Convenience function to retrieve a light controller.
 
     Returns:
-        Contrôleur avec dépendances injectées
+        Controller with injected dependencies
     """
     with scoped_service_provider.create_scope() as provider:
         return provider.get_light_controller()
@@ -208,10 +208,10 @@ def get_light_controller() -> LightController:
 
 def get_shutter_controller() -> ShutterController:
     """
-    Fonction de convenance pour récupérer un contrôleur de volets.
+    Convenience function to retrieve a shutter controller.
 
     Returns:
-        Contrôleur avec dépendances injectées
+        Controller with injected dependencies
     """
     with scoped_service_provider.create_scope() as provider:
         return provider.get_shutter_controller()
@@ -219,10 +219,10 @@ def get_shutter_controller() -> ShutterController:
 
 def get_sensor_controller() -> SensorController:
     """
-    Fonction de convenance pour récupérer un contrôleur de capteurs.
+    Convenience function to retrieve a sensor controller.
 
     Returns:
-        Contrôleur avec dépendances injectées
+        Controller with injected dependencies
     """
     with scoped_service_provider.create_scope() as provider:
         return provider.get_sensor_controller()

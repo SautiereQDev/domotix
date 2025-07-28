@@ -1,11 +1,11 @@
 """
-Métaclasse singleton pour créer des classes singleton thread-safe.
+Singleton metaclass for creating thread-safe singleton classes.
 
-Ce module fournit une métaclasse réutilisable pour implémenter
-le pattern singleton de manière propre et thread-safe.
+This module provides a reusable metaclass to implement
+the singleton pattern in a clean and thread-safe way.
 
 Classes:
-    SingletonMeta: Métaclasse thread-safe pour implémenter le pattern singleton
+    SingletonMeta: Thread-safe metaclass for implementing the singleton pattern
 
 Example:
     >>> class MySingleton(metaclass=SingletonMeta):
@@ -25,14 +25,14 @@ from typing import Any, Dict, Type
 
 class SingletonMeta(type):
     """
-    Métaclasse thread-safe pour implémenter le pattern singleton.
+    Thread-safe metaclass for implementing the singleton pattern.
 
-    Cette métaclasse garantit qu'une seule instance de chaque classe
-    qui l'utilise sera créée, même dans un environnement multi-threadé.
+    This metaclass ensures that only one instance of each class
+    using it will be created, even in a multi-threaded environment.
 
     Attributes:
-        _instances: Dictionnaire privé stockant les instances [Classe -> Instance]
-        _lock: Verrou pour garantir la thread-safety
+        _instances: Private dictionary storing instances [Class -> Instance]
+        _lock: Lock to ensure thread-safety
 
     Example:
         >>> class Logger(metaclass=SingletonMeta):
@@ -48,14 +48,14 @@ class SingletonMeta(type):
 
     def __call__(cls, *args, **kwargs):
         """
-        Contrôle la création d'instances et implémente le pattern singleton.
+        Controls instance creation and implements the singleton pattern.
 
         Returns:
-            L'instance unique de la classe
+            The unique instance of the class
         """
         if cls not in cls._instances:
             with cls._lock:
-                # Double vérification pour éviter les conditions de course
+                # Double-check to avoid race conditions
                 if cls not in cls._instances:
                     instance = super(SingletonMeta, cls).__call__(*args, **kwargs)
                     cls._instances[cls] = instance
@@ -64,10 +64,10 @@ class SingletonMeta(type):
     @classmethod
     def reset_instance(mcs, cls1: Type) -> None:
         """
-        Réinitialise l'instance singleton d'une classe spécifique.
+        Resets the singleton instance of a specific class.
 
         Args:
-            cls1: La classe dont l'instance doit être réinitialisée
+            cls1: The class whose instance should be reset
 
         Example:
             >>> class Logger(metaclass=SingletonMeta):
@@ -84,25 +84,25 @@ class SingletonMeta(type):
     @classmethod
     def has_instance(mcs, cls1: Type) -> bool:
         """
-        Vérifie si une instance existe pour une classe donnée.
+        Checks if an instance exists for a given class.
 
         Args:
-            cls1: La classe à vérifier
+            cls1: The class to check
 
         Returns:
-            bool: True si une instance existe, False sinon
+            bool: True if an instance exists, False otherwise
         """
         return cls1 in mcs._instances
 
     @classmethod
     def get_current_instance(mcs, cls1: Type) -> Any:
         """
-        Récupère l'instance actuelle d'une classe sans en créer une nouvelle.
+        Retrieves the current instance of a class without creating a new one.
 
         Args:
-            cls1: La classe dont on veut l'instance
+            cls1: The class of which we want the instance
 
         Returns:
-            L'instance si elle existe, None sinon
+            The instance if it exists, None otherwise
         """
         return mcs._instances.get(cls1, None)

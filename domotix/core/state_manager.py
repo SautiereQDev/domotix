@@ -1,31 +1,31 @@
 """
-Module du gestionnaire d'état singleton pour les dispositifs domotiques.
+Singleton state manager module for home automation devices.
 
-Ce module contient la classe StateManager qui gère de manière centralisée
-tous les dispositifs du système domotique. Elle utilise le pattern singleton
-avec métaclasse pour garantir une instance unique dans toute l'application.
+This module defines the StateManager class, which centrally manages
+all devices in the home automation system using a thread-safe singleton
+pattern implemented via a metaclass.
 
 Classes:
-    StateManager: Gestionnaire d'état singleton pour les dispositifs
+    StateManager: Thread-safe singleton state manager for devices
 
 Architecture:
-    Le StateManager utilise une métaclasse (SingletonMeta) pour implémenter
-    le pattern singleton de manière thread-safe. Tous les dispositifs sont
-    stockés dans un dictionnaire avec des UUID comme clés.
+    StateManager uses SingletonMeta to ensure only one instance exists,
+    allowing consistent shared state across all components.
+    Devices are stored in a dict keyed by UUID4 strings.
 
 Example:
     >>> from domotix.core import StateManager
     >>> from domotix.models import Light
     >>>
-    >>> # Les deux instances sont identiques (singleton)
+    >>> # Both instances refer to the same singleton
     >>> sm1 = StateManager()
     >>> sm2 = StateManager()
     >>> assert sm1 is sm2
     >>>
-    >>> # Enregistrement et récupération de dispositifs
-    >>> light = Light("Ma lampe")
+    >>> # Register and retrieve devices
+    >>> light = Light("Living Room Light")
     >>> device_id = sm1.register_device(light)
-    >>> retrieved = sm2.get_device(device_id)  # Même état partagé
+    >>> retrieved = sm2.get_device(device_id)  # shared state
     >>> assert retrieved is light
 """
 
@@ -38,41 +38,31 @@ from .singleton import SingletonMeta
 
 class StateManager(metaclass=SingletonMeta):
     """
-    Gestionnaire d'état singleton pour les dispositifs domotiques.
+    Thread-safe singleton manager for home automation devices.
 
-    Cette classe centralise la gestion de tous les dispositifs du système
-    domotique. Elle utilise le pattern singleton via métaclasse pour garantir
-    qu'une seule instance existe dans toute l'application, permettant un
-    partage d'état cohérent entre tous les composants.
-
-    Le StateManager est thread-safe grâce à la métaclasse SingletonMeta qui
-    utilise des verrous pour contrôler la création d'instances.
+    Centralizes management of all devices in the system. Ensures a single
+    StateManager instance via SingletonMeta, providing consistent shared state.
 
     Attributes:
-        _devices: Dictionnaire privé stockant les dispositifs [UUID -> Device]
-        _initialized: Flag pour éviter la réinitialisation multiple
+        _devices: Internal dict mapping UUID4 strings to Device instances
+        _initialized: Flag to prevent multiple initializations
 
     Example:
-        >>> # Création et utilisation basique
         >>> state_manager = StateManager()
-        >>> light = Light("Lampe salon")
+        >>> light = Light("Living Room Light")
         >>> device_id = state_manager.register_device(light)
-        >>>
-        >>> # Récupération depuis n'importe où dans l'application
-        >>> other_manager = StateManager()  # Même instance
-        >>> same_light = other_manager.get_device(device_id)
-        >>> assert same_light is light
+        >>> other_manager = StateManager()  # same instance
+        >>> assert other_manager.get_device(device_id) is light
     """
 
     def __init__(self) -> None:
         """
-        Initialise le StateManager si pas déjà fait.
+        Initialize the StateManager if not already initialized.
 
-        Cette méthode évite la réinitialisation multiple grâce au flag
-        _initialized. Elle n'est appelée qu'une seule fois même si
-        StateManager() est invoqué plusieurs fois.
+        Uses _initialized flag to prevent multiple re-initializations even when
+        StateManager() is called multiple times.
         """
-        # Éviter la réinitialisation si déjà initialisé (pattern singleton)
+        # Prevent reinitialization if already initialized (singleton pattern)
         if not hasattr(self, "_initialized"):
             # Stockage des dispositifs [UUID -> Device]
             self._devices: Dict[str, Device] = {}
@@ -80,66 +70,63 @@ class StateManager(metaclass=SingletonMeta):
 
     def get_device(self, device_id: str) -> Device:
         """
-        Récupère un dispositif par son identifiant.
+        Retrieve a device by its unique identifier.
 
         Args:
-            device_id: Identifiant unique du dispositif (UUID généré automatiquement)
+            device_id: UUID4 string identifier of the device
 
         Returns:
-            Device: Le dispositif correspondant à l'identifiant
+            Device: The device corresponding to the given ID
 
         Raises:
-            KeyError: Si aucun dispositif ne correspond à cet identifiant
+            KeyError: If no device matches the given ID
 
         Example:
             >>> state_manager = StateManager()
-            >>> light = Light("Test")
+            >>> light = Light("Test Light")
             >>> device_id = state_manager.register_device(light)
-            >>> retrieved = state_manager.get_device(device_id)
-            >>> assert retrieved is light
+            >>> assert state_manager.get_device(device_id) is light
         """
         return self._devices[device_id]
 
     def get_devices(self) -> Dict[str, Device]:
         """
-        Récupère tous les dispositifs enregistrés.
+        Get all registered devices.
 
         Returns:
-            Dict[str, Device]: Copie du dictionnaire des dispositifs.
-                              Clés = UUID, Valeurs = objets Device
+            Dict[str, Device]: A copy of the internal device mapping.
+                              Keys = UUID, Values = Device objects
 
         Note:
-            Retourne une copie pour préserver l'encapsulation. Les modifications
-            du dictionnaire retourné n'affectent pas l'état interne.
+            Returns a copy to preserve encapsulation. Modifying the returned
+            dict does not affect the internal state.
 
         Example:
             >>> state_manager = StateManager()
             >>> devices = state_manager.get_devices()
-            >>> devices.clear()  # N'affecte pas l'état interne
-            >>> assert state_manager.get_device_count() > 0
-            # Si des dispositifs existent
+            >>> devices.clear()  # does not affect internal state
+            >>> assert state_manager.get_device_count() >= 0
         """
         return self._devices.copy()
 
     def register_device(self, device: Device) -> str:
         """
-        Enregistre un nouveau dispositif dans le système.
+        Register a new device in the system.
 
-        Génère automatiquement un UUID unique pour le dispositif et l'ajoute
-        au dictionnaire interne. L'UUID est retourné pour permettre les
-        références futures au dispositif.
+        Generates a unique UUID4 string for the device and stores it in the
+        internal mapping. Returns the UUID for future references.
 
         Args:
-            device: Instance de Device (ou sous-classe) à enregistrer
+            device: Device (or subclass) instance to register
 
         Returns:
-            str: UUID généré pour ce dispositif (format UUID4)
+            str: Generated UUID4 string for the device
 
         Example:
             >>> state_manager = StateManager()
-            >>> light = Light("Nouvelle lampe")
+            >>> light = Light("New Light")
             >>> device_id = state_manager.register_device(light)
-            >>> print(len(device_id))  # 36 caractères (UUID4)
+            >>> print(len(device_id))  # 36 characters
             36
         """
         device_id = str(uuid.uuid4())  # Génération d'un UUID unique
@@ -148,23 +135,21 @@ class StateManager(metaclass=SingletonMeta):
 
     def unregister_device(self, device_id: str) -> bool:
         """
-        Supprime un dispositif du système.
+        Unregister a device from the system.
 
         Args:
-            device_id: Identifiant du dispositif à supprimer
+            device_id: UUID4 string of the device to remove
 
         Returns:
-            bool: True si le dispositif a été supprimé avec succès,
-                 False s'il n'existait pas
+            bool: True if the device was successfully removed,
+                  False if it did not exist
 
         Example:
             >>> state_manager = StateManager()
             >>> light = Light("Temp")
             >>> device_id = state_manager.register_device(light)
-            >>> success = state_manager.unregister_device(device_id)
-            >>> assert success == True
-            >>> success = state_manager.unregister_device("invalid-id")
-            >>> assert success == False
+            >>> assert state_manager.unregister_device(device_id)
+            >>> assert not state_manager.unregister_device("invalid-id")
         """
         if device_id in self._devices:
             del self._devices[device_id]
@@ -173,31 +158,30 @@ class StateManager(metaclass=SingletonMeta):
 
     def get_device_count(self) -> int:
         """
-        Retourne le nombre de dispositifs enregistrés.
+        Return the number of registered devices.
 
         Returns:
-            int: Nombre total de dispositifs dans le système
+            int: Total number of devices in the system
 
         Example:
             >>> state_manager = StateManager()
-            >>> count = state_manager.get_device_count()
-            >>> assert count >= 0
+            >>> assert state_manager.get_device_count() >= 0
         """
         return len(self._devices)
 
     def device_exists(self, device_id: str) -> bool:
         """
-        Vérifie si un dispositif existe dans le système.
+        Check if a device exists in the system.
 
         Args:
-            device_id: Identifiant du dispositif à vérifier
+            device_id: UUID4 string of the device to check
 
         Returns:
-            bool: True si le dispositif existe, False sinon
+            bool: True if the device exists, False otherwise
 
         Example:
             >>> state_manager = StateManager()
-            >>> exists = state_manager.device_exists("non-existent")
+            >>> state_manager.device_exists("non-existent")
             >>> assert exists == False
         """
         return device_id in self._devices

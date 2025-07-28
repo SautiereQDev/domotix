@@ -1,29 +1,29 @@
 """
-Module de la commande pour ouvrir un volet.
+Module for the command to open a shutter.
 
 Classes:
-    OpenShutterCommand: Commande pour ouvrir un volet
+    OpenShutterCommand: Command to open a shutter
 """
 
 from .command import Command
 
 
 class OpenShutterCommand(Command):
-    """Commande pour ouvrir un volet."""
+    """Command to open a shutter."""
 
     def __init__(self, device):
         """
-        Initialise la commande.
+        Initialize the command.
 
         Args:
-            device: Volet à ouvrir
+            device: Shutter to open
         """
         self.device = device
 
     def execute(self):
-        """Exécute la commande d'ouverture du volet."""
-        # Vérifier que le dispositif est un volet
+        """Executes the shutter opening command."""
+        # Check that the device is a shutter
         if not hasattr(self.device, "open") or not hasattr(self.device, "position"):
-            raise AttributeError(f"Le dispositif {self.device.name} n'est pas un volet")
+            raise AttributeError(f"Device {self.device.name} is not a shutter")
 
         self.device.open()

@@ -1,21 +1,21 @@
 """
-Domotix - Système de domotique moderne
+Domotix - Modern Home Automation System
 
-Ce package fournit les composants principaux pour gérer les dispositifs domotiques.
-Il expose les classes les plus importantes pour une utilisation facile.
+This package provides the main components for managing home automation devices.
+It exposes the most important classes for easy use.
 
 Exposed Classes:
-    Device, Light, Shutter, Sensor: Modèles de dispositifs
-    Command, TurnOnCommand, ...: Pattern Command
-    HomeAutomationController, StateManager: Composants core
-    DeviceType, ...: Énumérations
+    Device, Light, Shutter, Sensor: Device models
+    Command, TurnOnCommand, ...: Command Pattern
+    HomeAutomationController, StateManager: Core components
+    DeviceType, ...: Enumerations
     DomotixError, DeviceNotFoundError, ...: Exceptions
 
 Example:
     >>> import domotix
     >>>
     >>> controller = domotix.HomeAutomationController()
-    >>> light = domotix.Light("Ma lampe", "Salon")
+    >>> light = domotix.Light("My Light", "Living Room")
     >>> device_id = controller.register_device(light)
     >>> controller.turn_on(device_id)
 """
@@ -45,7 +45,7 @@ from .globals import (
 )
 from .models import Device, Light, Sensor, Shutter
 
-# Export des symboles publics
+# Export of public symbols
 __all__ = [
     # Models
     "Device",

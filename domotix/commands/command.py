@@ -1,11 +1,11 @@
 """
-Module de la commande de base pour le pattern Command.
+Base command module for the Command pattern.
 
-Ce module contient la classe abstraite Command qui sert de base
-pour toutes les commandes du système.
+This module contains the abstract Command class that serves as the base
+for all system commands.
 
 Classes:
-    Command: Classe abstraite de base pour toutes les commandes
+    Command: Abstract base class for all commands
 """
 
 from abc import ABC, abstractmethod
@@ -13,22 +13,22 @@ from abc import ABC, abstractmethod
 
 class Command(ABC):
     """
-    Classe abstraite de base pour toutes les commandes.
+    Abstract base class for all commands.
 
-    Cette classe définit l'interface commune que toutes les commandes
-    doivent implémenter pour utiliser le pattern Command.
+    This class defines the common interface that all commands
+    must implement to use the Command pattern.
 
     Abstract Methods:
-        execute(): Exécute la commande
+        execute(): Executes the command
     """
 
     @abstractmethod
     def execute(self):
         """
-        Exécute la commande.
+        Executes the command.
 
-        Cette méthode doit être implémentée par toutes les classes filles.
+        This method must be implemented by all subclasses.
         """
         raise NotImplementedError(
-            "La méthode execute doit être implémentée " "par les sous-classes"
+            "The execute method must be implemented by subclasses"
         )

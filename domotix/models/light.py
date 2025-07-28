@@ -1,20 +1,20 @@
 """
-Module du modèle Light pour les dispositifs d'éclairage.
+Light model module for lighting devices.
 
-Ce module contient la classe Light qui représente un dispositif d'éclairage
-dans le système domotique. Elle hérite de Device et ajoute des fonctionnalités
-spécifiques à l'éclairage.
+This module contains the Light class, which represents a lighting device
+in the home automation system. It inherits from Device and adds features
+specific to lighting.
 
 Classes:
-    Light: Modèle pour les dispositifs d'éclairage (lampes, spots, etc.)
+    Light: Model for lighting devices (lamps, spots, etc.)
 
 Example:
     >>> from domotix.models import Light
-    >>> lampe = Light("Lampe salon", "Salon")
-    >>> print(lampe.is_on)
+    >>> lamp = Light("Living Room Lamp", "Living Room")
+    >>> print(lamp.is_on)
     False
-    >>> lampe.turn_on()
-    >>> print(lampe.get_status())
+    >>> lamp.turn_on()
+    >>> print(lamp.get_status())
     ON
 """
 
